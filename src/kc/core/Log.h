@@ -1,0 +1,29 @@
+#pragma once
+
+#include <memory>
+#include <type_traits>
+
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
+
+#include <spdlog/fmt/ostr.h>
+#include <spdlog/sinks/ostream_sink.h>
+#include <spdlog/spdlog.h>
+
+namespace kc::core {
+
+void initLogging(const std::string& applicationName);
+
+}
+
+#define LOG_FATAL(...) SPDLOG_CRITICAL(__VA_ARGS__);
+#define LOG_ERROR(...) SPDLOG_ERROR(__VA_ARGS__);
+#define LOG_WARN(...) SPDLOG_WARN(__VA_ARGS__)
+#define LOG_INFO(...) SPDLOG_INFO(__VA_ARGS__)
+#define LOG_TRACE(...) SPDLOG_TRACE(__VA_ARGS__)
+#define LOG_DEBUG(...) SPDLOG_DEBUG(__VA_ARGS__);
+
+#define ASSERT(x, ...)                                \
+    if (!(x)) {                                       \
+        LOG_FATAL(__VA_ARGS__);                       \
+        throw std::runtime_error("Assertion failed"); \
+    }
