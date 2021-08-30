@@ -1,7 +1,6 @@
 set (LIBS 
         jsoncpp
         pthread
-        crossguid
         spdlog
         )
 
