@@ -1,7 +1,9 @@
 set (LIBS 
         jsoncpp
         pthread
-        crossguid)
+        crossguid
+        spdlog
+        )
 
 file (GLOB_RECURSE SRC kc/*.cpp)
 
