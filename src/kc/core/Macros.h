@@ -16,3 +16,6 @@ public:                              \
     T(const T&&) = delete;           \
     T& operator=(const T&) = delete; \
     T& operator=(T&&) = delete;
+
+#define repeat(x) for (unsigned int __i = 0; __i < x; ++__i)
+#define loop for (;;)

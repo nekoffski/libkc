@@ -15,7 +15,6 @@ else()
     set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -O2")
 endif()
 
-add_subdirectory(3rdparty)
 add_subdirectory(src)
 
 if (ENABLE_UNIT_TESTS)
