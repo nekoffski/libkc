@@ -7,10 +7,10 @@
 
 namespace kc::core::detail {
 
-template <typename Fun, typename Cond>
+template <typename Callback, typename Condition>
 class ScopeGuard {
 public:
-    explicit ScopeGuard(Fun&& callback, Cond&& condition)
+    explicit ScopeGuard(Callback&& callback, Condition&& condition)
         : m_callback(std::move(callback))
         , m_condition(std::move(condition)) {
     }
@@ -21,27 +21,27 @@ public:
     }
 
 private:
-    Fun m_callback;
-    Cond m_condition;
+    Callback m_callback;
+    Condition m_condition;
 };
 
 enum class _ScopeGuardOnExit {};
 
-struct _ScopeGuardOnExitCond {
+struct _ScopeGuardOnExitCondition {
     bool operator()() const {
         return true;
     }
 };
 
-template <typename Fun>
-ScopeGuard<Fun, decltype(_ScopeGuardOnExitCond {})> operator+(_ScopeGuardOnExit, Fun&& callback) {
-    return ScopeGuard<Fun, decltype(_ScopeGuardOnExitCond {})>(
-        std::forward<Fun>(callback), _ScopeGuardOnExitCond {});
+template <typename Callback>
+ScopeGuard<Callback, decltype(_ScopeGuardOnExitCondition {})> operator+(_ScopeGuardOnExit, Callback&& callback) {
+    return ScopeGuard<Callback, decltype(_ScopeGuardOnExitCondition {})>(
+        std::forward<Callback>(callback), _ScopeGuardOnExitCondition {});
 }
 
 enum class _ScopeGuardOnFailure {};
 
-struct _ScopeGuardOnFailureCond {
+struct _ScopeGuardOnFailureCondition {
     bool operator()() const {
         return uncaughtExceptionsAtCreation != std::uncaught_exceptions();
     }
@@ -49,15 +49,15 @@ struct _ScopeGuardOnFailureCond {
     int uncaughtExceptionsAtCreation = std::uncaught_exceptions();
 };
 
-template <typename Fun>
-ScopeGuard<Fun, decltype(_ScopeGuardOnFailureCond {})> operator+(_ScopeGuardOnFailure, Fun&& callback) {
-    return ScopeGuard<Fun, decltype(_ScopeGuardOnFailureCond {})>(
-        std::forward<Fun>(callback), _ScopeGuardOnFailureCond {});
+template <typename Callback>
+ScopeGuard<Callback, decltype(_ScopeGuardOnFailureCondition {})> operator+(_ScopeGuardOnFailure, Callback&& callback) {
+    return ScopeGuard<Callback, decltype(_ScopeGuardOnFailureCondition {})>(
+        std::forward<Callback>(callback), _ScopeGuardOnFailureCondition {});
 }
 
 enum class _ScopeGuardOnSuccess {};
 
-struct _ScopeGuardOnSuccessCond {
+struct _ScopeGuardOnSuccessCondition {
     bool operator()() const {
         return uncaughtExceptionsAtCreation == std::uncaught_exceptions();
     }
@@ -65,10 +65,10 @@ struct _ScopeGuardOnSuccessCond {
     int uncaughtExceptionsAtCreation = std::uncaught_exceptions();
 };
 
-template <typename Fun>
-ScopeGuard<Fun, decltype(_ScopeGuardOnSuccessCond {})> operator+(_ScopeGuardOnSuccess, Fun&& callback) {
-    return ScopeGuard<Fun, decltype(_ScopeGuardOnSuccessCond {})>(
-        std::forward<Fun>(callback), _ScopeGuardOnSuccessCond {});
+template <typename Callback>
+ScopeGuard<Callback, decltype(_ScopeGuardOnSuccessCondition {})> operator+(_ScopeGuardOnSuccess, Callback&& callback) {
+    return ScopeGuard<Callback, decltype(_ScopeGuardOnSuccessCondition {})>(
+        std::forward<Callback>(callback), _ScopeGuardOnSuccessCondition {});
 }
 
 }
