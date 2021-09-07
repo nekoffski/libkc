@@ -16,8 +16,9 @@ TEST(UuidTests, givenLotOfUuids_shouldBeUnique) {
     static constexpr int uuidsToGenerate = 1000000;
     std::unordered_map<kc::core::Uuid, int> uuids;
 
-    repeat(uuidsToGenerate)
+    REPEAT(uuidsToGenerate) {
         uuids[kc::core::generateUuid()]++;
+    }
 
     for (auto& uuidOccurences : uuids | std::views::values)
         ASSERT_EQ(uuidOccurences, 1) << "UUID conflict!";

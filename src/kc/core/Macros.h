@@ -17,5 +17,7 @@ public:                              \
     T& operator=(const T&) = delete; \
     T& operator=(T&&) = delete;
 
-#define repeat(x) for (unsigned int __i = 0; __i < x; ++__i)
-#define loop for (;;)
+#define REPEAT(x) for (unsigned int __i = 0; __i < x; ++__i)
+#define LOOP for (;;)
+
+#define MOVE_THIS return std::move(*this)

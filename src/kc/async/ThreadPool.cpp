@@ -12,8 +12,9 @@ ThreadPool::ThreadPool(const std::size_t size)
 
     m_threads.reserve(size);
 
-    repeat(size)
+    REPEAT(size) {
         m_threads.emplace_back(&ThreadPool::threadWorker, this);
+    }
 }
 
 ThreadPool::~ThreadPool() {
