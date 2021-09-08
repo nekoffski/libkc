@@ -3,31 +3,20 @@
 #include "Json.h"
 #include "kc/core/ErrorBase.hpp"
 #include "kc/core/Macros.h"
+#include "kc/core/Meta.hpp"
 
 namespace kc::json {
 
 DEFINE_SUB_ERROR(JsonLogicError, JsonError);
 
 namespace detail {
+    using namespace core;
+
     template <typename Error>
     requires std::derived_from<Error, core::ErrorBase> void assert(bool condition, const std::string& errorMessage) {
         if (not condition)
             throw Error { errorMessage };
     }
-
-    template <typename T, typename U>
-    using enable_for_impl = std::enable_if<std::is_same<T, U>::value, U>;
-
-// clang-format off
-    #define enable_for(_type) typename enable_for_impl<T, _type>::type
-    // clang-format on
-
-    template <typename T, typename U, typename V>
-    struct is_one_of : std::integral_constant<bool,
-                           std::is_same<T, U>::value || std::is_same<T, V>::value> { };
-
-    template <typename T, typename U, typename V>
-    constexpr bool is_one_of_v = is_one_of<T, U, V>::value;
 
     template <typename Error, typename T>
     enable_for(float) tryToExtractValue(const Node& node, const std::string& messagePrefix) {
@@ -100,7 +89,7 @@ namespace detail {
     };
 
     template <typename Error, typename T>
-    class ValueWrapper<Error, T, typename std::enable_if_t<is_one_of_v<T, std::string, Node>>>
+    class ValueWrapper<Error, T, typename std::enable_if_t<is_one_of2_v<T, std::string, Node>>>
         : public ValueWrapperBase<Error, T> {
 
     public:
