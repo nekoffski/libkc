@@ -12,6 +12,11 @@ struct NodeHelperTests : Test, json::NodeHelper<json::JsonError> {
         root["int"] = 3;
         root["bool"] = false;
         root["float"] = 1.5f;
+
+        root["array"] = Json::arrayValue;
+        root["array"].append(1);
+        root["array"].append(2);
+        root["array"].append(3);
     }
 
     json::Node root;
@@ -38,18 +43,71 @@ TEST_F(NodeHelperTests, givenNode_whenGettingValueWithWrongType_shouldThrow) {
 }
 
 TEST_F(NodeHelperTests, givenNode_whenGettingValueCorrectly_shouldReturnCorrectValue) {
-    static constexpr int value = 5;
-    root["val"] = value;
+    EXPECT_EQ(
+        fieldFrom(root).ofName("int").ofType<int>().get(), 3);
 
     EXPECT_EQ(
-        fieldFrom(root).ofName("val").ofType<int>().get(), value);
+        fieldFrom(root).ofName("bool").ofType<bool>().get(), false);
+
+    EXPECT_EQ(
+        fieldFrom(root).ofName("float").ofType<float>().get(), 1.5f);
 }
 
-TEST_F(NodeHelperTests, givenNode_whenGettingValueOutOfGivenRange_shouldThrow) {
+TEST_F(NodeHelperTests, givenNodeWithValueOutOfRange_whenGettingValue_shouldThrow) {
     EXPECT_THROW(
         fieldFrom(root).ofName("int").ofType<int>().min(5).get(), json::JsonError);
     EXPECT_THROW(
         fieldFrom(root).ofName("int").ofType<int>().max(0).get(), json::JsonError);
     EXPECT_THROW(
         fieldFrom(root).ofName("int").ofType<int>().inRange(0, 1).get(), json::JsonError);
+}
+
+TEST_F(NodeHelperTests, givenStringNodeWithSizeOutOfRange_whenGettingValue_shouldThrow) {
+    static const std::string str = "some string";
+    static const auto n = str.size();
+
+    root["str"] = str;
+
+    EXPECT_THROW(
+        fieldFrom(root).ofName("str").ofType<std::string>().nonEmpty().minSize(n + 1).get(), json::JsonError);
+
+    EXPECT_THROW(
+        fieldFrom(root).ofName("str").ofType<std::string>().nonEmpty().maxSize(n - 1).get(), json::JsonError);
+
+    EXPECT_THROW(
+        fieldFrom(root).ofName("str").ofType<std::string>().nonEmpty().sizeInRange(0, 1).get(), json::JsonError);
+}
+
+TEST_F(NodeHelperTests, givenArrayNodeWithSizeOutOfRange_whenGettingValue_shouldThrow) {
+    EXPECT_THROW(
+        fieldFrom(root).ofName("array").asArray().nonEmpty().sizeInRange(0, 2).get(), json::JsonError);
+
+    EXPECT_THROW(
+        fieldFrom(root).ofName("array").asArray().nonEmpty().minSize(55).get(), json::JsonError);
+
+    EXPECT_THROW(
+        fieldFrom(root).ofName("array").asArray().nonEmpty().maxSize(1).get(), json::JsonError);
+}
+
+TEST_F(NodeHelperTests, givenArrayOfDifferentTypeThanExpected_whenGettingValue_shouldThrow) {
+    EXPECT_THROW(
+        fieldFrom(root).ofName("array").asArray().ofType<std::string>().get(), json::JsonError);
+}
+
+TEST_F(NodeHelperTests, givenObjectNode_whenGettingValue_shouldReturnObject) {
+    root["obj"] = Json::objectValue;
+
+    EXPECT_TRUE(
+        fieldFrom(root).ofName("obj").asObject().get().isObject());
+}
+
+TEST_F(NodeHelperTests, givenEmptyField_whenExpectingNonEmpty_shouldThrow) {
+    root["str"] = "";
+    root["arr"] = Json::arrayValue;
+
+    EXPECT_THROW(
+        fieldFrom(root).ofName("str").ofType<std::string>().nonEmpty().get(), json::JsonError);
+
+    EXPECT_THROW(
+        fieldFrom(root).ofName("arr").asArray().nonEmpty().get(), json::JsonError);
 }

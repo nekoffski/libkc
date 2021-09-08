@@ -18,9 +18,16 @@ namespace detail {
     template <typename T, typename U>
     using enable_for_impl = std::enable_if<std::is_same<T, U>::value, U>;
 
-    // clang-format off
+// clang-format off
     #define enable_for(_type) typename enable_for_impl<T, _type>::type
     // clang-format on
+
+    template <typename T, typename U, typename V>
+    struct is_one_of : std::integral_constant<bool,
+                           std::is_same<T, U>::value || std::is_same<T, V>::value> { };
+
+    template <typename T, typename U, typename V>
+    constexpr bool is_one_of_v = is_one_of<T, U, V>::value;
 
     template <typename Error, typename T>
     enable_for(float) tryToExtractValue(const Node& node, const std::string& messagePrefix) {
@@ -92,27 +99,42 @@ namespace detail {
         }
     };
 
-    template <typename Error>
-    struct ValueWrapper<Error, std::string> : public ValueWrapperBase<Error, std::string> {
-        using ValueWrapperBase<Error, std::string>::ValueWrapperBase;
+    template <typename Error, typename T>
+    class ValueWrapper<Error, T, typename std::enable_if_t<is_one_of_v<T, std::string, Node>>>
+        : public ValueWrapperBase<Error, T> {
+
+    public:
+        using ValueWrapperBase<Error, T>::ValueWrapperBase;
 
         ValueWrapper&& nonEmpty() && {
             assert<Error>(not this->m_value.empty(), "");
             MOVE_THIS;
         }
 
-        ValueWrapper&& minLength(std::size_t min) && {
+        ValueWrapper&& minSize(std::size_t min) && {
             assert<Error>(this->m_value.size() >= min, "");
             MOVE_THIS;
         }
 
-        ValueWrapper&& maxLength(std::size_t max) && {
+        ValueWrapper&& maxSize(std::size_t max) && {
             assert<Error>(this->m_value.size() <= max, "");
             MOVE_THIS;
         }
 
-        ValueWrapper&& lengthInRange(std::size_t min, std::size_t max) && {
-            MOVE_THIS.minLength(min).maxLength(max);
+        ValueWrapper&& sizeInRange(std::size_t min, std::size_t max) && {
+            MOVE_THIS.minSize(min).maxSize(max);
+        }
+    };
+
+    template <typename Error>
+    struct ArrayWrapper : public ValueWrapper<Error, Node> {
+        using ValueWrapper<Error, Node>::ValueWrapper;
+
+        template <typename U>
+        ArrayWrapper&& ofType() && {
+            for (auto& value : this->m_value)
+                tryToExtractValue<Error, U>(value, "Field of array " + this->m_fieldName);
+            MOVE_THIS;
         }
     };
 
@@ -141,10 +163,22 @@ namespace detail {
             };
         }
 
-        void asArray() {
+        ArrayWrapper<Error> asArray() {
+            assert<JsonLogicError>(m_name.has_value(), "Field has not specified its name");
+
+            auto child = m_node.get(m_name.value(), {});
+            assert<Error>(child.isArray(), "Field with name " + m_name.value() + " has invalid type");
+
+            return ArrayWrapper<Error> { child, m_name.value() };
         }
 
-        void asObject() {
+        ValueWrapper<Error, Node> asObject() {
+            assert<JsonLogicError>(m_name.has_value(), "Field has not specified its name");
+
+            auto child = m_node.get(m_name.value(), {});
+            assert<Error>(child.isObject(), "Field with name " + m_name.value() + " has invalid type");
+
+            return ValueWrapper<Error, Node> { child, m_name.value() };
         }
 
     private:
