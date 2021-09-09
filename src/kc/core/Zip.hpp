@@ -17,9 +17,9 @@ namespace detail {
         template <typename... Iterators>
         class Iterator {
             template <typename T>
-            using iterator_type = typename std::iterator_traits<T>::reference;
+            using value_type = typename std::iterator_traits<T>::reference;
 
-            using Value = std::tuple<iterator_type<Iterators>...>;
+            using Value = std::tuple<value_type<Iterators>...>;
 
         public:
             explicit Iterator(Iterators&&... iterators)
@@ -35,7 +35,7 @@ namespace detail {
                 return *this;
             }
 
-            Iterator& operator++(int) {
+            Iterator operator++(int) {
                 auto tmp = *this;
                 ++*this;
                 return tmp;
