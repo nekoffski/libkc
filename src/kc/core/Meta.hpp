@@ -1,6 +1,7 @@
 #pragma once
 
 #include <concepts>
+#include <tuple>
 #include <type_traits>
 
 namespace kc::core {
@@ -18,5 +19,21 @@ using enable_for_impl = std::enable_if<std::is_same<T, U>::value, U>;
 // clang-format off
 #define enable_for(_type) typename enable_for_impl<T, _type>::type
 // clang-format on
+
+template <typename... Args, std::size_t... Index>
+auto any_match_impl(std::tuple<Args...> const& lhs,
+    std::tuple<Args...> const& rhs,
+    std::index_sequence<Index...>) -> bool {
+    return (... | (std::get<Index>(lhs) == std::get<Index>(rhs)));
+}
+
+template <typename... Args>
+auto any_match(std::tuple<Args...> const& lhs,
+    std::tuple<Args...> const& rhs) -> bool {
+    return any_match_impl(lhs, rhs, std::index_sequence_for<Args...> {});
+}
+
+template <typename T>
+using get_iterator_type = typename std::decay_t<T>::iterator;
 
 }
