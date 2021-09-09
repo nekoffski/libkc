@@ -23,3 +23,7 @@ if (ENABLE_UNIT_TESTS)
     enable_testing()
     add_subdirectory(test)
 endif()
+
+if (ENABLE_BENCHMARKS)
+    add_subdirectory(bench)
+endif()

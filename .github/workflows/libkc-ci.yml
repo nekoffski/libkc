@@ -20,13 +20,16 @@ jobs:
         run: git submodule update --init --recursive
       - name: Build
         run: |
-          rm -f build && mkdir build && pushd build && cmake .. -DENABLE_UNIT_TESTS=1 && make -j16 && popd
+          rm -f build && mkdir build && pushd build && cmake .. -DENABLE_UNIT_TESTS=1 -DENABLE_BENCHMARKS=1 && make -j `nproc` && popd
         env:
           CC: /usr/bin/gcc-10
           CXX: /usr/bin/g++-10
       - name: Run unit tests
         run: |
           pushd build && make test && popd
+      - name: Run benchmarks
+        run: | 
+          ./build/bench/kc_benchmark
       - name: Build with coverage
         run: |
           mkdir cov_build && pushd cov_build && cmake .. -DENABLE_UNIT_TESTS=1 -DENABLE_COVERAGE=1 && make -j16 && popd

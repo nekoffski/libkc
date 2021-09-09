@@ -7,7 +7,7 @@ using namespace kc;
 TEST(RangeTests, giveRangeFromAToB_whenIterating_shouldIterateOverValues) {
     int i = 0;
 
-    for (auto index : core::range(0, 5))
+    for (auto index : core::range(5))
         EXPECT_EQ(index, i++);
 
     EXPECT_EQ(i, 5);

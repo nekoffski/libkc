@@ -77,6 +77,11 @@ requires std::is_arithmetic_v<T> detail::Range<T> range(T begin, T end) {
 }
 
 template <typename T>
+requires std::is_arithmetic_v<T> detail::Range<T> range(T end) {
+    return range(0, end);
+}
+
+template <typename T>
 detail::Range<std::size_t> indicesOf(const T& container) {
     return detail::Range<std::size_t> { 0ul, container.size() - 1ul };
 }
