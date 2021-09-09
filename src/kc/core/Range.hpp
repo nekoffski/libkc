@@ -4,6 +4,10 @@
 #include <iterator>
 #include <utility>
 
+#include "kc/math/Utils.hpp"
+
+#include <iostream>
+
 namespace kc::core {
 
 namespace detail {
@@ -12,8 +16,9 @@ namespace detail {
     class Range {
         class Iterator : public std::iterator<std::forward_iterator_tag, T> {
         public:
-            Iterator(T value)
-                : m_value(value) {
+            Iterator(T value, T step)
+                : m_value(value)
+                , m_step(step) {
             }
 
             T operator*() const {
@@ -21,18 +26,18 @@ namespace detail {
             }
 
             Iterator& operator++() {
-                m_value++;
+                m_value += m_step;
                 return *this;
             }
 
             Iterator& operator++(int) {
                 auto tmp = *this;
-                ++m_value;
+                m_value += m_step;
                 return tmp;
             }
 
             friend bool operator==(const Iterator& lhs, const Iterator& rhs) {
-                return lhs.m_value == rhs.m_value;
+                return lhs.m_value >= rhs.m_value;
             };
 
             friend bool operator!=(const Iterator& lhs, const Iterator& rhs) {
@@ -41,12 +46,13 @@ namespace detail {
 
         private:
             T m_value;
+            T m_step;
         };
 
     public:
-        Range(T begin, T end)
-            : m_begin(begin)
-            , m_end(end) {
+        Range(T begin, T end, T step = static_cast<T>(1))
+            : m_begin(begin, step)
+            , m_end(end, step) {
         }
 
         auto begin() {
@@ -72,13 +78,13 @@ namespace detail {
 }
 
 template <typename T>
-requires std::is_arithmetic_v<T> detail::Range<T> range(T begin, T end) {
-    return detail::Range<T> { begin, end };
+requires std::is_arithmetic_v<T> detail::Range<T> range(T begin, T end, T step = static_cast<T>(1)) {
+    return detail::Range<T> { begin, end, step };
 }
 
 template <typename T>
 requires std::is_arithmetic_v<T> detail::Range<T> range(T end) {
-    return range(0, end);
+    return range(static_cast<T>(0), end);
 }
 
 template <typename T>

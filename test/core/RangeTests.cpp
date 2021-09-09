@@ -30,3 +30,29 @@ TEST(RangeTests, givenIndices_shouldReturnCorrectRange) {
 
     EXPECT_EQ(i, arr.size() - 1);
 }
+
+TEST(RangeTests, givenIntRangeWithStep_WhenIterating_shouldIterateOverCorrectValues) {
+    int value = 0;
+    int step = 3;
+
+    for (auto i : core::range(0, 9, 3)) {
+        EXPECT_EQ(i, value);
+
+        value += step;
+    }
+
+    EXPECT_EQ(value, 9);
+}
+
+TEST(RangeTests, givenFloatRangeWithStep_WhenIterating_shouldIterateOverCorrectValues) {
+    float value = 0.0f;
+    float step = 0.1f;
+
+    for (auto i : core::range(0.0f, 10.0f, step)) {
+        EXPECT_EQ(i, value);
+
+        value += step;
+    }
+
+    EXPECT_NEAR(value, 10.0f, 0.0001f);
+}

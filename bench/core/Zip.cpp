@@ -5,9 +5,7 @@
 
 #include "kc/core/Zip.hpp"
 
-static auto setupContainers() {
-    static constexpr int size = 10000;
-
+static auto setupContainers(int size) {
     std::vector<int> c1(size, 1);
     std::vector<float> c2(size, 5.0f);
 
@@ -15,7 +13,7 @@ static auto setupContainers() {
 }
 
 static void core_Zip_native(benchmark::State& state) {
-    auto [c1, c2] = setupContainers();
+    auto [c1, c2] = setupContainers(state.range(0));
 
     for (auto _ : state) {
         for (int i = 0; i < c1.size(); ++i) {
@@ -28,7 +26,7 @@ static void core_Zip_native(benchmark::State& state) {
 BENCHMARK(core_Zip_native)->RangeMultiplier(8)->Range(8, 1024 * 16);
 
 static void core_Zip_zip(benchmark::State& state) {
-    auto [c1, c2] = setupContainers();
+    auto [c1, c2] = setupContainers(state.range(0));
 
     for (auto _ : state) {
         for (auto&& [a, b] : kc::core::zip(c1, c2)) {
@@ -41,8 +39,8 @@ static void core_Zip_zip(benchmark::State& state) {
 BENCHMARK(core_Zip_zip)->RangeMultiplier(8)->Range(8, 1024 * 16);
 
 static void core_Zip_native4Containers(benchmark::State& state) {
-    auto [c1, c2] = setupContainers();
-    auto [c3, c4] = setupContainers();
+    auto [c1, c2] = setupContainers(state.range(0));
+    auto [c3, c4] = setupContainers(state.range(0));
 
     for (auto _ : state) {
         for (int i = 0; i < c1.size(); ++i) {
@@ -57,8 +55,8 @@ static void core_Zip_native4Containers(benchmark::State& state) {
 BENCHMARK(core_Zip_native4Containers)->RangeMultiplier(8)->Range(8, 1024 * 16);
 
 static void core_Zip_zip4Containers(benchmark::State& state) {
-    auto [c1, c2] = setupContainers();
-    auto [c3, c4] = setupContainers();
+    auto [c1, c2] = setupContainers(state.range(0));
+    auto [c3, c4] = setupContainers(state.range(0));
 
     for (auto _ : state) {
         for (auto&& [a, b, c, d] : kc::core::zip(c1, c2, c3, c4)) {
