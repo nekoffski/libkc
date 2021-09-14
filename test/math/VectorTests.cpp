@@ -49,3 +49,22 @@ TEST_F(VectorTests, givenNotEqualVectors_whenCheckingIfAreEqual_shouldReturnTrue
     EXPECT_FALSE(Vector3f(1.0f, 1.5f, 1.0f).equals(Vector3f(1.0f, 1.5f, 1.01f)));
     EXPECT_FALSE(Vector4f(1.0f, 1.5f, 1.0f, 0.5f).equals(Vector4f(1.0f, 1.5f, 1.0f, 0.511f)));
 }
+
+TEST_F(VectorTests, givenVector_whenGettingNormalized_shouldReturnNormalizedVector) {
+    Vector3f vector { 2.5f, 4.4f, 7.7f };
+
+    auto normalized = vector.normalized();
+    EXPECT_NEAR(normalized.length(), 1.0f, 0.0001f);
+    EXPECT_NE(vector.length(), 1.0f);
+    EXPECT_NE(&vector, &normalized);
+}
+
+TEST_F(VectorTests, givenVector_whenNormalizing_shouldReturnNormalizedSelf) {
+    Vector3f vector { 2.5f, 4.4f, 7.7f };
+
+    auto& normalized = vector.normalize();
+
+    EXPECT_NEAR(normalized.length(), 1.0f, 0.0001f);
+    EXPECT_NEAR(vector.length(), 1.0f, 0.0001f);
+    EXPECT_EQ(&vector, &normalized);
+}

@@ -8,6 +8,8 @@
 
 #include "kc/core/Log.h"
 #include "kc/core/Meta.hpp"
+#include "kc/core/Range.hpp"
+#include "kc/core/Zip.hpp"
 
 namespace kc::math::detail {
 
@@ -26,6 +28,10 @@ public:
         : m_buffer({ value }) {
     }
 
+    explicit VectorBase(const std::array<T, elements>& buffer)
+        : m_buffer(buffer) {
+    }
+
     bool equals(const VectorBase& oth) {
         return oth.m_buffer == m_buffer;
     }
@@ -34,14 +40,70 @@ public:
         return equals(oth);
     }
 
-    void operator+=(const VectorBase& oth) {
+    bool operator!=(const VectorBase& oth) {
+        return not equals(oth);
     }
 
-    void operator-=(const VectorBase& oth) {
+    VectorBase& operator+=(const VectorBase& oth) {
+        for (auto&& [selfElement, otherElement] : zip(m_buffer, oth.m_buffer))
+            selfElement += otherElement;
+        return *this;
     }
 
-    explicit VectorBase(const std::array<T, elements>& buffer)
-        : m_buffer(buffer) {
+    VectorBase& operator-=(const VectorBase& oth) {
+        for (auto&& [selfElement, otherElement] : zip(m_buffer, oth.m_buffer))
+            selfElement -= otherElement;
+        return *this;
+    }
+
+    VectorBase& operator/=(T value) {
+        for (auto& selfElement : m_buffer)
+            selfElement /= value;
+
+        return *this;
+    }
+
+    VectorBase& operator*=(T value) {
+        for (auto& selfElement : m_buffer)
+            selfElement *= value;
+        return *this;
+    }
+
+    VectorBase operator+(const VectorBase& oth) {
+        VectorBase vector;
+        for (auto&& [target, lhs, rhs] : zip(vector.m_buffer, m_buffer, oth.m_buffer))
+            target = lhs + rhs;
+        return vector;
+    }
+
+    VectorBase operator-(const VectorBase& oth) {
+        VectorBase vector;
+        for (auto&& [target, lhs, rhs] : zip(vector.m_buffer, m_buffer, oth.m_buffer))
+            target = lhs - rhs;
+        return vector;
+    }
+
+    VectorBase operator/(T value) {
+        VectorBase vector;
+        for (auto&& [target, self] : zip(vector.m_buffer, m_buffer))
+            target = self / value;
+        return vector;
+    }
+
+    VectorBase operator*(T value) {
+        VectorBase vector;
+        for (auto&& [target, self] : zip(vector.m_buffer, m_buffer))
+            target = self * value;
+        return vector;
+    }
+
+    VectorBase& normalize() {
+        return operator/=(length());
+    }
+
+    VectorBase normalized() const {
+        auto copy = *this;
+        return copy / length();
     }
 
     T& operator[](unsigned int index) {

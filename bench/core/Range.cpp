@@ -34,7 +34,7 @@ BENCHMARK(core_Range_stepIntegerNative)->RangeMultiplier(8)->Range(8, 1024 * 16)
 static void core_Range_stepIntegerRange(benchmark::State& state) {
     auto innerIterations = (int)state.range(0);
     for (auto _ : state)
-        for (auto i : kc::core::range(0, innerIterations, iStep))
+        for (auto i : kc::core::range(0, innerIterations).withStep(iStep))
             benchmark::DoNotOptimize(i);
 }
 
@@ -54,7 +54,7 @@ BENCHMARK(core_Range_stepFloatNative)->RangeMultiplier(2.0f)->Range(1.0f, 10.0f)
 static void core_Range_stepFloatRange(benchmark::State& state) {
     auto innerIterations = (float)state.range(0);
     for (auto _ : state)
-        for (auto i : kc::core::range(0.0f, innerIterations, fStep))
+        for (auto i : kc::core::range(0.0f, innerIterations).withStep(fStep))
             benchmark::DoNotOptimize(i);
 }
 

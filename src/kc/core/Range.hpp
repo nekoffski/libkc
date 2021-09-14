@@ -11,48 +11,40 @@
 namespace kc::core {
 
 namespace detail {
-
     template <typename T>
-    class Range {
-        class Iterator : public std::iterator<std::forward_iterator_tag, T> {
-        public:
-            Iterator(T value, T step)
-                : m_value(value)
-                , m_step(step) {
-            }
-
-            T operator*() const {
-                return m_value;
-            }
-
-            Iterator& operator++() {
-                m_value += m_step;
-                return *this;
-            }
-
-            Iterator& operator++(int) {
-                auto tmp = *this;
-                m_value += m_step;
-                return tmp;
-            }
-
-            friend bool operator==(const Iterator& lhs, const Iterator& rhs) {
-                return lhs.m_value >= rhs.m_value;
-            };
-
-            friend bool operator!=(const Iterator& lhs, const Iterator& rhs) {
-                return not(lhs == rhs);
-            };
-
-        private:
-            T m_value;
-            T m_step;
-        };
-
+    class IteratorBase : public std::iterator<std::forward_iterator_tag, T> {
     public:
-        Range(T begin, T end, T step = static_cast<T>(1))
-            : m_begin(begin, step)
-            , m_end(end, step) {
+        IteratorBase(T value, T step)
+            : m_value(value)
+            , m_step(step) {
+        }
+
+        T operator*() const {
+            return m_value;
+        }
+
+        IteratorBase& operator++() {
+            m_value += m_step;
+            return *this;
+        }
+
+        IteratorBase& operator++(int) {
+            auto tmp = *this;
+            m_value += m_step;
+            return tmp;
+        }
+
+    protected:
+        T m_value;
+        T m_step;
+    };
+
+    template <typename T, typename Iterator>
+    class RangeBase {
+    public:
+        RangeBase(const Iterator& begin, const Iterator& end)
+            : m_begin(begin)
+            , m_end(end) {
         }
 
         auto begin() {
@@ -71,15 +63,68 @@ namespace detail {
             return m_end;
         }
 
-    private:
+    protected:
         Iterator m_begin;
         Iterator m_end;
     };
+
+    template <typename T>
+    struct Iterator : IteratorBase<T> {
+        using IteratorBase<T>::IteratorBase;
+
+        friend bool operator==(const Iterator& lhs, const Iterator& rhs) {
+            return lhs.m_value == rhs.m_value;
+        };
+
+        friend bool operator!=(const Iterator& lhs, const Iterator& rhs) {
+            return not(lhs == rhs);
+        };
+    };
+
+    template <typename T>
+    struct StepIterator : IteratorBase<T> {
+        using IteratorBase<T>::IteratorBase;
+
+        friend bool operator==(const StepIterator& lhs, const StepIterator& rhs) {
+            return lhs.m_value >= rhs.m_value;
+        };
+
+        friend bool operator!=(const StepIterator& lhs, const StepIterator& rhs) {
+            return not(lhs == rhs);
+        };
+    };
+
+    template <typename T>
+    class StepRange : public RangeBase<T, StepIterator<T>> {
+    public:
+        StepRange(T begin, T end, T step)
+            : RangeBase<T, StepIterator<T>>::RangeBase(
+                  StepIterator<T> { begin, step },
+                  StepIterator<T> { end, step }) {
+        }
+    };
+
+    template <typename T>
+    class Range : public RangeBase<T, Iterator<T>> {
+    public:
+        Range(T begin, T end)
+            : RangeBase<T, Iterator<T>>::RangeBase(
+                  Iterator<T> { begin, static_cast<T>(1) },
+                  Iterator<T> { end, static_cast<T>(1) }) {
+        }
+
+        StepRange<T> withStep(T step) const {
+            return StepRange<T> {
+                *this->m_begin, *this->m_end, step
+            };
+        }
+    };
+
 }
 
 template <typename T>
-requires std::is_arithmetic_v<T> detail::Range<T> range(T begin, T end, T step = static_cast<T>(1)) {
-    return detail::Range<T> { begin, end, step };
+requires std::is_arithmetic_v<T> detail::Range<T> range(T begin, T end) {
+    return detail::Range<T> { begin, end };
 }
 
 template <typename T>

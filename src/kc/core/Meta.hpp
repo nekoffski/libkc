@@ -16,6 +16,9 @@ constexpr bool is_one_of2_v = is_one_of2<T, U, V>::value;
 template <typename T, typename U>
 using enable_for_impl = std::enable_if<std::is_same<T, U>::value, U>;
 
+template <bool Condition, typename U>
+using enable_if = typename std::enable_if<Condition, U>::type;
+
 // clang-format off
 #define enable_for(_type) typename enable_for_impl<T, _type>::type
 // clang-format on

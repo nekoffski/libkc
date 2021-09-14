@@ -35,7 +35,7 @@ TEST(RangeTests, givenIntRangeWithStep_WhenIterating_shouldIterateOverCorrectVal
     int value = 0;
     int step = 3;
 
-    for (auto i : core::range(0, 9, 3)) {
+    for (auto i : core::range(0, 9).withStep(step)) {
         EXPECT_EQ(i, value);
 
         value += step;
@@ -48,7 +48,7 @@ TEST(RangeTests, givenFloatRangeWithStep_WhenIterating_shouldIterateOverCorrectV
     float value = 0.0f;
     float step = 0.1f;
 
-    for (auto i : core::range(0.0f, 10.0f, step)) {
+    for (auto i : core::range(0.0f, 10.0f).withStep(step)) {
         EXPECT_EQ(i, value);
 
         value += step;
