@@ -10,8 +10,16 @@ template <typename T>
 requires std::is_arithmetic_v<T> struct Vector2 : public detail::VectorBase<T, 2> {
     using detail::VectorBase<T, 2>::VectorBase;
 
-    explicit Vector2(T x, T y)
+    Vector2(T x, T y)
         : detail::VectorBase<T, 2>::VectorBase({ x, y }) {
+    }
+
+    Vector2(const detail::VectorBase<T, 2>& oth)
+        : detail::VectorBase<T, 2>::VectorBase(oth) {
+    }
+
+    Vector2(detail::VectorBase<T, 2>&& oth)
+        : detail::VectorBase<T, 2>::VectorBase(std::move(oth)) {
     }
 
     T x() const {

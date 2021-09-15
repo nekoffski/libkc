@@ -68,3 +68,50 @@ TEST_F(VectorTests, givenVector_whenNormalizing_shouldReturnNormalizedSelf) {
     EXPECT_NEAR(vector.length(), 1.0f, 0.0001f);
     EXPECT_EQ(&vector, &normalized);
 }
+
+TEST_F(VectorTests, givenTwoVectors_whenCalculatingDotProduct_shouldReturnCorrectValue) {
+    Vector3f a { 1.0f, 2.0f, 3.0f };
+    Vector3f b { 1.5f, 2.5f, 3.5f };
+
+    EXPECT_NEAR(dotProduct(a, b), 1.0f * 1.5f + 2.0f * 2.5f + 3.0f * 3.5f, 0.0001f);
+}
+
+TEST_F(VectorTests, whenGeneratingRandomVectorInHemisphere_shouldBeInHemisphere) {
+    auto n = Vector3f { 2.5f, 1.0f, 3.0f }.normalized();
+    static constexpr int iterations = 1000;
+
+    REPEAT(iterations) {
+        auto vector = Vector3f::randomInUnitHemisphere(n);
+        EXPECT_GT(dotProduct(vector, n), 0);
+    }
+}
+
+TEST_F(VectorTests, givenReflectedVector_whenCheckingSize_shouldMatch) {
+    Vector3f n { 1.0f, 1.0f, 1.0f };
+    Vector3f a { 5.0f, 3.0f, 1.0f };
+
+    EXPECT_NEAR(a.length(), reflect(a, n.normalized()).length(), 0.0001f);
+}
+
+TEST_F(VectorTests, givenRefractedVector_whenCheckingSize_shouldMatch) {
+    Vector3f n { 1.0f, 1.0f, 1.0f };
+    Vector3f a { 5.0f, 3.0f, 1.0f };
+
+    float ior = 1.0f;
+
+    EXPECT_NEAR(a.length(), refract(a, n.normalized(), ior).length(), 0.0001f);
+}
+
+TEST_F(VectorTests, givenVector_whenGettingNegativeVector_shouldMatchNegativeComponents) {
+    Vector3f a { 5.0f, 3.0f, 1.0f };
+
+    Vector3f na = -a;
+
+    EXPECT_NEAR(a[0], -na[0], 0.0001f);
+    EXPECT_NEAR(a[1], -na[1], 0.0001f);
+    EXPECT_NEAR(a[2], -na[2], 0.0001f);
+
+    EXPECT_NEAR(a.x(), -na.x(), 0.0001f);
+    EXPECT_NEAR(a.y(), -na.y(), 0.0001f);
+    EXPECT_NEAR(a.z(), -na.z(), 0.0001f);
+}

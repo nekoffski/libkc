@@ -10,6 +10,11 @@
 namespace kc::core {
 
 namespace detail {
+    template <typename T>
+    using select_iterator_for = std::conditional_t<
+        std::is_const_v<std::remove_reference_t<T>>,
+        typename std::decay_t<T>::const_iterator,
+        typename std::decay_t<T>::iterator>;
 
     template <typename... Containers>
     class ZipRange {
@@ -53,16 +58,18 @@ namespace detail {
             std::tuple<Iterators...> m_iterators;
         };
 
+        using iterator_type = Iterator<select_iterator_for<Containers>...>;
+
         auto begin() {
             static auto createIterators = [](auto&&... args) {
-                return Iterator<get_iterator_type<Containers>...> { std::begin(args)... };
+                return iterator_type(std::begin(args)...);
             };
             return std::apply(createIterators, m_containers);
         }
 
         auto end() {
             static auto createIterators = [](auto&&... args) {
-                return Iterator<get_iterator_type<Containers>...> { std::end(args)... };
+                return iterator_type(std::end(args)...);
             };
             return std::apply(createIterators, m_containers);
         }
