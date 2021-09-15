@@ -40,6 +40,8 @@ namespace detail {
         VectorBase(const VectorBase& oth) = default;
         VectorBase(VectorBase&& oth) = default;
 
+        VectorBase& operator=(const VectorBase& oth) = default;
+
         bool equals(const VectorBase& oth) const {
             return oth.m_buffer == m_buffer;
         }
@@ -105,6 +107,13 @@ namespace detail {
             return vector;
         }
 
+        VectorBase operator*(const VectorBase& oth) const {
+            VectorBase vector;
+            for (auto&& [target, selfElemenet, otherElement] : zip(vector.m_buffer, m_buffer, oth.m_buffer))
+                target = selfElemenet * otherElement;
+            return vector;
+        }
+
         VectorBase operator-() const {
             auto copy = *this;
             auto& buffer = copy.m_buffer;
@@ -153,6 +162,10 @@ namespace detail {
         }
 
         BufferType& getBuffer() {
+            return m_buffer;
+        }
+
+        const BufferType& getBuffer() const {
             return m_buffer;
         }
 

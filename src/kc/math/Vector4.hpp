@@ -22,6 +22,16 @@ requires std::is_arithmetic_v<T> struct Vector4 : public detail::VectorBase<T, 4
         : detail::VectorBase<T, 4>::VectorBase(std::move(oth)) {
     }
 
+    Vector4& operator=(const detail::VectorBase<T, 4>& oth) {
+        this->m_buffer = oth.m_buffer;
+        return *this;
+    }
+
+    Vector4& operator=(const Vector4& oth) {
+        this->m_buffer = oth.m_buffer;
+        return *this;
+    }
+
     T x() const {
         return this->m_buffer[0];
     }

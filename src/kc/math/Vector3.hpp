@@ -18,6 +18,16 @@ requires std::is_arithmetic_v<T> struct Vector3 : public detail::VectorBase<T, 3
         : detail::VectorBase<T, 3>::VectorBase(oth) {
     }
 
+    Vector3& operator=(const detail::VectorBase<T, 3>& oth) {
+        this->m_buffer = oth.getBuffer();
+        return *this;
+    }
+
+    Vector3& operator=(const Vector3& oth) {
+        this->m_buffer = oth.m_buffer;
+        return *this;
+    }
+
     Vector3(detail::VectorBase<T, 3>&& oth)
         : detail::VectorBase<T, 3>::VectorBase(std::move(oth)) {
     }
