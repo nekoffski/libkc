@@ -46,7 +46,7 @@ private:
     #define LOG_PROFILE_FUNCTION
 #else
     #define PROFILE_REGION(name) auto ANONYMOUS_VAR(name)              \
-        = kc::core::Profiler::get()->createRegionTimer("Tag: " + std::string{name}); 
+        = kc::core::Profiler::get()->createRegionTimer("Tag: " + std::string{#name}); 
 
     #define PROFILE_FUNCTION() auto ANONYMOUS_VAR(__PRETTY_FUNCTION__) \
         = kc::core::Profiler::get()->createRegionTimer("Function: " + std::string{__PRETTY_FUNCTION__});
