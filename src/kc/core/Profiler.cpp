@@ -5,6 +5,10 @@
 
 namespace kc::core {
 
+Profiler::Profiler(const Clock& clock)
+    : m_clock(clock) {
+}
+
 Profiler::RegionTimer::RegionTimer(float& value, Clock* clock)
     : m_value(value)
     , m_clock(clock)

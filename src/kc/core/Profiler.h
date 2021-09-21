@@ -31,10 +31,9 @@ public:
     RegionTimer createRegionTimer(const std::string& name);
 
     void saveResults(const std::string& logDestination = "./", const FileSystem& fileSystem = FileSystem {});
-
-private:
     std::string formatTimers();
 
+private:
     Clock m_clock;
     std::unordered_map<std::string, float> m_times;
 };
