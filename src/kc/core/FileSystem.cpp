@@ -22,11 +22,13 @@ std::vector<std::string> FileSystem::listDirectory(const Path& path) const {
     return entries;
 }
 
-void FileSystem::writeFile(const Path& path, const std::string& buffer, bool override) const {
-    std::ofstream fs;
-    fs.open(path, override ? std::ios::trunc : std::ios::app);
-    fs << buffer;
-    fs.close();
+void FileSystem::writeFile(const Path& path, const std::string& buffer, WritePolicy writePolicy) const {
+    auto mode = writePolicy == WritePolicy::override ? std::ios::trunc : std::ios::app;
+
+    std::ofstream fileStream;
+    fileStream.open(path, mode);
+    fileStream << buffer;
+    fileStream.close();
 }
 
 std::string FileSystem::readFile(const Path& path) const {

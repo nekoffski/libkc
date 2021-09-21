@@ -74,7 +74,7 @@ ScopeGuard<Callback, decltype(_ScopeGuardOnSuccessCondition {})> operator+(_Scop
 }
 
 // clang-format off
-#define ON_SCOPE_EXIT    auto ANONYMOUS_VAR(SCOPE_EXIT)    = kc::core::detail::_ScopeGuardOnExit    {} + [&]()
-#define ON_SCOPE_FAIL    auto ANONYMOUS_VAR(SCOPE_FAIL)    = kc::core::detail::_ScopeGuardOnFailure {} + [&]()
-#define ON_SCOPE_SUCCESS auto ANONYMOUS_VAR(SCOPE_SUCCESS) = kc::core::detail::_ScopeGuardOnSuccess {} + [&]()
+#define ON_SCOPE_EXIT         auto ANONYMOUS_VAR(SCOPE_EXIT)    = kc::core::detail::_ScopeGuardOnExit      {} + [&]()
+#define ON_SCOPE_FAIL         auto ANONYMOUS_VAR(SCOPE_FAIL)    = kc::core::detail::_ScopeGuardOnFailure   {} + [&]()
+#define ON_SCOPE_SUCCESS      auto ANONYMOUS_VAR(SCOPE_SUCCESS) = kc::core::detail::_ScopeGuardOnSuccess   {} + [&]()
 // clang-format on
