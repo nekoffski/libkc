@@ -7,11 +7,11 @@
 using namespace kc::math;
 
 TEST(UtilsTests, givenRadiansValue_whenConvertingToDegrees_shouldReturnCorrectValue) {
-    EXPECT_EQ(radiansToDegrees(2 * std::numbers::pi), 360);
+    EXPECT_EQ(toDegrees(2 * std::numbers::pi), 360);
 }
 
 TEST(UtilsTests, givenDegreesValue_whenConvertingToRadians_shouldReturnCorrectValue) {
-    EXPECT_NEAR(degreesToRadians(360.0f), 2 * std::numbers::pi, 0.0001f);
+    EXPECT_NEAR(toRadians(360.0f), 2 * std::numbers::pi, 0.0001f);
 }
 
 TEST(UtilsTests, whenGettingRandomFloat_shouldReturnRandomNumbersInRange) {
@@ -33,5 +33,15 @@ TEST(UtilsTests, whenGettingRandomInt_shouldReturnRandomNumbersInRange) {
         auto number = random<int>(min, max);
         EXPECT_LE(number, max);
         EXPECT_GE(number, min);
+    }
+}
+
+TEST(UtilsTests, whenGeneratingRandomVectorInHemisphere_shouldBeInHemisphere) {
+    auto n = glm::normalize(glm::vec3 { 2.5f, 1.0f, 3.0f });
+    static constexpr int iterations = 1000;
+
+    REPEAT(iterations) {
+        auto vector = randomUnitHemisphereVec3(n);
+        EXPECT_GT(glm::dot(vector, n), 0);
     }
 }

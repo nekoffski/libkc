@@ -1,7 +1,8 @@
 set (LIBS 
         jsoncpp
         pthread
-        spdlog)
+        spdlog
+        )
 
 file (GLOB_RECURSE SRC kc/*.cpp)
 

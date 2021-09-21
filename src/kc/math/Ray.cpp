@@ -2,22 +2,20 @@
 
 namespace kc::math {
 
-Ray::Ray() = default;
-
-Ray::Ray(const Vector3f& origin, const Vector3f& direction)
+Ray::Ray(const glm::vec3& origin, const glm::vec3& direction)
     : m_origin(origin)
     , m_direction(direction) {
 }
 
-const Vector3f& Ray::getOrigin() const {
+const glm::vec3& Ray::getOrigin() const {
     return m_origin;
 }
 
-const Vector3f& Ray::getDirection() const {
+const glm::vec3& Ray::getDirection() const {
     return m_direction;
 }
 
-Vector3f Ray::at(float t) const {
+glm::vec3 Ray::at(float t) const {
     return m_origin + t * m_direction;
 }
 

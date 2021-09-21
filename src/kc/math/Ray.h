@@ -1,22 +1,21 @@
 #pragma once
 
-#include "Vector3.hpp"
+#include <glm/vec3.hpp>
 
 namespace kc::math {
 
 class Ray {
 public:
-    explicit Ray();
-    explicit Ray(const Vector3f& origin, const Vector3f& direction);
+    explicit Ray(const glm::vec3& origin = glm::vec3 { 0.0f, 0.0f, 0.0f }, const glm::vec3& direction = glm::vec3 { 0.0f, 0.0f, 0.0f });
 
-    const Vector3f& getOrigin() const;
-    const Vector3f& getDirection() const;
+    const glm::vec3& getOrigin() const;
+    const glm::vec3& getDirection() const;
 
-    Vector3f at(float t) const;
+    glm::vec3 at(float t) const;
 
 private:
-    Vector3f m_origin;
-    Vector3f m_direction;
+    glm::vec3 m_origin;
+    glm::vec3 m_direction;
 };
 
 }

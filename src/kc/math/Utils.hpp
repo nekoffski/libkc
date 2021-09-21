@@ -5,6 +5,8 @@
 #include <numbers>
 #include <random>
 
+#include <glm/glm.hpp>
+
 #include "kc/core/Meta.hpp"
 
 namespace kc::math {
@@ -13,13 +15,13 @@ template <typename T>
 using infinity = std::numeric_limits<T>::infinity();
 
 template <typename T>
-requires std::is_arithmetic_v<T> T degreesToRadians(T degrees) {
+requires std::is_arithmetic_v<T> T toRadians(T degrees) {
     const static T halfFullAngle = static_cast<T>(180);
     return degrees * std::numbers::pi / halfFullAngle;
 }
 
 template <typename T>
-requires std::is_arithmetic_v<T> T radiansToDegrees(T radians) {
+requires std::is_arithmetic_v<T> T toDegrees(T radians) {
     const static T halfFullAngle = static_cast<T>(180);
     return radians * halfFullAngle / std::numbers::pi;
 }
@@ -42,7 +44,11 @@ core::enable_if<std::is_integral_v<T>, T> random(T min = static_cast<T>(0), T ma
     std::uniform_int_distribution<T> distribution(min, max);
     return distribution(generator);
 }
-
 // clang-format on
+
+glm::vec3 randomVec3(float min = 0.0f, float max = 1.0f);
+glm::vec3 randomNormalVec3();
+glm::vec3 randomUnitSphereVec3();
+glm::vec3 randomUnitHemisphereVec3(const glm::vec3& normal);
 
 }
