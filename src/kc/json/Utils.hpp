@@ -13,38 +13,38 @@ namespace detail {
     using namespace core;
 
     template <typename Error>
-    requires std::derived_from<Error, core::ErrorBase> void assert(bool condition, const std::string& errorMessage) {
+    requires std::derived_from<Error, core::ErrorBase> void kc_assert(bool condition, const std::string& errorMessage) {
         if (not condition)
             throw Error { errorMessage };
     }
 
     template <typename Error, typename T>
     enable_for(float) tryToExtractValue(const Node& node, const std::string& messagePrefix) {
-        assert<Error>(node.isDouble(), messagePrefix + " has wrong type");
+        kc_assert<Error>(node.isDouble(), messagePrefix + " has wrong type");
         return node.asFloat();
     }
 
     template <typename Error, typename T>
     enable_for(int) tryToExtractValue(const Node& node, const std::string& messagePrefix) {
-        assert<Error>(node.isInt(), messagePrefix + " has wrong type");
+        kc_assert<Error>(node.isInt(), messagePrefix + " has wrong type");
         return node.asInt();
     }
 
     template <typename Error, typename T>
     enable_for(std::string) tryToExtractValue(const Node& node, const std::string& messagePrefix) {
-        assert<Error>(node.isString(), messagePrefix + " has wrong type");
+        kc_assert<Error>(node.isString(), messagePrefix + " has wrong type");
         return node.asString();
     }
 
     template <typename Error, typename T>
     enable_for(unsigned int) tryToExtractValue(const Node& node, const std::string& messagePrefix) {
-        assert<Error>(node.isUInt(), messagePrefix + " has wrong type");
+        kc_assert<Error>(node.isUInt(), messagePrefix + " has wrong type");
         return node.asUInt();
     }
 
     template <typename Error, typename T>
     enable_for(bool) tryToExtractValue(const Node& node, const std::string& messagePrefix) {
-        assert<Error>(node.isBool(), messagePrefix + " has wrong type");
+        kc_assert<Error>(node.isBool(), messagePrefix + " has wrong type");
         return node.asBool();
     }
 
@@ -74,12 +74,12 @@ namespace detail {
         using ValueWrapperBase<Error, T>::ValueWrapperBase;
 
         ValueWrapper&& min(T minValue) && {
-            assert<Error>(this->m_value >= minValue, "Value of field " + this->m_fieldName + "is ");
+            kc_assert<Error>(this->m_value >= minValue, "Value of field " + this->m_fieldName + "is ");
             MOVE_THIS;
         }
 
         ValueWrapper&& max(T maxValue) && {
-            assert<Error>(this->m_value <= maxValue, "");
+            kc_assert<Error>(this->m_value <= maxValue, "");
             MOVE_THIS;
         }
 
@@ -96,17 +96,17 @@ namespace detail {
         using ValueWrapperBase<Error, T>::ValueWrapperBase;
 
         ValueWrapper&& nonEmpty() && {
-            assert<Error>(not this->m_value.empty(), "");
+            kc_assert<Error>(not this->m_value.empty(), "");
             MOVE_THIS;
         }
 
         ValueWrapper&& minSize(std::size_t min) && {
-            assert<Error>(this->m_value.size() >= min, "");
+            kc_assert<Error>(this->m_value.size() >= min, "");
             MOVE_THIS;
         }
 
         ValueWrapper&& maxSize(std::size_t max) && {
-            assert<Error>(this->m_value.size() <= max, "");
+            kc_assert<Error>(this->m_value.size() <= max, "");
             MOVE_THIS;
         }
 
@@ -135,8 +135,8 @@ namespace detail {
         }
 
         NodeWrapper&& ofName(const std::string& name) && {
-            assert<JsonLogicError>(not m_name.has_value(), "Name of field is already specified");
-            assert<Error>(m_node.isMember(name), "Could not found field with name: " + name);
+            kc_assert<JsonLogicError>(not m_name.has_value(), "Name of field is already specified");
+            kc_assert<Error>(m_node.isMember(name), "Could not found field with name: " + name);
             m_name = name;
 
             MOVE_THIS;
@@ -144,28 +144,28 @@ namespace detail {
 
         template <typename T>
         ValueWrapper<Error, T> ofType() && {
-            assert<JsonLogicError>(m_name.has_value(), "Field has not specified its name");
-            auto assertMessagePrefix = "Field with name: " + m_name.value();
+            kc_assert<JsonLogicError>(m_name.has_value(), "Field has not specified its name");
+            auto kc_assertMessagePrefix = "Field with name: " + m_name.value();
 
             return ValueWrapper<Error, T> {
-                tryToExtractValue<Error, T>(m_node.get(m_name.value(), {}), assertMessagePrefix), m_name.value()
+                tryToExtractValue<Error, T>(m_node.get(m_name.value(), {}), kc_assertMessagePrefix), m_name.value()
             };
         }
 
         ArrayWrapper<Error> asArray() {
-            assert<JsonLogicError>(m_name.has_value(), "Field has not specified its name");
+            kc_assert<JsonLogicError>(m_name.has_value(), "Field has not specified its name");
 
             auto child = m_node.get(m_name.value(), {});
-            assert<Error>(child.isArray(), "Field with name " + m_name.value() + " has invalid type");
+            kc_assert<Error>(child.isArray(), "Field with name " + m_name.value() + " has invalid type");
 
             return ArrayWrapper<Error> { child, m_name.value() };
         }
 
         ValueWrapper<Error, Node> asObject() {
-            assert<JsonLogicError>(m_name.has_value(), "Field has not specified its name");
+            kc_assert<JsonLogicError>(m_name.has_value(), "Field has not specified its name");
 
             auto child = m_node.get(m_name.value(), {});
-            assert<Error>(child.isObject(), "Field with name " + m_name.value() + " has invalid type");
+            kc_assert<Error>(child.isObject(), "Field with name " + m_name.value() + " has invalid type");
 
             return ValueWrapper<Error, Node> { child, m_name.value() };
         }

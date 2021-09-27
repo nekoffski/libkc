@@ -45,8 +45,8 @@ public:
     }
 
     template <typename T>
-    T* asView() const {
-        return static_cast<T*>(this);
+    const T* asView() const {
+        return static_cast<const T*>(this);
     }
 
     template <typename T, typename... Args>
