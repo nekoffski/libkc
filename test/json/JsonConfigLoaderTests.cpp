@@ -19,7 +19,7 @@ struct JsonConfigLoaderTests : Test {
 };
 
 struct JsonConfigLoader : public json::JsonConfigLoader<Config> {
-    void processConfigFields([[maybe_unused]] const json::Node&) override {
+    void processFields([[maybe_unused]] const json::Node&) override {
         JsonConfigLoaderTests::processConfigFieldsCalled = true;
     }
 };

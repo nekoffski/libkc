@@ -19,12 +19,10 @@ class EventEmitter;
 
 struct Event : std::enable_shared_from_this<Event> {
 public:
-	friend class EventEmitter;
+    friend class EventEmitter;
 
     virtual std::type_index getEventTypeIndex() const = 0;
     virtual std::type_index getCategoryTypeIndex() const = 0;
-    
-
 
     template <typename T>
     void on(std::function<void(std::shared_ptr<T>)> callback) {
@@ -44,6 +42,11 @@ public:
     template <typename T>
     std::shared_ptr<T> as() {
         return std::dynamic_pointer_cast<T>(shared_from_this());
+    }
+
+    template <typename T>
+    T* asView() const {
+        return static_cast<T*>(this);
     }
 
     template <typename T, typename... Args>
@@ -72,7 +75,7 @@ public:
     std::shared_ptr<Event> wait(const std::chrono::milliseconds timeout = 500ms) {
         if (m_resultFuture.wait_for(timeout) == std::future_status::ready)
             return m_resultFuture.get();
-        throw ResultTimeout{};
+        throw ResultTimeout {};
     }
 
 private:
