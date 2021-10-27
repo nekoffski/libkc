@@ -8,7 +8,13 @@ class Singleton : public kc::core::Singleton<Singleton> {
 TEST(SingletonTests, givenSingleton_whenGettingInstance_shouldReturnValidAddress) {
     Singleton singleton;
 
-    EXPECT_EQ(&singleton, Singleton::get());
+    EXPECT_EQ(&singleton, &Singleton::get());
+}
+
+TEST(SingletonTests, givenSingleton_getPtrShouldReturnSameAddressAsGet) {
+    Singleton singleton;
+
+    EXPECT_EQ(&Singleton::get(), Singleton::getPtr());
 }
 
 TEST(SingletonTests, givenSingleton_whenCreatingSecondInstnace_shouldThrow) {
@@ -18,5 +24,5 @@ TEST(SingletonTests, givenSingleton_whenCreatingSecondInstnace_shouldThrow) {
 }
 
 TEST(SingletonTests, givenSingleSingletonWithoutInstance_whenGettingInstance_shouldReturnNullptr) {
-    EXPECT_EQ(Singleton::get(), nullptr);
+    EXPECT_EQ(Singleton::getPtr(), nullptr);
 }

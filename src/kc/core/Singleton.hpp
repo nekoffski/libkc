@@ -18,7 +18,11 @@ public:
         s_instance = nullptr;
     }
 
-    static T* get() {
+    static T& get() {
+        return *s_instance;
+    }
+
+    static T* getPtr() {
         return s_instance;
     }
 
