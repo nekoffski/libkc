@@ -33,4 +33,13 @@ std::vector<std::string> split(const std::string& str, const char delimiter) {
     return output;
 }
 
+std::string extractNameFromPath(const std::string& path) {
+    static constexpr char separator = '/';
+
+    const auto position = path.find_last_of(separator);
+    const bool isPath = position != std::string::npos;
+
+    return isPath ? path.substr(position + 1) : path;
+}
+
 }

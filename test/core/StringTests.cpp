@@ -18,6 +18,25 @@ TEST_F(StringTests, givenStringToStripWithoutCharactersToStrip_whenStriping_shou
     EXPECT_EQ(str, copy);
 }
 
+TEST_F(StringTests, givenEmptyPath_whenExtractingName_shouldReturnEmptyString) {
+    const std::string emptyString = "";
+
+    EXPECT_EQ(kc::core::extractNameFromPath(emptyString), emptyString);
+}
+
+TEST_F(StringTests, givenPathWithoutSlash_whenExtractingName_shouldReturnOriginalString) {
+    const std::string invalidPath = "hello_my_name_is";
+
+    EXPECT_EQ(kc::core::extractNameFromPath(invalidPath), invalidPath);
+}
+
+TEST_F(StringTests, givenPath_whenExtractingName_shouldReturnName) {
+    const std::string fileName = "fileName.txt";
+    std::string path = "/usr/local/" + fileName;
+
+    EXPECT_EQ(kc::core::extractNameFromPath(path), fileName);
+}
+
 TEST_F(StringTests, givenStringToStrip_whenStriping_shouldStrip) {
     std::string str = "abcde___";
     std::string expected = "abcde";
