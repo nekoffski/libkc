@@ -1,5 +1,7 @@
 #include "String.h"
 
+#include <iostream>
+
 namespace kc::core {
 
 void strip(std::string& str, const char characterToStrip) {
@@ -33,13 +35,28 @@ std::vector<std::string> split(const std::string& str, const char delimiter) {
     return output;
 }
 
-std::string extractNameFromPath(const std::string& path) {
+std::string extractNameFromPath(const std::string& path, ExtractingMode mode) {
     static constexpr char separator = '/';
+    const auto& npos = std::string::npos;
 
     const auto position = path.find_last_of(separator);
-    const bool isPath = position != std::string::npos;
+    const bool isPath = position != npos;
 
-    return isPath ? path.substr(position + 1) : path;
+    if (not isPath)
+        return path;
+
+    if (mode == ExtractingMode::withExtension)
+        return path.substr(position + 1);
+
+    static constexpr char dot = '.';
+
+    auto beginOfExtension = path.find_last_of(dot);
+    const bool hasExtension = beginOfExtension != npos;
+    const auto n = path.size();
+
+    return hasExtension
+        ? path.substr(position + 1, beginOfExtension - position - 1)
+        : path.substr(position + 1);
 }
 
 }
