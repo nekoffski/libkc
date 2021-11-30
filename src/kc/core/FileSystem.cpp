@@ -42,6 +42,11 @@ std::string FileSystem::readFile(const Path& path) const {
     return fileContentStream.str();
 }
 
+std::vector<std::string> FileSystem::readLines(const Path& path) const {
+    static const char endOfLine = '\n';
+    return split(readFile(path), endOfLine);
+}
+
 fsys::file_time_type FileSystem::getLastFileModificationTime(const Path& path) const {
     return std::filesystem::last_write_time(path);
 }

@@ -22,9 +22,11 @@ std::vector<std::string> split(const std::string& str, const char delimiter) {
 
         for (int i = 0; i < n; ++i) {
             if (str[i] == delimiter) {
-
                 if (int end = i - beginIndex; beginIndex != end)
                     output.push_back(str.substr(beginIndex, end));
+
+                while (str[i + 1] == delimiter)
+                    ++i;
 
                 beginIndex = i + 1;
             }

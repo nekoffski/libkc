@@ -44,4 +44,5 @@ void wait(std::vector<Future<T>>& futures) {
     for (auto& future : futures)
         future.wait();
 }
+
 }

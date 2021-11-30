@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "kc/core/String.h"
+
 namespace kc::core {
 
 class FileSystem {
@@ -23,6 +25,8 @@ public:
 
     virtual void writeFile(const Path& path, const std::string& buffer, WritePolicy writePolicy = WritePolicy::noOverride) const;
     virtual std::string readFile(const Path& path) const;
+
+    virtual std::vector<std::string> readLines(const Path& path) const;
 
     virtual std::filesystem::file_time_type getLastFileModificationTime(const Path& path) const;
 };

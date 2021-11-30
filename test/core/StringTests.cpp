@@ -120,3 +120,17 @@ TEST_F(StringTests, givenStringWithDelimiterAtTheEnd_shouldReturnSingleElement) 
     ASSERT_EQ(splitted.size(), 1);
     EXPECT_EQ(splitted[0], expected);
 }
+
+TEST_F(StringTests, givenStringWithMultipleDelimiter_shouldReturnCorrectElements) {
+    const char delimiter = '_';
+    std::string a = "aa";
+    std::string b = "bb";
+
+    std::string stringToSplit = a + delimiter + delimiter + b;
+
+    auto splitted = split(stringToSplit, delimiter);
+
+    ASSERT_EQ(splitted.size(), 2);
+    EXPECT_EQ(splitted[0], a);
+    EXPECT_EQ(splitted[1], b);
+}

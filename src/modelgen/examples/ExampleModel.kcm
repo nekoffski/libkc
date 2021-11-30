@@ -1,0 +1,6 @@
+#model
+
+model ExampleModel {
+    fieldA: int,
+    fieldB: bool,
+};
