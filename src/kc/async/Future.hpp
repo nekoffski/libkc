@@ -40,7 +40,7 @@ void wait(Future<T>& future) {
 }
 
 template <typename T>
-void wait(const std::vector<Future<T>>& futures) {
+void wait(std::vector<Future<T>>& futures) {
     for (auto& future : futures)
         future.wait();
 }
