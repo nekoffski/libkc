@@ -1,6 +1,10 @@
 #model
 
+enum ExampleEnum : str {
+    ValueA, ValueB 
+}
+
 model ExampleModel {
     fieldA: int,
-    fieldB: bool,
-};
+    fieldB: bool
+}
