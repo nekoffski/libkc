@@ -78,7 +78,7 @@ TEST_F(StringTests, givenStringWithoutDelimiter_whenSplitting_shouldReturnSingle
 
 TEST_F(StringTests, givenStringWithDelimiter_whenSplitting_shouldSplitCorrectly) {
     std::vector<std::string> parts = {
-        "ab", "cd", "ef", "gh"
+        "enum", "Stats", "{{{{{", "gheee"
     };
 
     const char delimiter = '-';

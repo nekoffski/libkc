@@ -3,6 +3,7 @@
 #include <stack>
 
 #include <ranges>
+#include <unordered_map>
 
 #include <kc/core/ErrorBase.hpp>
 #include <kc/core/FileSystem.h>
@@ -15,7 +16,7 @@ using namespace kc;
 
 enum class OutputType {
     singleFile,
-    multiFile
+    multiFile,
 };
 
 auto pop(auto stack) {
@@ -72,7 +73,14 @@ public:
         };
 
         for (auto& line : file | std::views::filter(isLineNotEmpty)) {
-            for (auto& rawToken : core::split(line, ' ')) {
+            std::cout << "Processing line: " << line << '\n';
+            auto rawTokens = core::split(line, ' ');
+
+            std::cout << rawTokens.size() << '\n';
+
+            for (auto& rawToken : rawTokens) {
+
+                std::cout << "Parsing token: " << rawToken << '\n';
                 tokens.push_back(parseToken(rawToken));
 
                 auto& lastToken = tokens.back();
@@ -127,11 +135,25 @@ private:
 };
 
 struct Model {
+    struct Field {
+        std::string name;
+        std::string type;
+    };
+
+    inline static std::unordered_map<std::string, std::string> allowedTypes = {
+        { "int", "int" },
+        { "bool", "bool" },
+        { "str", "std::string" },
+        { "numeric", "float" }
+    };
+
     std::string name;
+    std::vector<Field> fields;
 };
 
 struct Enum {
     std::string name;
+    std::vector<std::string> values;
 };
 
 struct Structures {
@@ -183,31 +205,53 @@ private:
 
         expectToken(TokenType::openingBrace);
 
-        while (getNextToken()->type != TokenType::closingBrace)
-            processModelField();
+        Model model { .name = name };
 
-        m_structures.models.emplace_back(name);
+        while (nextToken()->type != TokenType::closingBrace)
+            model.fields.push_back(processModelField());
+        expectToken(TokenType::closingBrace);
+
+        m_structures.models.push_back(std::move(model));
     }
 
-    void processModelField() {
+    Model::Field processModelField() {
+        auto name = getNextToken(TokenType::string)->value;
+        expectToken(TokenType::colon);
+        auto type = getNextToken(TokenType::string)->value;
+        expectToken(TokenType::coma);
+
+        if (not Model::allowedTypes.contains(type))
+            fail("Invalid type: " + type);
+
+        return Model::Field { name, Model::allowedTypes.at(type) };
     }
 
     void processEnum() {
         auto name = getNextToken(TokenType::string)->value;
 
-        expectToken(TokenType::colon);
-
-        auto type = getNextToken(TokenType::string)->value;
-
         expectToken(TokenType::openingBrace);
 
-        while (getNextToken()->type != TokenType::closingBrace)
-            processEnumField();
+        Enum enumerate { .name = name };
 
-        m_structures.enums.emplace_back(name);
+        while (nextToken()->type != TokenType::closingBrace)
+            enumerate.values.push_back(processEnumField());
+        expectToken(TokenType::closingBrace);
+
+        m_structures.enums.push_back(std::move(enumerate));
     }
 
-    void processEnumField() {
+    std::string processEnumField() {
+        auto value = getNextToken(TokenType::string)->value;
+        expectToken(TokenType::coma);
+
+        return value;
+    }
+
+    Token const* nextToken() {
+        if (m_currentIndex == m_tokensSize)
+            fail("Unexpected end of file");
+
+        return &m_tokens[m_currentIndex];
     }
 
     Token const* getNextToken() {
@@ -242,7 +286,111 @@ private:
     const Tokenizer::Tokens& m_tokens;
 };
 
+static const std::string fourSpaces = "    ";
+
 class Generator {
+public:
+    struct File {
+        std::string content;
+        std::string path;
+    };
+
+    using Files = std::vector<File>;
+
+    Files generateCode(const Structures& structures) {
+        Files files;
+
+        for (auto& enumerate : structures.enums)
+            files.emplace_back(
+                generateEnum(enumerate), enumerate.name + ".hpp");
+
+        for (auto& model : structures.models)
+            files.emplace_back(
+                generateModel(model), model.name + ".hpp");
+
+        return files;
+    }
+
+private:
+    std::string generateModel(const Model& model) {
+        std::ostringstream data;
+
+        data << "#pragma once\n\n"
+             << "struct " << model.name << " {\n";
+
+        for (auto& [fieldName, fieldType] : model.fields)
+            data << fourSpaces << fieldType << ' ' << fieldName << ";\n";
+
+        data << '\n'
+             << generateModelFromJson(model) << '\n'
+             << generateModelToJson(model) << '\n'
+             << "};\n";
+
+        return data.str();
+    }
+
+    inline static const std::string jsonType = "JSON";
+
+    std::string generateModelFromJson(const Model& model) {
+        std::ostringstream data;
+
+        data << fourSpaces << "static " << model.name << " fromJson(const " << jsonType << "& json) {\n"
+             << fourSpaces << fourSpaces << "return "
+             << "JSON {};\n"
+             << fourSpaces << "}\n";
+
+        return data.str();
+    }
+
+    std::string generateModelToJson(const Model& model) {
+        std::ostringstream data;
+
+        data << fourSpaces << jsonType << " toJson(const " << model.name << "& model) {\n";
+        data << fourSpaces << fourSpaces << "return " << model.name << " {};\n";
+        data << fourSpaces << "}\n";
+
+        return data.str();
+    }
+
+    std::string generateEnum(const Enum& enumerate) {
+        std::ostringstream data;
+
+        static const std::string enumType = "unsigned char";
+
+        data << "#pragma once\n\n";
+        data << "enum " << enumerate.name << " : " << enumType << " {\n";
+        data << fourSpaces;
+
+        for (auto& value : enumerate.values)
+            data << value << ", ";
+
+        data << '\n';
+        data << "};\n\n";
+        data << generateEnumToString(enumerate) << "\n";
+
+        return data.str();
+    }
+
+    std::string generateEnumToString(const Enum& enumerate) {
+        std::ostringstream data;
+
+        data << "const std::string toString(" << enumerate.name << " value) {\n";
+        data << fourSpaces << "switch (value) {\n";
+
+        for (auto& value : enumerate.values) {
+            data << fourSpaces << fourSpaces << "case " << enumerate.name << "::" << value << ":\n";
+            data << fourSpaces << fourSpaces << fourSpaces << "return "
+                 << "\"" << value << "\";\n";
+        }
+
+        data << fourSpaces << "}\n";
+        data << fourSpaces << "return \"UnknownValue\";\n";
+        data << "}\n";
+
+        data << "\n";
+
+        return data.str();
+    }
 };
 
 int main(int argc, char** argv) {
@@ -257,20 +405,16 @@ int main(int argc, char** argv) {
     try {
         auto tokens = Tokenizer {}.tokenize(fileContent);
 
-        for (auto& token : tokens) {
-            std::cout << token.value << '\n';
-        }
-        std::cout << "\n\n";
-
         auto structures = Parser { tokens }.parseTokens();
+        auto files = Generator {}.generateCode(structures);
 
-        std::cout << "[Enums]:\n";
-        for (auto& en : structures.enums)
-            std::cout << en.name << '\n';
+        std::cout << "\n\n$ Generated files:\n\n";
 
-        std::cout << "[Models]:\n";
-        for (auto& model : structures.models)
-            std::cout << model.name << '\n';
+        for (auto& [fileContent, fileName] : files) {
+            std::cout << "[" << fileName << "]\n"
+                      << "\n"
+                      << fileContent << "";
+        }
 
     } catch (ModelGeneratorError& error) {
         std::cout << error.asString() << '\n';

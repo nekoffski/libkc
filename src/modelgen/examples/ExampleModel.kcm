@@ -1,10 +1,14 @@
 #model
 
-enum ExampleEnum : str {
-    ValueA, ValueB 
+enum ExampleEnum {
+    ValueA, ValueB, ValueC, ValueD, ValueE,
+}
+
+enum State {
+    idle, connected, working,
 }
 
 model ExampleModel {
     fieldA: int,
-    fieldB: bool
+    fieldB: bool,
 }
