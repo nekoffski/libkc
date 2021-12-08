@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
         auto tokens = Tokenizer {}.tokenize(fileContent);
 
         auto structures = Parser { tokens }.parseTokens();
-        auto files = Generator {}.generateCode(structures);
+        auto files = Generator { JsonLib::libkc }.generateCode(structures);
 
         std::cout << "\n\n$ Generated files:\n\n";
 

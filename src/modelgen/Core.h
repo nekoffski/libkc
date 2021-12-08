@@ -10,4 +10,12 @@ enum class OutputType {
     multiFile,
 };
 
-static const std::string fourSpaces = "    ";
+enum class JsonLib {
+    libkc,
+    arduino
+};
+
+inline std::string spaces(const std::size_t count) {
+    static const char space = ' ';
+    return std::string(count, space);
+}

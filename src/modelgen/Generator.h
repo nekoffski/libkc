@@ -3,6 +3,8 @@
 #include "Core.h"
 #include "Language.h"
 
+#include "kc/core/FileSystem.h"
+
 class Generator {
 public:
     struct File {
@@ -12,12 +14,18 @@ public:
 
     using Files = std::vector<File>;
 
+    explicit Generator(JsonLib jsonLib);
+
     Files generateCode(const Structures& structures);
 
 private:
     std::string generateModel(const Model& model);
 
     inline static const std::string jsonType = "JSON";
+
+    inline std::string getJsonObjectType() const {
+        return m_jsonLib == JsonLib::libkc ? "kc::json::Node" : "JSON";
+    }
 
     std::string generateModelFromJson(const Model& model);
 
@@ -26,4 +34,8 @@ private:
     std::string generateEnum(const Enum& enumerate);
 
     std::string generateEnumToString(const Enum& enumerate);
+
+    JsonLib m_jsonLib;
 };
+
+void generateFiles(kc::core::FileSystem& fs, const Generator::Files& files, OutputType outputType);
