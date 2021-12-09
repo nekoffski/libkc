@@ -27,7 +27,12 @@ std::string Generator::generateModel(const Model& model) {
 
     data << "#pragma once\n\n"
          << "#include \"BaseModel.h\"\n\n"
-         << "struct " << model.name << " : BaseModel {\n\n";
+         << "struct " << model.name << " : BaseModel";
+
+    if (m_jsonLib == JsonLib::libkc)
+        data << ", protected kc::json::NodeHelper<DeserializationError> ";
+
+    data << "{\n\n";
 
     for (auto& [fieldName, fieldType] : model.fields)
         data << spaces(4) << fieldType << ' ' << fieldName << ";\n";
@@ -39,7 +44,7 @@ std::string Generator::generateModel(const Model& model) {
 
     data << '\n'
          << generateModelFromJson(model) << '\n'
-         << generateModelToJson(model) << '\n'
+         << generateModelToJson(model)
          << "};\n";
 
     return data.str();
@@ -49,7 +54,18 @@ std::string Generator::generateModelFromJson(const Model& model) {
     std::ostringstream data;
 
     data << spaces(4) << "static " << model.name << " fromJson(const " << getJsonObjectType() << "& json) {\n"
-         << spaces(8) << "return " << model.name << " {};\n"
+         << spaces(8) << "return " << model.name << " {\n";
+
+    static auto generateGetter = [](const Model::Field& field) -> std::string {
+        const auto& [name, type] = field;
+
+        return "fieldFrom(json).withName(\"" + name + "\").ofType<" + Model::allowedTypes[type] + ">().get(),\n";
+    };
+
+    for (const auto& field : model.fields)
+        data << spaces(12) << '.' << field.name << " = " << generateGetter(field);
+
+    data << spaces(8) << "};\n"
          << spaces(4) << "}\n";
 
     return data.str();
