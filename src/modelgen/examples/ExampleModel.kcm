@@ -8,7 +8,12 @@ enum State {
     idle, connected, working,
 }
 
+model Account {
+    name: str,
+    passwd: str,
+}
+
 model ExampleModel {
-    fieldA: int,
+    account: Account,
     fieldB: bool,
 }

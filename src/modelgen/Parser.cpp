@@ -57,13 +57,10 @@ void Parser::processModel() {
 Model::Field Parser::processModelField() {
     auto name = getNextToken(TokenType::string)->value;
     expectToken(TokenType::colon);
-    auto type = getNextToken(TokenType::string)->value;
+    auto typeDescription = getNextToken(TokenType::string)->value;
     expectToken(TokenType::coma);
 
-    if (not Model::allowedTypes.contains(type))
-        fail("Invalid type: " + type);
-
-    return Model::Field { name, Model::allowedTypes.at(type) };
+    return Model::Field { name, typeDescription };
 }
 
 void Parser::processEnum() {

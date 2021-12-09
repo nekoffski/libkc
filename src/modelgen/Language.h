@@ -10,7 +10,7 @@ struct Model {
         std::string type;
     };
 
-    inline static std::unordered_map<std::string, std::string> allowedTypes = {
+    inline static const std::unordered_map<std::string, std::string> allowedTypes = {
         { "int", "int" },
         { "bool", "bool" },
         { "str", "std::string" },

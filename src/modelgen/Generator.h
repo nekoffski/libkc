@@ -35,7 +35,16 @@ private:
 
     std::string generateEnumToString(const Enum& enumerate);
 
+    std::string determineFieldType(const std::string& fieldDescription, std::ostringstream& headers);
+
     JsonLib m_jsonLib;
+
+    enum Type {
+        enumerate,
+        model
+    };
+
+    std::unordered_map<std::string, Type> m_customTypes;
 };
 
 void generateFiles(kc::core::FileSystem& fs, const Generator::Files& files, OutputType outputType);
