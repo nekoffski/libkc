@@ -2,16 +2,12 @@
 
 namespace kc::service {
 
-void PthreadServiceThread::ThreadWorker::operator()() {
-    m_service->run();
+std::unique_ptr<ServiceThread> PthreadServiceThread::Factory::create(Service* service) {
+    return std::make_unique<PthreadServiceThread>(service);
 }
 
-std::shared_ptr<ServiceThread> PthreadServiceThread::Factory::create(std::shared_ptr<Service> service) {
-    return std::make_shared<PthreadServiceThread>(service);
-}
-
-PthreadServiceThread::PthreadServiceThread(std::shared_ptr<Service> service)
-    : m_thread(ThreadWorker { service }) {
+PthreadServiceThread::PthreadServiceThread(Service* service)
+    : m_thread([service]() { service->run(); }) {
 }
 
 void PthreadServiceThread::join() {

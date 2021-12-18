@@ -12,14 +12,14 @@ static void signalHandler(int signal) {
     serviceManagerInstance->onSignal();
 }
 
-ServiceManager::ServiceManager(std::shared_ptr<ServiceThread::Factory> serviceThreadFactory)
+ServiceManager::ServiceManager(ServiceThread::Factory* serviceThreadFactory)
     : m_serviceThreadFactory(serviceThreadFactory) {
 
     serviceManagerInstance = this;
     setupSignals();
 }
 
-void ServiceManager::addService(std::shared_ptr<Service> service) {
+void ServiceManager::addService(Service* service) {
     m_services.push_back(service);
     LOG_INFO("Service {} added.", service->getName());
 }

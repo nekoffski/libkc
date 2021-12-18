@@ -15,6 +15,8 @@ public:
         , m_isRunning(true) {
     }
 
+    virtual ~Service() = default;
+
     virtual void update() = 0;
     virtual void onInit() = 0;
     virtual void onShutdown() = 0;

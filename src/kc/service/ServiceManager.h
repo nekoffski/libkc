@@ -10,7 +10,7 @@ namespace kc::service {
 
 class ServiceManager {
 public:
-    explicit ServiceManager(std::shared_ptr<ServiceThread::Factory> serviceThreadFactory);
+    explicit ServiceManager(ServiceThread::Factory* serviceThreadFactory);
 
     // clang-format off
     template <typename... T>
@@ -19,7 +19,7 @@ public:
     }
     // clang-format on
 
-    void addService(std::shared_ptr<Service> service);
+    void addService(Service* service);
     void start();
 
     int getServicesCount();
@@ -32,10 +32,10 @@ private:
     void waitForThreads();
     void shutdownServices();
 
-    std::shared_ptr<ServiceThread::Factory> m_serviceThreadFactory;
+    ServiceThread::Factory* m_serviceThreadFactory;
 
-    std::vector<std::shared_ptr<Service>> m_services;
-    std::vector<std::shared_ptr<ServiceThread>> m_threads;
+    std::vector<Service*> m_services;
+    std::vector<std::unique_ptr<ServiceThread>> m_threads;
 };
 
 }

@@ -28,13 +28,13 @@ protected:
 };
 
 TEST_F(EventEmitterTests, whenEmittingEventToNotExistingListener_shouldThrowError) {
-    ASSERT_THROW(m_eventEmitter->emit<EventA>().to("NotExistingListener"), kc::event::ListenerNotFound);
+    ASSERT_THROW(m_eventEmitter->emit<EventA>().to("NotExistingListener"), ListenerNotFound);
 }
 
 TEST_F(EventEmitterTests, givenEventResult_whenWaitingWithTimeout_shouldThrowError) {
     auto result = m_eventEmitter->emit<EventA>().to(ident1);
     EXPECT_FALSE(result.isReady());
-    ASSERT_THROW(result.wait(5ms), kc::event::ResultTimeout);
+    ASSERT_THROW(result.wait(5ms), ResultTimeout);
 }
 
 TEST_F(EventEmitterTests, givenEventResult_whenWaitingAndEventIsSet_shouldReturnEvent) {

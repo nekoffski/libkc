@@ -9,25 +9,21 @@ namespace kc::service {
 
 struct ServiceThread {
     struct Factory {
-        virtual std::shared_ptr<ServiceThread> create(std::shared_ptr<Service> service) = 0;
+        virtual std::unique_ptr<ServiceThread> create(Service* service) = 0;
     };
+
+    virtual ~ServiceThread() = default;
 
     virtual void join() = 0;
 };
 
 class PthreadServiceThread : public ServiceThread {
-    struct ThreadWorker {
-        void operator()();
-
-        std::shared_ptr<Service> m_service;
-    };
-
 public:
     struct Factory : ServiceThread::Factory {
-        std::shared_ptr<ServiceThread> create(std::shared_ptr<Service> service) override;
+        std::unique_ptr<ServiceThread> create(Service* service) override;
     };
 
-    explicit PthreadServiceThread(std::shared_ptr<Service> service);
+    explicit PthreadServiceThread(Service* service);
 
     void join() override;
 

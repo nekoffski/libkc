@@ -1,15 +1,12 @@
 #pragma once
 
 #include <exception>
-namespace kc::event {
 
-struct XventError : public std::exception {};
+#include "kc/core/ErrorBase.hpp"
 
-struct ListenerAlreadyRegistered : XventError {};
+DEFINE_ERROR(EventError);
 
-struct ListenerNotFound : XventError {};
-
-struct ResultTimeout : XventError {};
-
-struct NoTargetSpecified : XventError {};
-}
+DEFINE_SUB_ERROR(ListenerAlreadyRegistered, EventError);
+DEFINE_SUB_ERROR(ListenerNotFound, EventError);
+DEFINE_SUB_ERROR(ResultTimeout, EventError);
+DEFINE_SUB_ERROR(NoTargetSpecified, EventError);

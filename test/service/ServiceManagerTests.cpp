@@ -14,17 +14,17 @@ namespace {
 
 struct ServiceManagerTests : public testing::Test {
     void SetUp() override {
-        serviceMock = std::make_shared<ServiceMock>("ServiceMock");
-        serviceThreadFactoryMock = std::make_shared<ServiceThreadFactoryMock>();
-        serviceThreadMock = std::make_shared<ServiceThreadMock>();
+        serviceMock = std::make_unique<ServiceMock>("ServiceMock");
+        serviceThreadFactoryMock = std::make_unique<ServiceThreadFactoryMock>();
+        serviceThreadMock = std::make_unique<ServiceThreadMock>();
 
-        serviceManager = std::make_shared<ServiceManager>(serviceThreadFactoryMock);
+        serviceManager = std::make_unique<ServiceManager>(serviceThreadFactoryMock.get());
     }
 
-    std::shared_ptr<ServiceMock> serviceMock;
-    std::shared_ptr<ServiceThreadFactoryMock> serviceThreadFactoryMock;
-    std::shared_ptr<ServiceThreadMock> serviceThreadMock;
-    std::shared_ptr<ServiceManager> serviceManager;
+    std::unique_ptr<ServiceMock> serviceMock;
+    std::unique_ptr<ServiceThreadFactoryMock> serviceThreadFactoryMock;
+    std::unique_ptr<ServiceThreadMock> serviceThreadMock;
+    std::unique_ptr<ServiceManager> serviceManager;
 };
 
 TEST_F(ServiceManagerTests, givenServiceManagerWithoutServices_whenAskingForCountOfServices_shouldReturnZero) {
@@ -34,17 +34,22 @@ TEST_F(ServiceManagerTests, givenServiceManagerWithoutServices_whenAskingForCoun
 TEST_F(ServiceManagerTests, givenServiceManagerWithServices_whenAskingForCountOfServices_shouldReturnOne) {
     ASSERT_EQ(serviceManager->getServicesCount(), 0);
 
-    serviceManager->addService(serviceMock);
+    serviceManager->addService(serviceMock.get());
     EXPECT_EQ(serviceManager->getServicesCount(), 1);
 }
 
 TEST_F(ServiceManagerTests, givenRegisteredService_whenStartingServiceManager_shouldProcessService) {
     EXPECT_CALL(*serviceMock, onInit()).Times(1);
     EXPECT_CALL(*serviceMock, onShutdown()).Times(1);
-    EXPECT_CALL(*serviceThreadFactoryMock, create(_)).Times(1).WillOnce(Return(serviceThreadMock));
-    EXPECT_CALL(*serviceThreadMock, join()).Times(1);
 
-    serviceManager->addService(serviceMock);
+    auto& threadMock = *serviceThreadMock;
+
+    EXPECT_CALL(*serviceThreadFactoryMock, create(_))
+        .Times(1)
+        .WillOnce(Return(ByMove(std::move(serviceThreadMock))));
+    EXPECT_CALL(threadMock, join()).Times(1);
+
+    serviceManager->addService(serviceMock.get());
     serviceManager->start();
 }
 

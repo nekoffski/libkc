@@ -28,7 +28,7 @@ TEST_F(EventEngineTests, givenEventEngine_whenCheckingIfUnregisteredListenerIsRe
 }
 
 TEST_F(EventEngineTests, givenEventEngine_whenUnregisteringNotExistingListener_shouldThrow) {
-    ASSERT_THROW(eventEngine.unregisterEventListener("notExistingListener"), kc::event::ListenerNotFound);
+    ASSERT_THROW(eventEngine.unregisterEventListener("notExistingListener"), ListenerNotFound);
 }
 
 TEST_F(EventEngineTests, givenEventEngine_whenRegisteringListener_shouldRegister) {
@@ -53,7 +53,7 @@ TEST_F(EventEngineTests, givenEventEngine_whenRegisteringListenerTwice_shouldThr
     auto listener = std::make_shared<ConcreteEventListener>();
     eventEngine.registerEventListener(listener.get());
 
-    ASSERT_THROW(eventEngine.registerEventListener(listener.get()), kc::event::ListenerAlreadyRegistered);
+    ASSERT_THROW(eventEngine.registerEventListener(listener.get()), ListenerAlreadyRegistered);
 }
 
 struct EventA : kc::event::EventBase<EventA> { };
