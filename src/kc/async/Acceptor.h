@@ -13,36 +13,44 @@
 
 namespace kc::async {
 
-struct Acceptor {
-    struct Factory {
-        virtual std::unique_ptr<Acceptor> create(std::shared_ptr<Context> context, unsigned short port) = 0;
-    };
+class Acceptor {
+public:
+    explicit Acceptor(Context* context, unsigned short port)
+        : m_context(context)
+        , m_port(port) {
+    }
 
     using AcceptCallback = std::function<void(async::Error, std::unique_ptr<Socket>)>;
 
     virtual ~Acceptor() = default;
     virtual void asyncAccept(AcceptCallback) = 0;
 
-    virtual unsigned int getPort() const = 0;
+    unsigned int getPort() const {
+        return m_port;
+    }
 
-    virtual std::shared_ptr<Context> getContext() = 0;
+    Context* getContext() const {
+        return m_context;
+    }
+
+protected:
+    Context* m_context;
+    unsigned int m_port;
 };
 
 class AsioAcceptor : public Acceptor {
 public:
-    struct Factory : Acceptor::Factory {
-        std::unique_ptr<Acceptor> create(std::shared_ptr<Context> context, unsigned short port) override {
-            return std::make_unique<AsioAcceptor>(context, port);
-        }
-    };
+    using Acceptor::Acceptor;
 
     ~AsioAcceptor() override {
         m_acceptor->close();
     }
 
-    explicit AsioAcceptor(std::shared_ptr<Context> context, unsigned short port)
-        : m_port(port) {
-        m_asioContext = std::dynamic_pointer_cast<AsioContext>(context);
+    explicit AsioAcceptor(Context* context, unsigned short port)
+        : Acceptor(context, port) {
+
+        m_asioContext = dynamic_cast<AsioContext*>(m_context);
+
         ASSERT(m_asioContext != nullptr, "Invalid async context");
 
         using namespace boost::asio::ip;
@@ -57,18 +65,8 @@ public:
         });
     }
 
-    unsigned int getPort() const override {
-        return m_port;
-    }
-
-    std::shared_ptr<Context> getContext() override {
-        return m_asioContext;
-    }
-
 private:
-    unsigned int m_port;
-
-    std::shared_ptr<AsioContext> m_asioContext;
+    AsioContext* m_asioContext;
     std::unique_ptr<boost::asio::ip::tcp::acceptor> m_acceptor;
 };
 
