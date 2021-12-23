@@ -4,6 +4,12 @@
 
 namespace kc::json {
 
+std::string toString(const Node& node) {
+    Json::StreamWriterBuilder streamWriter;
+
+    return Json::writeString(streamWriter, node);
+}
+
 Json::Value loadJson(const std::string& jsonString) {
     Json::Value root;
     Json::CharReaderBuilder builder;

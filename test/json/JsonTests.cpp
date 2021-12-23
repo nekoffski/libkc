@@ -12,6 +12,10 @@ public:
     JsonBuilder jsonBuilder;
 };
 
+TEST_F(JsonTests, givenJson_whenParsingToString_shouldReturnCorrectJson) {
+    EXPECT_EQ(jsonBuilder.asString(), "{}");
+}
+
 TEST_F(JsonTests, givenInvalidJsonString_whenParsing_shouldThrow) {
     std::string corruptedJson = "{\"Hello\": {}";
     EXPECT_THROW(loadJson(corruptedJson), JsonError);

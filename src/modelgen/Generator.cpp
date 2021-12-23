@@ -106,6 +106,8 @@ std::string Generator::generateModelToJson(const Model& model) {
              << spaces(8) << "kc::core::JsonBuilder json;"
              << "\n\n";
 
+        data << spaces(8) << "json.addField(\"name\", getName()).beginObject(\"fields\");\n\n";
+
         for (const auto& [name, type] : model.fields) {
             data << spaces(8) << "json.addField(\"" << name << "\", "
                  << "this->" << name;
@@ -113,10 +115,13 @@ std::string Generator::generateModelToJson(const Model& model) {
             std::cout << "Processing field: " << type << "/" << name << '\n';
 
             if (not Model::allowedTypes.contains(type))
-                data << ".asString()";
+                data << ".toJson()";
 
             data << ");\n";
         }
+
+        data << '\n'
+             << spaces(8) << "json.endObject();\n";
 
         data << '\n'
              << spaces(8) << "return json.asString();\n"

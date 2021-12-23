@@ -18,6 +18,8 @@ using Node = Json::Value;
 
 Json::Value loadJson(const std::string&);
 
+std::string toString(const Node& node);
+
 class JsonBuilder {
 public:
     explicit JsonBuilder();
