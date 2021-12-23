@@ -1,6 +1,8 @@
 #pragma once
 
+#include <chrono>
 #include <memory>
+#include <thread>
 
 #include "kc/async/Socket.h"
 #include "kc/core/Log.h"
@@ -23,25 +25,35 @@ public:
     }
 
     template <typename T>
-    requires std::derived_from<T, model::Serializable> void send(T&& message) {
+    requires std::derived_from<T, model::Serializable> std::string send(T&& message) {
         auto jsonMessage = message.toJson();
 
         if (not jsonMessage.isMember("conversation-id"))
             jsonMessage["conversation-id"] = core::generateUuid();
 
-        sendMessage(json::toString(jsonMessage))
+        sendMessage(json::toString(jsonMessage));
+
+        return jsonMessage["conversation-id"].asString();
     }
 
     std::unique_ptr<model::Deserializable> waitForResponse(const std::string& conversationId) {
-        LOOP {
+        using clock = std::chrono::steady_clock;
+        using namespace std::chrono_literals;
+
+        auto timeout = 5s;
+        auto start = clock::now();
+
+        // TODO: protect with mutex
+        while (start + timeout >= clock::now()) {
             if (m_conversations.contains(conversationId)) {
                 ON_SCOPE_EXIT { m_conversations.erase(conversationId); };
+
                 return std::move(m_conversations[conversationId]);
             }
 
-            // async_sleep
+            std::this_thread::yield();
+            std::this_thread::sleep_for(5ms);
         }
-        // handle timeout!
     }
 
     bool isEmpty() const {
@@ -56,6 +68,10 @@ public:
 
 private:
     void sendMessage(const std::string& message) {
+        m_socket->asyncWrite(message, [](async::Error error, unsigned int bytesSent) {
+            if (error)
+                LOG_WARN("Could not send message due to: {}", error.asString());
+        });
     }
 
     void waitForMessage() {

@@ -5,6 +5,7 @@
 
 namespace kc::model {
 
-struct Model : virtual public Deserializable, virtual public Serializable { };
+template <typename T>
+struct Model : virtual public Deserializable<T>, virtual public Serializable { };
 
 }

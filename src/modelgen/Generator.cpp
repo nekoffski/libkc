@@ -48,9 +48,9 @@ std::string Generator::generateModel(const Model& model) {
     std::ostringstream headers;
 
     headers << "#pragma once\n\n"
-            << "#include \"BaseModel.h\"\n";
+            << "#include \"kc/model/Model.h\"\n";
 
-    data << "struct " << model.name << " : BaseModel";
+    data << "struct " << model.name << " : public Model<" << model.name << '>';
 
     if (m_jsonLib == JsonLib::libkc)
         data << ", protected kc::json::NodeHelper<DeserializationError> ";
@@ -106,7 +106,7 @@ std::string Generator::generateModelToJson(const Model& model) {
              << spaces(8) << "kc::core::JsonBuilder json;"
              << "\n\n";
 
-        data << spaces(8) << "json.addField(\"name\", getName()).beginObject(\"fields\");\n\n";
+        data << spaces(8) << "json.addField(\"name\", getName()).beginObject(\"body\");\n\n";
 
         for (const auto& [name, type] : model.fields) {
             data << spaces(8) << "json.addField(\"" << name << "\", "
