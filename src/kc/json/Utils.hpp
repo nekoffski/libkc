@@ -185,4 +185,9 @@ protected:
     }
 };
 
+template <typename Error>
+requires std::derived_from<Error, core::ErrorBase> detail::NodeWrapper<Error> fieldFrom(const Node& node) {
+    return detail::NodeWrapper<Error> { node };
+};
+
 }

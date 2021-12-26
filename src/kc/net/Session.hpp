@@ -91,16 +91,25 @@ private:
     }
 
     void processMessage(std::string message) {
-        const auto json = json::loadJson(message);
-        const auto messageName = json["name"].asString();
+        try {
+            const auto json = json::loadJson(message);
+            const auto messageName = json["name"].asString();
 
-        auto message = m_deserializer->deserializeMessage(messageName, json["body"]);
+            auto message = m_deserializer->deserializeMessage(messageName, json["body"]);
 
-        if (json.isMember("conversation-id")) {
-            auto conversationId = json["conversation-id"].asString();
-            m_conversations.insert(conversationId, std::move(message));
-        } else {
-            m_receivedMessages.emplace_back(std::move(message));
+            if (not message) {
+                LOG_WARN("Received unknown message: {}", messageName);
+                return;
+            }
+
+            if (json.isMember("conversation-id")) {
+                auto conversationId = json["conversation-id"].asString();
+                m_conversations.insert({ conversationId, std::move(message) });
+            } else {
+                m_receivedMessages.emplace_back(std::move(message));
+            }
+        } catch (core::ErrorBase& error) {
+            LOG_ERROR("Could not process message due to: {}", error.asString());
         }
     }
 

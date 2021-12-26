@@ -35,7 +35,7 @@ std::string Generator::determineFieldType(const std::string& typeDescription, st
 
     if (m_customTypes.contains(typeDescription)) {
         if (m_customTypes[typeDescription] == Type::model)
-            headers << "#include \"" << typeDescription << ".h\"\n";
+            headers << "#include \"" << typeDescription << ".hpp\"\n";
 
         return typeDescription;
     }
@@ -48,14 +48,11 @@ std::string Generator::generateModel(const Model& model) {
     std::ostringstream headers;
 
     headers << "#pragma once\n\n"
-            << "#include \"kc/model/Model.h\"\n";
+            << "#include \"kc/model/Model.h\"\n"
+            << "#include \"kc/json/Utils.hpp\"\n\n";
 
-    data << "struct " << model.name << " : public Model<" << model.name << '>';
-
-    if (m_jsonLib == JsonLib::libkc)
-        data << ", protected kc::json::NodeHelper<DeserializationError> ";
-
-    data << "{\n\n";
+    data << "struct " << model.name << " : public kc::model::Model<" << model.name << '>';
+    data << "{\n";
 
     for (auto& [fieldName, fieldType] : model.fields)
         data << spaces(4) << determineFieldType(fieldType, headers) << ' ' << fieldName << ";\n";
@@ -77,21 +74,22 @@ std::string Generator::generateModelFromJson(const Model& model) {
     std::ostringstream data;
 
     data << spaces(4) << "static " << model.name << " fromJson(const " << getJsonObjectType() << "& json) {\n"
-         << spaces(8) << "return " << model.name << " {\n";
+         << spaces(8) << model.name << " model;\n\n";
 
     static auto generateGetter = [](const Model::Field& field) -> std::string {
         const auto& [name, type] = field;
 
         if (Model::allowedTypes.contains(type))
-            return "fieldFrom(json).withName(\"" + Model::allowedTypes.at(type) + "\").ofType<" + "int" + ">().get(),\n";
+            return "kc::json::fieldFrom<ModelError>(json).withName(\"" + name + "\").ofType<" + Model::allowedTypes.at(type) + ">().get();\n";
 
-        return type + "::fromJson(fieldFrom(json).withName(\"" + name + "\").asObject().get()),\n";
+        return type + "::fromJson(kc::json::fieldFrom<ModelError>(json).withName(\"" + name + "\").asObject().get());\n";
     };
 
     for (const auto& field : model.fields)
-        data << spaces(12) << '.' << field.name << " = " << generateGetter(field);
+        data << spaces(8) << "model." << field.name << " = " << generateGetter(field);
 
-    data << spaces(8) << "};\n"
+    data << spaces(8) << '\n'
+         << spaces(8) << "return model;\n"
          << spaces(4) << "}\n";
 
     return data.str();
@@ -103,7 +101,7 @@ std::string Generator::generateModelToJson(const Model& model) {
     if (m_jsonLib == JsonLib::libkc) {
 
         data << spaces(4) << getJsonObjectType() << " toJson() const override {\n"
-             << spaces(8) << "kc::core::JsonBuilder json;"
+             << spaces(8) << "kc::json::JsonBuilder json;"
              << "\n\n";
 
         data << spaces(8) << "json.addField(\"name\", getName()).beginObject(\"body\");\n\n";
