@@ -16,12 +16,13 @@
 namespace kc::net {
 
 class Session {
+    constexpr unsigned static int messageLengthBytes = 4u;
 
 public:
     explicit Session(std::unique_ptr<async::Socket> socket, model::MessageDeserializer* deserializer)
         : m_socket(std::move(socket))
         , m_deserializer(deserializer) {
-        waitForMessage();
+        readMessageLength();
     }
 
     template <typename T>
@@ -67,6 +68,42 @@ public:
     }
 
 private:
+    // void sendMessageLength(const std::string& message) {
+    //     auto messageLength = message.size();
+
+    //     auto onWrite = [&, message](async::Error error, unsigned int bytesSent) {
+    //         if (error) {
+    //         }
+    //         sendMessageBody(message);
+    //     };
+
+    //     auto messageLengthAsBytes =
+    //         std::string { reinterpret_cast<char*>(&messageLength), messageLengthBytes };
+    //     m_socket->asyncWrite(messageLengthAsBytes, onWrite);
+    // }
+
+    void readMessageLength() {
+        auto onRead = [&](async::Error error, std::string message, unsigned int bytesReceived) {
+            LOG_INFO("Reading message length");
+
+            if (bytesReceived != messageLengthBytes) {
+            }
+
+            if (error) {
+            }
+
+            if (bytesReceived == 0) {
+                // return;
+            }
+
+            unsigned int messageLength = *reinterpret_cast<unsigned int*>(message.data());
+
+            waitForMessage(messageLength);
+        };
+
+        m_socket->asyncRead(onRead, messageLengthBytes);
+    }
+
     void sendMessage(const std::string& message) {
         m_socket->asyncWrite(message, [](async::Error error, unsigned int bytesSent) {
             if (error)
@@ -74,20 +111,21 @@ private:
         });
     }
 
-    void waitForMessage() {
+    void waitForMessage(unsigned int messageLength) {
         auto onMessage = [&](async::Error error, std::string message, unsigned int bytesRead) {
-            ON_SCOPE_EXIT { waitForMessage(); };
+            ON_SCOPE_EXIT { readMessageLength(); };
 
             if (error) {
                 LOG_WARN("Could not read message due to: {}", error.asString());
                 return;
             }
 
+            LOG_INFO("Received message: {}", message);
             processMessage(std::move(message));
         };
 
         // TODO: read message size first
-        m_socket->asyncRead(onMessage, 1024);
+        m_socket->asyncRead(onMessage, messageLength);
     }
 
     void processMessage(std::string message) {
@@ -109,7 +147,7 @@ private:
                 m_receivedMessages.emplace_back(std::move(message));
             }
         } catch (core::ErrorBase& error) {
-            LOG_ERROR("Could not process message due to: {}", error.asString());
+            LOG_ERROR("Could not process message: {} due to: {}", message, error.asString());
         }
     }
 

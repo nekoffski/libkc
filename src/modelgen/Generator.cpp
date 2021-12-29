@@ -14,6 +14,7 @@ Generator::Files Generator::generateCode(const Structures& structures) {
     Files files;
 
     for (auto& enumerate : structures.enums) {
+        std::cout << "$ Generating enum: " << enumerate.name << '\n';
         files.emplace_back(
             generateEnum(enumerate), enumerate.name + ".hpp");
         m_customTypes[enumerate.name] = Type::enumerate;
@@ -22,9 +23,11 @@ Generator::Files Generator::generateCode(const Structures& structures) {
     for (auto& model : structures.models)
         m_customTypes[model.name] = Type::model;
 
-    for (auto& model : structures.models)
+    for (auto& model : structures.models) {
+        std::cout << "$ Generating model: " << model.name << '\n';
         files.emplace_back(
             generateModel(model), model.name + ".hpp");
+    }
 
     return files;
 }
@@ -32,6 +35,16 @@ Generator::Files Generator::generateCode(const Structures& structures) {
 std::string Generator::determineFieldType(const std::string& typeDescription, std::ostringstream& headers) {
     if (Model::allowedTypes.contains(typeDescription))
         return Model::allowedTypes.at(typeDescription);
+
+    if (typeDescription[0] == '[') {
+        auto type = typeDescription.substr(1, typeDescription.length() - 2);
+
+        if (m_customTypes.contains(type))
+            if (m_customTypes[type] == Type::model)
+                headers << "#include \"" << type << ".hpp\"\n";
+
+        return "std::vector<" + type + ">";
+    }
 
     if (m_customTypes.contains(typeDescription)) {
         if (m_customTypes[typeDescription] == Type::model)
@@ -54,8 +67,10 @@ std::string Generator::generateModel(const Model& model) {
     data << "struct " << model.name << " : public kc::model::Model<" << model.name << '>';
     data << "{\n";
 
-    for (auto& [fieldName, fieldType] : model.fields)
+    for (auto& [fieldName, fieldType] : model.fields) {
+        std::cout << fieldName << '/' << fieldType << '\n';
         data << spaces(4) << determineFieldType(fieldType, headers) << ' ' << fieldName << ";\n";
+    }
 
     data << '\n'
          << spaces(4) << "std::string getName() const override {\n"
@@ -85,9 +100,17 @@ std::string Generator::generateModelFromJson(const Model& model) {
         return type + "::fromJson(kc::json::fieldFrom<ModelError>(json).withName(\"" + name + "\").asObject().get());\n";
     };
 
-    for (const auto& field : model.fields)
-        data << spaces(8) << "model." << field.name << " = " << generateGetter(field);
+    for (const auto& field : model.fields) {
+        if (field.type[0] == '[') {
+            auto fieldType = field.type.substr(1, field.type.length() - 2);
 
+            data << spaces(8) << "for (auto& node : kc::json::fieldFrom<ModelError>(json).withName(\"" << field.name << "\").asArray().get())\n"
+                 << spaces(12) << "model." << field.name << ".push_back(" << fieldType << "::fromJson(node));\n";
+
+        } else {
+            data << spaces(8) << "model." << field.name << " = " << generateGetter(field);
+        }
+    }
     data << spaces(8) << '\n'
          << spaces(8) << "return model;\n"
          << spaces(4) << "}\n";
@@ -107,15 +130,28 @@ std::string Generator::generateModelToJson(const Model& model) {
         data << spaces(8) << "json.addField(\"name\", getName()).beginObject(\"body\");\n\n";
 
         for (const auto& [name, type] : model.fields) {
-            data << spaces(8) << "json.addField(\"" << name << "\", "
-                 << "this->" << name;
-
             std::cout << "Processing field: " << type << "/" << name << '\n';
 
-            if (not Model::allowedTypes.contains(type))
-                data << ".toJson()";
+            if (type[0] == '[') {
+                data << spaces(8) << "json.beginArray(\"" << name << "\");\n"
+                     << spaces(8) << "for (const auto& item : this->" << name << ")\n"
+                     << spaces(12) << "json.addField(item";
 
-            data << ");\n";
+                if (not Model::allowedTypes.contains(type.substr(1, type.length() - 2)))
+                    data << ".toJson()";
+
+                data << ");\n"
+                     << spaces(8) << "json.endArray();\n";
+
+            } else {
+                data << spaces(8) << "json.addField(\"" << name << "\", "
+                     << "this->" << name;
+
+                if (not Model::allowedTypes.contains(type))
+                    data << ".toJson()";
+
+                data << ");\n";
+            }
         }
 
         data << '\n'

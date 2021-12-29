@@ -29,10 +29,19 @@ int main(int argc, char** argv) {
 
     core::FileSystem fs;
 
-    auto fileContent = fs.readLines(filePath);
+    static auto isModelFile = [](const std::string& path) -> bool {
+        return path.ends_with(".kcm");
+    };
+
+    auto files = fs.listDirectory(filePath);
+
+    std::string fileContent;
+
+    for (const auto& file : files | std::views::filter(isModelFile))
+        fileContent += (fs.readFile(file) + '\n');
 
     try {
-        auto tokens = Tokenizer {}.tokenize(fileContent);
+        auto tokens = Tokenizer {}.tokenize(core::split(fileContent, '\n'));
 
         auto structures = Parser { tokens }.parseTokens();
         auto files = Generator { JsonLib::libkc }.generateCode(structures);

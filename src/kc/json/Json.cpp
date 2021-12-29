@@ -18,7 +18,7 @@ Json::Value loadJson(const std::string& jsonString) {
     const char* p = jsonString.c_str();
     auto reader = std::unique_ptr<Json::CharReader>(builder.newCharReader());
     if (!reader->parse(p, p + jsonString.size(), &root, &errors))
-        throw CouldNotLoadJson {};
+        throw CouldNotLoadJson { std::string { errors } };
     return root;
 }
 
@@ -28,6 +28,11 @@ JsonBuilder::JsonBuilder() {
 }
 
 std::string JsonBuilder::asString() {
+    Json::StreamWriterBuilder writer;
+    return Json::writeString(writer, asJsonObject());
+}
+
+Json::Value JsonBuilder::asJsonObject() {
     endObject();
 
     Json::Value root;
@@ -40,8 +45,8 @@ std::string JsonBuilder::asString() {
     }
 
     reset();
-    Json::StreamWriterBuilder writer;
-    return Json::writeString(writer, root);
+
+    return root;
 }
 
 JsonBuilder& JsonBuilder::beginObject() {

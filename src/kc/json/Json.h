@@ -25,6 +25,8 @@ public:
     explicit JsonBuilder();
 
     std::string asString();
+    Json::Value asJsonObject();
+
     JsonBuilder& beginObject();
     JsonBuilder& beginObject(const std::string& name);
     JsonBuilder& endObject();

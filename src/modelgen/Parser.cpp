@@ -26,6 +26,9 @@ void Parser::processTokens() {
 
     auto currentToken = getNextToken();
 
+    if (currentToken->type == TokenType::header)
+        return processTokens();
+
     if (currentToken->type == TokenType::string) {
         if (currentToken->value == "model")
             processModel();

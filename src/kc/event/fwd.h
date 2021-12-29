@@ -11,6 +11,7 @@ namespace kc::event {
 
 struct Event;
 class EventListener;
+class EventEmitter;
 
 using EventListeners = AtomicUnorderedMap<std::string, EventListener*>;
 using EventQueue = AtomicVector<std::shared_ptr<Event>>;

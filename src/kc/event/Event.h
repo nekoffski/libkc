@@ -45,8 +45,8 @@ public:
     }
 
     template <typename T>
-    const T* asView() const {
-        return static_cast<const T*>(this);
+    T* asView() {
+        return static_cast<T*>(this);
     }
 
     template <typename T, typename... Args>
@@ -87,7 +87,7 @@ concept EventType = std::derived_from<T, Event>;
 
 // clang-format off
 template <typename Ev, CategoryType Category = DefaultCategory>
-struct EventBase : Event {
+struct EventBase : public Event {
     std::type_index getEventTypeIndex() const final override {
         return typeid(Ev);
     }
