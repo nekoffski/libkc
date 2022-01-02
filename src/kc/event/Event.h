@@ -72,7 +72,7 @@ public:
         return m_resultFuture.wait_for(0s) == std::future_status::ready;
     }
 
-    std::shared_ptr<Event> wait(const std::chrono::milliseconds timeout = 500ms) {
+    std::shared_ptr<Event> wait(const std::chrono::milliseconds timeout = 2s) {
         if (m_resultFuture.wait_for(timeout) == std::future_status::ready)
             return m_resultFuture.get();
         throw ResultTimeout {};

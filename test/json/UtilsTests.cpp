@@ -101,6 +101,16 @@ TEST_F(NodeHelperTests, givenObjectNode_whenGettingValue_shouldReturnObject) {
         fieldFrom(root).withName("obj").asObject().get().isObject());
 }
 
+TEST_F(NodeHelperTests, givenArray_whenIterating_shouldNotThrow) {
+    int x = 1;
+
+    EXPECT_NO_THROW({
+        for (auto& value : fieldFrom(root).withName("array").asArray().get()) {
+            EXPECT_EQ(value, x++);
+        }
+    });
+}
+
 TEST_F(NodeHelperTests, givenEmptyField_whenExpectingNonEmpty_shouldThrow) {
     root["str"] = "";
     root["arr"] = Json::arrayValue;

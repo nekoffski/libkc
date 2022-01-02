@@ -17,6 +17,7 @@ struct Model {
         { "numeric", "float" }
     };
 
+    bool isMessage;
     std::string name;
     std::vector<Field> fields;
 };

@@ -56,8 +56,8 @@ namespace detail {
             , m_fieldName(fieldName) {
         }
 
-        T&& get() && {
-            return std::move(m_value);
+        T get() {
+            return m_value;
         }
 
     protected:
@@ -136,7 +136,7 @@ namespace detail {
 
         NodeWrapper&& withName(const std::string& name) && {
             kc_assert<JsonLogicError>(not m_name.has_value(), "Name of field is already specified");
-            kc_assert<Error>(m_node.isMember(name), "Could not found field with name: " + name);
+            kc_assert<Error>(m_node.isMember(name), "Could not find field with name: " + name);
             m_name = name;
 
             MOVE_THIS;

@@ -30,8 +30,10 @@ void Parser::processTokens() {
         return processTokens();
 
     if (currentToken->type == TokenType::string) {
-        if (currentToken->value == "model")
-            processModel();
+        const auto isMessage = currentToken->value == "message";
+
+        if (currentToken->value == "model" || isMessage)
+            processModel(isMessage);
         else if (currentToken->value == "enum")
             processEnum();
         else
@@ -43,12 +45,12 @@ void Parser::processTokens() {
     fail(fmt::format("Invalid symbol: {}", currentToken->value));
 }
 
-void Parser::processModel() {
+void Parser::processModel(bool isMessage) {
     auto name = getNextToken(TokenType::string)->value;
 
     expectToken(TokenType::openingBrace);
 
-    Model model { .name = name };
+    Model model { .isMessage = isMessage, .name = name };
 
     while (nextToken()->type != TokenType::closingBrace)
         model.fields.push_back(processModelField());

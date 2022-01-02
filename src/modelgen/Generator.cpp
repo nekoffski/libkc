@@ -127,7 +127,8 @@ std::string Generator::generateModelToJson(const Model& model) {
              << spaces(8) << "kc::json::JsonBuilder json;"
              << "\n\n";
 
-        data << spaces(8) << "json.addField(\"name\", getName()).beginObject(\"body\");\n\n";
+        if (model.isMessage)
+            data << spaces(8) << "json.addField(\"name\", getName()).beginObject(\"body\");\n\n";
 
         for (const auto& [name, type] : model.fields) {
             std::cout << "Processing field: " << type << "/" << name << '\n';
@@ -154,11 +155,12 @@ std::string Generator::generateModelToJson(const Model& model) {
             }
         }
 
-        data << '\n'
-             << spaces(8) << "json.endObject();\n";
+        if (model.isMessage)
+            data << '\n'
+                 << spaces(8) << "json.endObject();\n";
 
         data << '\n'
-             << spaces(8) << "return json.asString();\n"
+             << spaces(8) << "return json.asJsonObject();\n"
              << spaces(4) << "}\n";
     } else {
         throw ModelGeneratorError { "Arduino JSON is not supported yet" };

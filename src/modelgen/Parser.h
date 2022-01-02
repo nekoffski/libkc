@@ -11,7 +11,7 @@ public:
 
 private:
     void processTokens();
-    void processModel();
+    void processModel(bool isMessage);
 
     Model::Field processModelField();
 

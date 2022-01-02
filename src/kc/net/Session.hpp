@@ -27,12 +27,16 @@ public:
 
     template <typename T>
     requires std::derived_from<T, model::Serializable> std::string send(T&& message) {
+        LOG_INFO("Starting sending message: {}", message.getName());
+
         auto jsonMessage = message.toJson();
 
-        if (not jsonMessage.isMember("conversation-id"))
+        if (not jsonMessage.isMember("conversation-id")) {
+            LOG_INFO("Message is not part of any conversation, creating UUID for new conversation");
             jsonMessage["conversation-id"] = core::generateUuid();
+        }
 
-        sendMessage(json::toString(jsonMessage));
+        sendMessageLength(json::toString(jsonMessage));
 
         return jsonMessage["conversation-id"].asString();
     }
@@ -68,19 +72,21 @@ public:
     }
 
 private:
-    // void sendMessageLength(const std::string& message) {
-    //     auto messageLength = message.size();
+    void sendMessageLength(const std::string& message) {
+        LOG_INFO("Trying to send message length");
 
-    //     auto onWrite = [&, message](async::Error error, unsigned int bytesSent) {
-    //         if (error) {
-    //         }
-    //         sendMessageBody(message);
-    //     };
+        auto messageLength = message.size();
 
-    //     auto messageLengthAsBytes =
-    //         std::string { reinterpret_cast<char*>(&messageLength), messageLengthBytes };
-    //     m_socket->asyncWrite(messageLengthAsBytes, onWrite);
-    // }
+        auto onWrite = [&, message](async::Error error, unsigned int bytesSent) {
+            if (error) {
+            }
+            sendMessage(message);
+        };
+
+        auto messageLengthAsBytes =
+            std::string { reinterpret_cast<char*>(&messageLength), messageLengthBytes };
+        m_socket->asyncWrite(messageLengthAsBytes, onWrite);
+    }
 
     void readMessageLength() {
         auto onRead = [&](async::Error error, std::string message, unsigned int bytesReceived) {
@@ -105,6 +111,7 @@ private:
     }
 
     void sendMessage(const std::string& message) {
+        LOG_INFO("Sending message: {}", message);
         m_socket->asyncWrite(message, [](async::Error error, unsigned int bytesSent) {
             if (error)
                 LOG_WARN("Could not send message due to: {}", error.asString());
@@ -122,6 +129,7 @@ private:
 
             LOG_INFO("Received message: {}", message);
             processMessage(std::move(message));
+            LOG_INFO("Message processed");
         };
 
         // TODO: read message size first
@@ -133,12 +141,16 @@ private:
             const auto json = json::loadJson(message);
             const auto messageName = json["name"].asString();
 
+            LOG_INFO("Received message with header: {}", messageName);
+
             auto message = m_deserializer->deserializeMessage(messageName, json["body"]);
 
             if (not message) {
                 LOG_WARN("Received unknown message: {}", messageName);
                 return;
             }
+
+            LOG_INFO("Message deserialized successfully");
 
             if (json.isMember("conversation-id")) {
                 auto conversationId = json["conversation-id"].asString();
