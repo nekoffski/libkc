@@ -20,7 +20,7 @@ jobs:
         run: git submodule update --init --recursive
       - name: Build
         run: |
-          rm -f build && mkdir build && pushd build && cmake .. -DENABLE_UNIT_TESTS=1 -DENABLE_BENCHMARKS=1 && make -j `nproc` && popd
+          rm -f build && mkdir build && pushd build && cmake .. -DENABLE_UNIT_TESTS=1 -DENABLE_BENCHMARKS=1 -DBENCHMARK_DOWNLOAD_DEPENDENCIES=1 && make -j `nproc` && popd
         env:
           CC: /usr/bin/gcc-10
           CXX: /usr/bin/g++-10

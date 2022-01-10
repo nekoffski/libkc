@@ -25,5 +25,6 @@ if (ENABLE_UNIT_TESTS)
 endif()
 
 if (ENABLE_BENCHMARKS)
+    add_subdirectory(3rdparty)
     add_subdirectory(bench)
 endif()
