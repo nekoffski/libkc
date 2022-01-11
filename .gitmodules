@@ -2,3 +2,4 @@
 [submodule "3rdparty/benchmark"]
 	path = 3rdparty/benchmark
 	url = https://github.com/google/benchmark.git
+	branch = main
