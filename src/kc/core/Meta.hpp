@@ -13,6 +13,13 @@ struct is_one_of2 : std::integral_constant<bool,
 template <typename T, typename U, typename V>
 constexpr bool is_one_of2_v = is_one_of2<T, U, V>::value;
 
+template <typename T, typename U, typename V, typename W>
+struct is_one_of3 : std::integral_constant<bool,
+                        std::is_same<T, U>::value || std::is_same<T, V>::value || std::is_same<T, W>::value> { };
+
+template <typename T, typename U, typename V, typename W>
+constexpr bool is_one_of3_v = is_one_of3<T, U, V, W>::value;
+
 template <typename T, typename U>
 using enable_for_impl = std::enable_if<std::is_same<T, U>::value, U>;
 

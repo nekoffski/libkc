@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
 #include "Json.h"
 #include "kc/core/ErrorBase.hpp"
 #include "kc/core/Macros.h"
@@ -49,6 +51,51 @@ namespace detail {
     }
 
     template <typename Error, typename T>
+    enable_for(glm::vec2) tryToExtractValue(const Node& node, const std::string& messagePrefix) {
+        kc_assert<Error>(node.isArray(), messagePrefix + " has wrong type");
+        kc_assert<Error>(node.size() == 2, messagePrefix + " has not enough members");
+
+        for (auto& child : node)
+            kc_assert<Error>(child.isNumeric(), messagePrefix + " member has invalid type");
+
+        return glm::vec2 {
+            node[0].asFloat(),
+            node[1].asFloat(),
+        };
+    }
+
+    template <typename Error, typename T>
+    enable_for(glm::vec3) tryToExtractValue(const Node& node, const std::string& messagePrefix) {
+        kc_assert<Error>(node.isArray(), messagePrefix + " has wrong type");
+        kc_assert<Error>(node.size() == 3, messagePrefix + " has not enough members");
+
+        for (auto& child : node)
+            kc_assert<Error>(child.isNumeric(), messagePrefix + " member has invalid type");
+
+        return glm::vec3 {
+            node[0].asFloat(),
+            node[1].asFloat(),
+            node[2].asFloat()
+        };
+    }
+
+    template <typename Error, typename T>
+    enable_for(glm::vec4) tryToExtractValue(const Node& node, const std::string& messagePrefix) {
+        kc_assert<Error>(node.isArray(), messagePrefix + " has wrong type");
+        kc_assert<Error>(node.size() == 4, messagePrefix + " has not enough members");
+
+        for (auto& child : node)
+            kc_assert<Error>(child.isNumeric(), messagePrefix + " member has invalid type");
+
+        return glm::vec4 {
+            node[0].asFloat(),
+            node[1].asFloat(),
+            node[2].asFloat(),
+            node[3].asFloat()
+        };
+    }
+
+    template <typename Error, typename T>
     requires std::is_default_constructible_v<T> class ValueWrapperBase {
     public:
         explicit ValueWrapperBase(const T& value, const std::string& fieldName)
@@ -86,6 +133,14 @@ namespace detail {
         ValueWrapper&& inRange(T minValue, T maxValue) && {
             MOVE_THIS.min(minValue).max(maxValue);
         }
+    };
+
+    template <typename Error, typename T>
+    struct ValueWrapper<Error, T, typename std::enable_if_t<is_one_of3_v<T, glm::vec2, glm::vec3, glm::vec4>>>
+        : public ValueWrapperBase<Error, T> {
+
+    public:
+        using ValueWrapperBase<Error, T>::ValueWrapperBase;
     };
 
     template <typename Error, typename T>

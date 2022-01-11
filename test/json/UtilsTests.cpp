@@ -1,5 +1,6 @@
 #include "kc/json/Utils.hpp"
 
+#include <glm/glm.hpp>
 #include <gtest/gtest.h>
 
 #include "kc/json/Json.h"
@@ -87,6 +88,88 @@ TEST_F(NodeHelperTests, givenArrayNodeWithSizeOutOfRange_whenGettingValue_should
 
     EXPECT_THROW(
         fieldFrom(root).withName("array").asArray().nonEmpty().maxSize(1).get(), json::JsonError);
+}
+
+TEST_F(NodeHelperTests, givenGlm2Vector_whenDeserializing_shouldDeserializeCorrectly) {
+    root["array"].resize(2);
+    EXPECT_NO_THROW({
+        auto vector = fieldFrom(root).withName("array").ofType<glm::vec2>().get();
+
+        EXPECT_EQ(vector.x, 1);
+        EXPECT_EQ(vector.y, 2);
+    });
+}
+
+TEST_F(NodeHelperTests, givenGlmVectorWithNotEnoughFields_whenDeserializing_shouldThrow) {
+    root["array"].resize(1);
+    EXPECT_THROW({
+        fieldFrom(root).withName("array").ofType<glm::vec2>().get();
+    },
+        json::JsonError);
+    EXPECT_THROW({
+        fieldFrom(root).withName("array").ofType<glm::vec3>().get();
+    },
+        json::JsonError);
+    EXPECT_THROW({
+        fieldFrom(root).withName("array").ofType<glm::vec4>().get();
+    },
+        json::JsonError);
+}
+
+TEST_F(NodeHelperTests, givenGlmVectorWithTooManyFields_whenDeserializing_shouldThrow) {
+    root["array"].resize(5);
+    EXPECT_THROW({
+        fieldFrom(root).withName("array").ofType<glm::vec2>().get();
+    },
+        json::JsonError);
+    EXPECT_THROW({
+        fieldFrom(root).withName("array").ofType<glm::vec3>().get();
+    },
+        json::JsonError);
+    EXPECT_THROW({
+        fieldFrom(root).withName("array").ofType<glm::vec4>().get();
+    },
+        json::JsonError);
+}
+
+TEST_F(NodeHelperTests, givenGlmVectorWithInvalidType_whenDeserializing_shouldThrow) {
+    root["array"].resize(2);
+    root["array"].append("abcd");
+    EXPECT_THROW({
+        fieldFrom(root).withName("array").ofType<glm::vec2>().get();
+    },
+        json::JsonError);
+    EXPECT_THROW({
+        fieldFrom(root).withName("array").ofType<glm::vec3>().get();
+    },
+        json::JsonError);
+    EXPECT_THROW({
+        fieldFrom(root).withName("array").ofType<glm::vec4>().get();
+    },
+        json::JsonError);
+}
+
+TEST_F(NodeHelperTests, givenGlm3Vector_whenDeserializing_shouldDeserializeCorrectly) {
+    EXPECT_NO_THROW({
+        auto vector = fieldFrom(root).withName("array").ofType<glm::vec3>().get();
+
+        EXPECT_EQ(vector.x, 1);
+        EXPECT_EQ(vector.y, 2);
+        EXPECT_EQ(vector.z, 3);
+    });
+}
+
+TEST_F(NodeHelperTests, givenGlm4Vector_whenDeserializing_shouldDeserializeCorrectly) {
+    root["array"].append(4);
+
+    EXPECT_NO_THROW({
+        auto vector = fieldFrom(root).withName("array").ofType<glm::vec4>().get();
+
+        EXPECT_EQ(vector.x, 1);
+        EXPECT_EQ(vector.y, 2);
+        EXPECT_EQ(vector.z, 3);
+        EXPECT_EQ(vector.w, 4);
+    });
 }
 
 TEST_F(NodeHelperTests, givenArrayOfDifferentTypeThanExpected_whenGettingValue_shouldThrow) {
