@@ -40,7 +40,8 @@ public:
         const auto threadCount = getSize();
         auto batch = iterations / threadCount;
 
-        std::vector<Future<void>> futures(threadCount);
+        std::vector<Future<void>> futures;
+        futures.reserve(threadCount);
 
         for (int i = 0; i < threadCount; ++i) {
             int beginIndex = i * batch;
