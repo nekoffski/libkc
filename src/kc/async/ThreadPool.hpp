@@ -35,6 +35,31 @@ public:
         return Future<ReturnType>(std::move(res));
     }
 
+    template <typename F, typename... Args>
+    void loopParallel(const int iterations, F&& function, Args&&... args) {
+        const auto threadCount = getSize();
+        auto batch = iterations / threadCount;
+
+        std::vector<Future<void>> futures(threadCount);
+
+        for (int i = 0; i < threadCount; ++i) {
+            int beginIndex = i * batch;
+            int endIndex = (i + 1) * batch;
+
+            if (i == threadCount - 1)
+                endIndex += iterations % batch;
+
+            auto executeCallback = [=] {
+                for (int i = beginIndex; i < endIndex; ++i)
+                    function(i, std::forward<Args>(args)...);
+            };
+
+            futures.push_back(callAsync(executeCallback));
+        }
+
+        wait(futures);
+    }
+
     void stop();
 
     static constexpr std::size_t defaultSize = 4;

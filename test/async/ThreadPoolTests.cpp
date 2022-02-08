@@ -29,6 +29,22 @@ TEST(ThreadPoolTests_, givenThreadPool_whenGettingSize_shouldReturnDefaultSize) 
     EXPECT_EQ(threadPool.getSize(), ThreadPool::defaultSize);
 }
 
+TEST_F(ThreadPoolTests, givenThreadPool_whenCallingParallelLoop_shouldLoopCorrectTimes) {
+    static constexpr int iterations = 1337;
+
+    int expectedSum = 0;
+    for (int i = 0; i < iterations; ++i)
+        expectedSum += i;
+
+    std::atomic_int receivedSum = 0;
+
+    threadPool.loopParallel(iterations, [&](int index) {
+        receivedSum += index;
+    });
+
+    EXPECT_EQ(expectedSum, receivedSum);
+}
+
 TEST_F(ThreadPoolTests, givenThreadPoolWithCustomSize_whenGettingSize_shouldReturnCorrectSize) {
     EXPECT_EQ(threadPool.getSize(), size);
 }
