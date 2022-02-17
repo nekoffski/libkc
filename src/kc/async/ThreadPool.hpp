@@ -8,6 +8,7 @@
 
 #include "Future.hpp"
 #include "kc/containers/AtomicQueue.hpp"
+#include "kc/core/Log.h"
 #include "kc/core/Macros.h"
 
 namespace kc::async {
@@ -38,26 +39,24 @@ public:
     template <typename F, typename... Args>
     void loopParallel(const int iterations, F&& function, Args&&... args) {
         const auto threadCount = getSize();
-        auto batch = iterations / threadCount;
+
+        ASSERT(iterations > 0, "iterations <= 0");
+        ASSERT(threadCount > 0, "thread count <= 0");
+
+        int batch = iterations / threadCount;
 
         std::vector<Future<void>> futures;
         futures.reserve(threadCount);
 
         for (int i = 0; i < threadCount; ++i) {
             int beginIndex = i * batch;
-            int endIndex = (i + 1) * batch;
+            int endIndex = beginIndex + batch;
 
             if (i == threadCount - 1)
                 endIndex += iterations % batch;
 
-            auto executeCallback = [=] {
-                for (int i = beginIndex; i < endIndex; ++i)
-                    function(i, std::forward<Args>(args)...);
-            };
-
-            futures.push_back(callAsync(executeCallback));
+            futures.push_back(callAsync(function, beginIndex, endIndex));
         }
-
         wait(futures);
     }
 

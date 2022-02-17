@@ -38,8 +38,9 @@ TEST_F(ThreadPoolTests, givenThreadPool_whenCallingParallelLoop_shouldLoopCorrec
 
     std::atomic_int receivedSum = 0;
 
-    threadPool.loopParallel(iterations, [&](int index) {
-        receivedSum += index;
+    threadPool.loopParallel(iterations, [&](int a, int b) {
+        for (int index = a; index < b; ++index)
+            receivedSum += index;
     });
 
     EXPECT_EQ(expectedSum, receivedSum);

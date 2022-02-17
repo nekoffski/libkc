@@ -32,14 +32,15 @@ void ThreadPool::stop() {
 void ThreadPool::threadWorker() {
     using namespace std::chrono_literals;
 
-    static const auto sleepPeriod = 100ms;
+    static const auto sleepPeriod = 1ms;
 
     // TODO: looks like busy-wait, consider using condition variable + mutex pattern
     while (m_active) {
         auto job = m_jobs.dequeue();
 
         if (not job.has_value()) {
-            std::this_thread::sleep_for(sleepPeriod);
+            std::this_thread::yield();
+            // std::this_thread::sleep_for(sleepPeriod);
             continue;
         }
 
