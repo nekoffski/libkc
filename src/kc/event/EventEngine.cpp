@@ -6,10 +6,9 @@
 namespace kc::event {
 
 void EventEngine::spreadEvents() {
-    for (auto& item : m_eventListeners) {
-        auto eventProvider = EventProvider { m_eventContainer[item.first] };
-        item.second->handleEvents(eventProvider);
-    }
+    for (auto& [ident, eventListener] : m_eventListeners)
+        eventListener->handleEvents(
+            EventProvider { m_eventContainer[ident] });
 
     for (auto& categoryEventQueue : m_eventContainer | std::views::values)
         for (auto& eventQueue : categoryEventQueue | std::views::values)
