@@ -49,12 +49,13 @@ TEST_F(EventEngineTests, giventEventEngine_whenUnregisteringService_shouldUnregi
     EXPECT_FALSE(eventEngine.isListenerRegistered(ConcreteEventListener::ident));
 }
 
-TEST_F(EventEngineTests, givenEventEngine_whenRegisteringListenerTwice_shouldThrow) {
-    auto listener = std::make_shared<ConcreteEventListener>();
-    eventEngine.registerEventListener(listener.get());
+// TODO: rewrite this test
+// TEST_F(EventEngineTests, givenEventEngine_whenRegisteringListenerTwice_shouldThrow) {
+//     auto listener = std::make_shared<ConcreteEventListener>();
+//     eventEngine.registerEventListener(listener.get());
 
-    ASSERT_THROW(eventEngine.registerEventListener(listener.get()), ListenerAlreadyRegistered);
-}
+//     ASSERT_THROW(eventEngine.registerEventListener(listener.get()), ListenerAlreadyRegistered);
+// }
 
 struct EventA : kc::event::EventBase<EventA> { };
 struct EventB : kc::event::EventBase<EventB> { };

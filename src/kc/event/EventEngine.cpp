@@ -5,13 +5,13 @@ namespace kc::event {
 
 void EventEngine::spreadEvents() {
     for (auto& [ident, eventListener] : m_eventListeners) {
-        auto eventProvider = EventProvider{ m_eventContainer[ident] };
+        auto eventProvider = EventProvider { m_eventContainer[ident] };
         eventListener->handleEvents(eventProvider);
     }
 }
 
 EventProvider EventEngine::getEventProvider(const std::string& ident) {
-    return EventProvider{ m_eventContainer[ident] };
+    return EventProvider { m_eventContainer[ident] };
 }
 
 std::shared_ptr<EventEmitter> EventEngine::createEmitter() {
@@ -19,12 +19,10 @@ std::shared_ptr<EventEmitter> EventEngine::createEmitter() {
 }
 
 void EventEngine::registerEventListener(EventListener* eventListener) {
-    const auto ident = eventListener->getIdent();
-    if (m_eventListeners.contains(ident) || m_eventContainer.contains(ident))
-        throw ListenerAlreadyRegistered{};
+    const auto& ident = eventListener->getIdent();
 
-    m_eventListeners[ident] = eventListener;
-    m_eventContainer[ident] = CategoryToEventQueue{};
+    m_eventListeners.insert(ident, eventListener);
+    m_eventContainer[ident] = CategoryToEventQueue {};
 }
 
 void EventEngine::unregisterEventListener(EventListener* eventListener) {
@@ -33,7 +31,7 @@ void EventEngine::unregisterEventListener(EventListener* eventListener) {
 
 void EventEngine::unregisterEventListener(const std::string& ident) {
     if (not m_eventContainer.contains(ident) && not m_eventListeners.contains(ident))
-        throw ListenerNotFound{};
+        throw ListenerNotFound {};
 
     m_eventListeners.erase(ident);
     m_eventContainer.erase(ident);
