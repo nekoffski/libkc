@@ -11,7 +11,6 @@ EventQueue EventProvider::getAll() const {
     for (auto& [_, eventQueue] : m_categoryToEventQueue) {
         auto lock = eventQueue.lock();
         events.insert(events.begin(), eventQueue.begin(), eventQueue.end());
-        eventQueue.clearUnsafe();
     }
 
     return events;

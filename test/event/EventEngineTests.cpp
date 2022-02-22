@@ -49,29 +49,27 @@ TEST_F(EventEngineTests, giventEventEngine_whenUnregisteringService_shouldUnregi
     EXPECT_FALSE(eventEngine.isListenerRegistered(ConcreteEventListener::ident));
 }
 
-// TODO: rewrite this test
-// TEST_F(EventEngineTests, givenEventEngine_whenRegisteringListenerTwice_shouldThrow) {
-//     auto listener = std::make_shared<ConcreteEventListener>();
-//     eventEngine.registerEventListener(listener.get());
+TEST_F(EventEngineTests, givenEventEngine_whenRegisteringSameListenerTwice_shouldThrow) {
+    auto listener = std::make_shared<ConcreteEventListener>();
+    eventEngine.registerEventListener(listener.get());
 
-//     ASSERT_THROW(eventEngine.registerEventListener(listener.get()), ListenerAlreadyRegistered);
-// }
+    ASSERT_THROW(eventEngine.registerEventListener(listener.get()), ListenerAlreadyRegistered);
+}
+
+TEST_F(EventEngineTests, givenEventEngine_whenRegisteringTwoListenersWithSameIdents_shouldNotThrow) {
+    ConcreteEventListener listener1;
+    ConcreteEventListener listener2;
+
+    ASSERT_NO_THROW({
+        eventEngine.registerEventListener(&listener1);
+        eventEngine.registerEventListener(&listener2);
+    });
+}
 
 struct EventA : kc::event::EventBase<EventA> { };
 struct EventB : kc::event::EventBase<EventB> { };
 
-struct Listener1 : public kc::event::EventListener {
-    using kc::event::EventListener::EventListener;
-
-    void handleEvents(const kc::event::EventProvider& eventProvider) {
-        for (auto& event : eventProvider.getAll())
-            ++events;
-    }
-
-    int events = 0;
-};
-
-struct Listener2 : public kc::event::EventListener {
+struct Listener : public kc::event::EventListener {
     using kc::event::EventListener::EventListener;
 
     void handleEvents(const kc::event::EventProvider& eventProvider) {
@@ -85,20 +83,24 @@ struct Listener2 : public kc::event::EventListener {
 class EventEngineEventsTest : public testing::Test {
 protected:
     void SetUp() override {
-        m_listener1 = std::make_shared<Listener1>("listener1");
-        m_listener2 = std::make_shared<Listener2>("listener2");
+        m_listener1 = std::make_shared<Listener>("listener1");
+        m_listener2 = std::make_shared<Listener>("listener2");
+        m_listener3 = std::make_shared<Listener>("listener2"); // use same ident as for 2
 
         m_listener1->events = 0;
         m_listener2->events = 0;
+        m_listener3->events = 0;
 
         m_eventEngine.registerEventListener(m_listener1.get());
         m_eventEngine.registerEventListener(m_listener2.get());
+        m_eventEngine.registerEventListener(m_listener3.get());
     }
 
     kc::event::EventEngine m_eventEngine;
 
-    std::shared_ptr<Listener1> m_listener1;
-    std::shared_ptr<Listener2> m_listener2;
+    std::shared_ptr<Listener> m_listener1;
+    std::shared_ptr<Listener> m_listener2;
+    std::shared_ptr<Listener> m_listener3;
 };
 
 TEST_F(EventEngineEventsTest, givenEngine_whenSpreadingEventsWithoutAnyEventEmitted_everyListenerShouldNotGetEvent) {
@@ -106,6 +108,7 @@ TEST_F(EventEngineEventsTest, givenEngine_whenSpreadingEventsWithoutAnyEventEmit
 
     EXPECT_EQ(m_listener1->events, 0);
     EXPECT_EQ(m_listener2->events, 0);
+    EXPECT_EQ(m_listener3->events, 0);
 }
 
 TEST_F(EventEngineEventsTest, givenEngine_whenSpreadingEvents_everyListenerShouldGetOneEvent) {
@@ -116,6 +119,7 @@ TEST_F(EventEngineEventsTest, givenEngine_whenSpreadingEvents_everyListenerShoul
 
     EXPECT_EQ(m_listener1->events, 1);
     EXPECT_EQ(m_listener2->events, 1);
+    EXPECT_EQ(m_listener3->events, 1);
 }
 
 TEST_F(EventEngineEventsTest, givenEngine_whenSpreadingEventsTwiceWithoutNewEvents_everyListenerShouldGetOneEvent) {
@@ -127,33 +131,24 @@ TEST_F(EventEngineEventsTest, givenEngine_whenSpreadingEventsTwiceWithoutNewEven
 
     EXPECT_EQ(m_listener1->events, 1);
     EXPECT_EQ(m_listener2->events, 1);
+    EXPECT_EQ(m_listener3->events, 1);
 }
 
 TEST_F(EventEngineEventsTest, givenEngine_whenSpreadingEventsEmittedToOnlyOneListener_onlyThisListenerShouldGetEvent) {
     auto eventEmitter = m_eventEngine.createEmitter();
-    eventEmitter->emit<EventA>().to("listener1");
+    eventEmitter->emit<EventA>().to("listener2");
 
     m_eventEngine.spreadEvents();
 
-    EXPECT_EQ(m_listener1->events, 1);
-    EXPECT_EQ(m_listener2->events, 0);
+    EXPECT_EQ(m_listener1->events, 0);
+    EXPECT_EQ(m_listener2->events, 1);
+    EXPECT_EQ(m_listener3->events, 1);
 }
-
-struct Listener3 : public kc::event::EventListener {
-    using kc::event::EventListener::EventListener;
-
-    void handleEvents(const kc::event::EventProvider& eventProvider) {
-        for (auto& event : eventProvider.getAll())
-            ++events;
-    }
-
-    int events = 0;
-};
 
 TEST_F(EventEngineEventsTest, giventEventListenerRegisteredLate_shouldGetEvent) {
     auto eventEmitter = m_eventEngine.createEmitter();
 
-    auto listener3 = std::make_shared<Listener3>("listener3");
+    auto listener3 = std::make_shared<Listener>("listener3");
     m_eventEngine.registerEventListener(listener3.get());
 
     eventEmitter->emit<EventA>().toAll();

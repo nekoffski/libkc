@@ -166,6 +166,8 @@ private:
 template <typename K, typename T>
 class AtomicUnorderedMultimap {
 public:
+    using Buffer = std::unordered_multimap<K, T>;
+
     explicit AtomicUnorderedMultimap()
         : m_mutex(std::make_shared<std::mutex>()) {
     }
@@ -197,8 +199,12 @@ public:
         return m_data.end();
     }
 
+    auto find(const K& key) {
+        return m_data.find(key);
+    }
+
     void insert(const K& key, const T& item) {
-        m_data.insert({ key, item });
+        m_data.insert(std::make_pair(key, item));
     }
 
     bool contains(const K& key) const {
@@ -221,8 +227,12 @@ public:
         return m_data.size();
     }
 
+    Buffer& getBuffer() {
+        return m_data;
+    }
+
 private:
     std::shared_ptr<std::mutex> m_mutex;
-    std::unordered_multimap<K, T> m_data;
+    Buffer m_data;
 };
 }

@@ -1,13 +1,19 @@
 #include "EventEngine.h"
 #include "Error.h"
 
+#include <ranges>
+
 namespace kc::event {
 
 void EventEngine::spreadEvents() {
-    for (auto& [ident, eventListener] : m_eventListeners) {
-        auto eventProvider = EventProvider { m_eventContainer[ident] };
-        eventListener->handleEvents(eventProvider);
+    for (auto& item : m_eventListeners) {
+        auto eventProvider = EventProvider { m_eventContainer[item.first] };
+        item.second->handleEvents(eventProvider);
     }
+
+    for (auto& categoryEventQueue : m_eventContainer | std::views::values)
+        for (auto& eventQueue : categoryEventQueue | std::views::values)
+            eventQueue.clearUnsafe();
 }
 
 EventProvider EventEngine::getEventProvider(const std::string& ident) {
@@ -21,8 +27,18 @@ std::shared_ptr<EventEmitter> EventEngine::createEmitter() {
 void EventEngine::registerEventListener(EventListener* eventListener) {
     const auto& ident = eventListener->getIdent();
 
+    auto element = m_eventListeners.find(ident);
+
+    while (element != m_eventListeners.getBuffer().end()) {
+        if (element->second == eventListener)
+            throw ListenerAlreadyRegistered {};
+        element = std::next(element);
+    }
+
     m_eventListeners.insert(ident, eventListener);
-    m_eventContainer[ident] = CategoryToEventQueue {};
+
+    if (not m_eventContainer.contains(ident))
+        m_eventContainer[ident] = CategoryToEventQueue {};
 }
 
 void EventEngine::unregisterEventListener(EventListener* eventListener) {
