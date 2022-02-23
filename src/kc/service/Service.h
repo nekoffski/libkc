@@ -7,7 +7,7 @@
 namespace kc::service {
 
 class Service {
-public:
+   public:
     Service(const std::string& name);
 
     virtual ~Service() = default;
@@ -21,10 +21,10 @@ public:
 
     std::string getName() const;
 
-protected:
+   protected:
     std::string m_name;
 
-private:
+   private:
     bool m_isRunning;
 };
-}
+}  // namespace kc::service

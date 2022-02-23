@@ -1,15 +1,13 @@
-#include "kc/core/String.h"
+#include <gtest/gtest.h>
 
 #include <numeric>
 
-#include <gtest/gtest.h>
-
+#include "kc/core/String.h"
 #include "kc/core/Zip.hpp"
 
 using namespace kc::core;
 
-struct StringTests : ::testing::Test {
-};
+struct StringTests : ::testing::Test {};
 
 TEST_F(StringTests, givenStringToStripWithoutCharactersToStrip_whenStriping_shouldNotChangeString) {
     std::string str = "abcdefg";
@@ -52,7 +50,8 @@ TEST_F(StringTests, givenStringToStrip_whenStriping_shouldStrip) {
     EXPECT_EQ(str, expected);
 }
 
-TEST_F(StringTests, givenStringToStripWithCharacterInside_whenStriping_shouldNotStripInsideCharacter) {
+TEST_F(StringTests,
+       givenStringToStripWithCharacterInside_whenStriping_shouldNotStripInsideCharacter) {
     std::string str = "a_bcde___";
     std::string expected = "a_bcde";
 
@@ -77,15 +76,13 @@ TEST_F(StringTests, givenStringWithoutDelimiter_whenSplitting_shouldReturnSingle
 }
 
 TEST_F(StringTests, givenStringWithDelimiter_whenSplitting_shouldSplitCorrectly) {
-    std::vector<std::string> parts = {
-        "enum", "Stats", "{{{{{", "gheee"
-    };
+    std::vector<std::string> parts = {"enum", "Stats", "{{{{{", "gheee"};
 
     const char delimiter = '-';
 
-    std::string stringToSplit = std::accumulate(parts.begin(), parts.end(), std::string {}, [&](auto pre, auto word) {
-        return pre + word + delimiter;
-    });
+    std::string stringToSplit =
+        std::accumulate(parts.begin(), parts.end(), std::string{},
+                        [&](auto pre, auto word) { return pre + word + delimiter; });
 
     stringToSplit.pop_back();
 
@@ -93,8 +90,7 @@ TEST_F(StringTests, givenStringWithDelimiter_whenSplitting_shouldSplitCorrectly)
 
     ASSERT_EQ(splitted.size(), parts.size());
 
-    for (auto&& [received, expected] : zip(splitted, parts))
-        EXPECT_EQ(received, expected);
+    for (auto&& [received, expected] : zip(splitted, parts)) EXPECT_EQ(received, expected);
 }
 
 TEST_F(StringTests, givenStringWithDelimiterAtTheBegining_shouldReturnSingleElement) {

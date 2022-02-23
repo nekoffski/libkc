@@ -1,20 +1,15 @@
-#include "kc/async/ThreadPool.hpp"
-
 #include <gtest/gtest.h>
 
+#include "kc/async/ThreadPool.hpp"
 #include "kc/core/Scope.hpp"
 
 using namespace kc::async;
 using namespace testing;
 
 struct ThreadPoolTests : Test {
-    ThreadPoolTests()
-        : threadPool(size) {
-    }
+    ThreadPoolTests() : threadPool(size) {}
 
-    void TearDown() override {
-        threadPool.stop();
-    }
+    void TearDown() override { threadPool.stop(); }
 
     ThreadPool threadPool;
 
@@ -33,14 +28,12 @@ TEST_F(ThreadPoolTests, givenThreadPool_whenCallingParallelLoop_shouldLoopCorrec
     static constexpr int iterations = 1337;
 
     int expectedSum = 0;
-    for (int i = 0; i < iterations; ++i)
-        expectedSum += i;
+    for (int i = 0; i < iterations; ++i) expectedSum += i;
 
     std::atomic_int receivedSum = 0;
 
     threadPool.loopParallel(iterations, [&](int a, int b) {
-        for (int index = a; index < b; ++index)
-            receivedSum += index;
+        for (int index = a; index < b; ++index) receivedSum += index;
     });
 
     EXPECT_EQ(expectedSum, receivedSum);

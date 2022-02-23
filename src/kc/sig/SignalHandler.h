@@ -3,8 +3,8 @@
 namespace kc::sig {
 
 class SignalHandler {
-public:
+   public:
     virtual void onSignal(int) = 0;
 };
 
-}
+}  // namespace kc::sig

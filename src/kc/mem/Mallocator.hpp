@@ -9,13 +9,13 @@
 
 template <typename T>
 class Mallocator {
-public:
+   public:
     using ValueType = T;
 
     explicit Mallocator() = default;
 
     template <typename U>
-    constexpr Mallocator(const Mallocator<U>&) noexcept { }
+    constexpr Mallocator(const Mallocator<U>&) noexcept {}
 
     // clang-format off
     [[nodiscard]] T* allocate(std::size_t n) {
@@ -36,9 +36,10 @@ public:
         std::free(p);
     }
 
-private:
+   private:
     void report(T* p, std::size_t n, bool alloc = true) const {
-        LOG_INFO("{} {} bytes at {}", alloc ? "Alloc: " : "Dealloc: ", sizeof(T) * n, reinterpret_cast<void*>(p));
+        LOG_INFO("{} {} bytes at {}", alloc ? "Alloc: " : "Dealloc: ", sizeof(T) * n,
+                 reinterpret_cast<void*>(p));
     }
 };
 

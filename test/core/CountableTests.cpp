@@ -1,11 +1,10 @@
-#include "kc/core/Countable.hpp"
-
 #include <gtest/gtest.h>
+
+#include "kc/core/Countable.hpp"
 
 using namespace kc::core;
 
-struct F : Countable<F> {
-};
+struct F : Countable<F> {};
 
 TEST(CountableTests, givenCountable_whenCreatingAnotherInstances_shouldGiveConsecutiveIds) {
     F f;

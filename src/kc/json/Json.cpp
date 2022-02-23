@@ -18,7 +18,7 @@ Json::Value loadJson(const std::string& jsonString) {
     const char* p = jsonString.c_str();
     auto reader = std::unique_ptr<Json::CharReader>(builder.newCharReader());
     if (!reader->parse(p, p + jsonString.size(), &root, &errors))
-        throw CouldNotLoadJson { std::string { errors } };
+        throw CouldNotLoadJson{std::string{errors}};
     return root;
 }
 
@@ -40,8 +40,8 @@ Json::Value JsonBuilder::asJsonObject() {
     JSONCPP_STRING errors;
 
     if (!Json::parseFromStream(builder, m_jsonStream, &root, &errors)) {
-        auto msg = std::string { errors } + "\n" + m_jsonStream.str();
-        throw CouldNotCreateJson { msg };
+        auto msg = std::string{errors} + "\n" + m_jsonStream.str();
+        throw CouldNotCreateJson{msg};
     }
 
     reset();
@@ -50,16 +50,14 @@ Json::Value JsonBuilder::asJsonObject() {
 }
 
 JsonBuilder& JsonBuilder::beginObject() {
-    if (m_shouldInsertComma)
-        m_jsonStream << ',';
+    if (m_shouldInsertComma) m_jsonStream << ',';
     m_jsonStream << '{';
     m_shouldInsertComma = false;
     return *this;
 }
 
 JsonBuilder& JsonBuilder::beginObject(const std::string& name) {
-    if (m_shouldInsertComma)
-        m_jsonStream << ',';
+    if (m_shouldInsertComma) m_jsonStream << ',';
     m_jsonStream << '"' << name << "\": {";
     m_shouldInsertComma = false;
     return *this;
@@ -72,16 +70,14 @@ JsonBuilder& JsonBuilder::endObject() {
 }
 
 JsonBuilder& JsonBuilder::beginArray(const std::string& name) {
-    if (m_shouldInsertComma)
-        m_jsonStream << ',';
+    if (m_shouldInsertComma) m_jsonStream << ',';
     m_jsonStream << '"' << name << "\": [";
     m_shouldInsertComma = false;
     return *this;
 }
 
 JsonBuilder& JsonBuilder::beginArray() {
-    if (m_shouldInsertComma)
-        m_jsonStream << ',';
+    if (m_shouldInsertComma) m_jsonStream << ',';
     m_jsonStream << '[';
     m_shouldInsertComma = false;
     return *this;
@@ -97,4 +93,4 @@ void JsonBuilder::reset() {
     m_jsonStream.clear();
     m_shouldInsertComma = false;
 }
-}
+}  // namespace kc::json

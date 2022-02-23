@@ -18,7 +18,7 @@ namespace kc::event {
 class EventEmitter;
 
 struct Event : std::enable_shared_from_this<Event> {
-public:
+   public:
     friend class EventEmitter;
 
     virtual std::type_index getEventTypeIndex() const = 0;
@@ -30,9 +30,7 @@ public:
             callback(std::dynamic_pointer_cast<T>(shared_from_this()));
     }
 
-    virtual std::string asString() const {
-        return "Name not specified";
-    }
+    virtual std::string asString() const { return "Name not specified"; }
 
     template <typename T>
     bool is() {
@@ -54,31 +52,26 @@ public:
         m_result.set_value(std::make_shared<T>(std::forward<Args>(args)...));
     }
 
-private:
+   private:
     std::promise<std::shared_ptr<Event>> m_result;
 };
 
 class Result {
-public:
+   public:
     explicit Result(std::future<std::shared_ptr<Event>> resultFuture)
-        : m_resultFuture(std::move(resultFuture)) {
-    }
+        : m_resultFuture(std::move(resultFuture)) {}
 
-    std::shared_ptr<Event> getValue() {
-        return m_resultFuture.get();
-    }
+    std::shared_ptr<Event> getValue() { return m_resultFuture.get(); }
 
-    bool isReady() {
-        return m_resultFuture.wait_for(0s) == std::future_status::ready;
-    }
+    bool isReady() { return m_resultFuture.wait_for(0s) == std::future_status::ready; }
 
     std::shared_ptr<Event> wait(const std::chrono::milliseconds timeout = 2s) {
         if (m_resultFuture.wait_for(timeout) == std::future_status::ready)
             return m_resultFuture.get();
-        throw ResultTimeout {};
+        throw ResultTimeout{};
     }
 
-private:
+   private:
     std::future<std::shared_ptr<Event>> m_resultFuture;
 };
 
@@ -97,4 +90,4 @@ struct EventBase : public Event {
     }
 };
 // clang-format on
-}
+}  // namespace kc::event

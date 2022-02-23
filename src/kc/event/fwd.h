@@ -17,4 +17,4 @@ using EventListeners = AtomicUnorderedMultimap<std::string, EventListener*>;
 using EventQueue = AtomicVector<std::shared_ptr<Event>>;
 using CategoryToEventQueue = AtomicUnorderedMap<std::type_index, EventQueue>;
 using EventContainer = AtomicUnorderedMap<std::string, CategoryToEventQueue>;
-};
+};  // namespace kc::event

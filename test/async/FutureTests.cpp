@@ -1,20 +1,15 @@
-#include "kc/async/ThreadPool.hpp"
-
 #include <gtest/gtest.h>
 
+#include "kc/async/ThreadPool.hpp"
 #include "kc/core/Scope.hpp"
 
 using namespace kc::async;
 using namespace testing;
 
 struct FutureTests : Test {
-    FutureTests()
-        : threadPool(size) {
-    }
+    FutureTests() : threadPool(size) {}
 
-    void TearDown() override {
-        threadPool.stop();
-    }
+    void TearDown() override { threadPool.stop(); }
 
     ThreadPool threadPool;
 
@@ -25,8 +20,7 @@ TEST_F(FutureTests, givenVectorOfFutures_whenWaiting_shouldUnblock) {
     std::vector<Future<void>> futures;
 
     REPEAT(5) {
-        futures.push_back(
-            threadPool.callAsync([]() -> void { /* do nothing */ }));
+        futures.push_back(threadPool.callAsync([]() -> void { /* do nothing */ }));
     }
 
     wait(futures);

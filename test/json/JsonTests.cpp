@@ -8,7 +8,7 @@ using namespace kc::json;
 namespace {
 
 class JsonTests : public Test {
-public:
+   public:
     JsonBuilder jsonBuilder;
 };
 
@@ -80,7 +80,13 @@ TEST_F(JsonTests, givenJsonBuilder_whenAddingStringValue_shouldGiveCorrectResult
 }
 
 TEST_F(JsonTests, givenJsonBuilder_whenCreatingArrayOfObjects_shouldGiveCorrectResult) {
-    auto jsonString = jsonBuilder.beginArray("arr").beginObject().endObject().beginObject().endObject().endArray().asString();
+    auto jsonString = jsonBuilder.beginArray("arr")
+                          .beginObject()
+                          .endObject()
+                          .beginObject()
+                          .endObject()
+                          .endArray()
+                          .asString();
     auto json = loadJson(jsonString);
 
     ASSERT_TRUE(json.isMember("arr"));
@@ -92,7 +98,13 @@ TEST_F(JsonTests, givenJsonBuilder_whenCreatingArrayOfObjects_shouldGiveCorrectR
 }
 
 TEST_F(JsonTests, givenJsonBuilder_whenCreatingArrayOfArrays_shouldGiveCorrectResult) {
-    auto jsonString = jsonBuilder.beginArray("arr").beginArray().endArray().beginArray().endArray().endArray().asString();
+    auto jsonString = jsonBuilder.beginArray("arr")
+                          .beginArray()
+                          .endArray()
+                          .beginArray()
+                          .endArray()
+                          .endArray()
+                          .asString();
     auto json = loadJson(jsonString);
 
     ASSERT_TRUE(json.isMember("arr"));
@@ -117,8 +129,15 @@ TEST_F(JsonTests, givenJsonBuilder_whenAddingFloatValue_shouldGiveCorrectResult)
 }
 
 TEST_F(JsonTests, givenJsonBuilder_whenCreatingComplexObject_shouldGiveCorrectResult) {
-    auto jsonString =
-        jsonBuilder.addField("1", 1).addField("2", 2).beginArray("arr0").endArray().beginObject("nested").beginArray("arr").endArray().endObject().asString();
+    auto jsonString = jsonBuilder.addField("1", 1)
+                          .addField("2", 2)
+                          .beginArray("arr0")
+                          .endArray()
+                          .beginObject("nested")
+                          .beginArray("arr")
+                          .endArray()
+                          .endObject()
+                          .asString();
     auto json = loadJson(jsonString);
 
     ASSERT_TRUE(json.isMember("1"));
@@ -138,7 +157,8 @@ TEST_F(JsonTests, givenJsonBuilder_whenCreatingComplexObject_shouldGiveCorrectRe
 }
 
 TEST_F(JsonTests, givenJsonBuilder_whenCreatingArrayWithStrElements_shouldGiveCorrectResults) {
-    auto jsonString = jsonBuilder.beginArray("arr").addField("a"s).addField("b"s).endArray().asString();
+    auto jsonString =
+        jsonBuilder.beginArray("arr").addField("a"s).addField("b"s).endArray().asString();
     auto json = loadJson(jsonString);
 
     ASSERT_TRUE(json.isMember("arr"));
@@ -162,7 +182,7 @@ TEST_F(JsonTests, givenJsonBuilder_whenCreatingArrayWithIntElements_shouldGiveCo
 }
 
 TEST_F(JsonTests, givenJsonBuilder_whenCreatingArrayFromStringVector_shouldGiveCorrectResults) {
-    auto stringVector = std::vector<std::string> { "abcd"s, "efgh"s };
+    auto stringVector = std::vector<std::string>{"abcd"s, "efgh"s};
     auto jsonString = jsonBuilder.addField("array", stringVector).asString();
     auto json = loadJson(jsonString);
 
@@ -170,12 +190,11 @@ TEST_F(JsonTests, givenJsonBuilder_whenCreatingArrayFromStringVector_shouldGiveC
     auto& arr = json["array"];
 
     ASSERT_EQ(arr.size(), stringVector.size());
-    for (int i = 0; i < stringVector.size(); ++i)
-        EXPECT_EQ(arr[i], stringVector[i]);
+    for (int i = 0; i < stringVector.size(); ++i) EXPECT_EQ(arr[i], stringVector[i]);
 }
 
 TEST_F(JsonTests, givenJsonBuilder_whenCreatingArrayFromIntVector_shouldGiveCorrectResults) {
-    auto intVector = std::vector<int> { 1, 2, 3, 4 };
+    auto intVector = std::vector<int>{1, 2, 3, 4};
     auto jsonString = jsonBuilder.addField("array", intVector).asString();
     auto json = loadJson(jsonString);
 
@@ -183,7 +202,6 @@ TEST_F(JsonTests, givenJsonBuilder_whenCreatingArrayFromIntVector_shouldGiveCorr
     auto& arr = json["array"];
 
     ASSERT_EQ(arr.size(), intVector.size());
-    for (int i = 0; i < intVector.size(); ++i)
-        EXPECT_EQ(arr[i], intVector[i]);
+    for (int i = 0; i < intVector.size(); ++i) EXPECT_EQ(arr[i], intVector[i]);
 }
-}
+}  // namespace

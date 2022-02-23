@@ -14,7 +14,6 @@ static void signalHandler(int signal) {
 
 ServiceManager::ServiceManager(ServiceThread::Factory* serviceThreadFactory)
     : m_serviceThreadFactory(serviceThreadFactory) {
-
     serviceManagerInstance = this;
     setupSignals();
 }
@@ -31,9 +30,7 @@ void ServiceManager::start() {
     shutdownServices();
 }
 
-int ServiceManager::getServicesCount() {
-    return m_services.size();
-}
+int ServiceManager::getServicesCount() { return m_services.size(); }
 
 void ServiceManager::setupSignals() {
     std::signal(SIGINT, signalHandler);
@@ -42,8 +39,7 @@ void ServiceManager::setupSignals() {
 
 void ServiceManager::onSignal() {
     LOG_INFO("Stopping all running services.");
-    for (auto& service : m_services)
-        service->stop();
+    for (auto& service : m_services) service->stop();
 }
 
 void ServiceManager::initServices() {
@@ -67,8 +63,7 @@ void ServiceManager::startThreads() {
 
 void ServiceManager::waitForThreads() {
     LOG_INFO("Waiting for services to finish work.");
-    for (auto& thread : m_threads)
-        thread->join();
+    for (auto& thread : m_threads) thread->join();
 }
 
 void ServiceManager::shutdownServices() {
@@ -80,4 +75,4 @@ void ServiceManager::shutdownServices() {
         LOG_INFO("Service {} shutted down.", name);
     }
 }
-}
+}  // namespace kc::service

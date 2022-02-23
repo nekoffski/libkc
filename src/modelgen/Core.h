@@ -10,10 +10,7 @@ enum class OutputType {
     multiFile,
 };
 
-enum class JsonLib {
-    libkc,
-    arduino
-};
+enum class JsonLib { libkc, arduino };
 
 inline std::string spaces(const std::size_t count) {
     static const char space = ' ';

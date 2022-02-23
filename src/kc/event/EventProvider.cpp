@@ -3,8 +3,7 @@
 namespace kc::event {
 
 EventProvider::EventProvider(CategoryToEventQueue& categoryToEventQueue)
-    : m_categoryToEventQueue(categoryToEventQueue) {
-}
+    : m_categoryToEventQueue(categoryToEventQueue) {}
 
 EventQueue EventProvider::getAll() const {
     EventQueue events;
@@ -15,4 +14,4 @@ EventQueue EventProvider::getAll() const {
 
     return events;
 }
-}
+}  // namespace kc::event

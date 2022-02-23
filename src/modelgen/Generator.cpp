@@ -6,33 +6,29 @@
 
 #include "Core.h"
 
-Generator::Generator(JsonLib jsonLib)
-    : m_jsonLib(jsonLib) {
-}
+Generator::Generator(JsonLib jsonLib) : m_jsonLib(jsonLib) {}
 
 Generator::Files Generator::generateCode(const Structures& structures) {
     Files files;
 
     for (auto& enumerate : structures.enums) {
         std::cout << "$ Generating enum: " << enumerate.name << '\n';
-        files.emplace_back(
-            generateEnum(enumerate), enumerate.name + ".hpp");
+        files.emplace_back(generateEnum(enumerate), enumerate.name + ".hpp");
         m_customTypes[enumerate.name] = Type::enumerate;
     }
 
-    for (auto& model : structures.models)
-        m_customTypes[model.name] = Type::model;
+    for (auto& model : structures.models) m_customTypes[model.name] = Type::model;
 
     for (auto& model : structures.models) {
         std::cout << "$ Generating model: " << model.name << '\n';
-        files.emplace_back(
-            generateModel(model), model.name + ".hpp");
+        files.emplace_back(generateModel(model), model.name + ".hpp");
     }
 
     return files;
 }
 
-std::string Generator::determineFieldType(const std::string& typeDescription, std::ostringstream& headers) {
+std::string Generator::determineFieldType(const std::string& typeDescription,
+                                          std::ostringstream& headers) {
     if (Model::allowedTypes.contains(typeDescription))
         return Model::allowedTypes.at(typeDescription);
 
@@ -40,8 +36,7 @@ std::string Generator::determineFieldType(const std::string& typeDescription, st
         auto type = typeDescription.substr(1, typeDescription.length() - 2);
 
         if (m_customTypes.contains(type))
-            if (m_customTypes[type] == Type::model)
-                headers << "#include \"" << type << ".hpp\"\n";
+            if (m_customTypes[type] == Type::model) headers << "#include \"" << type << ".hpp\"\n";
 
         return "std::vector<" + type + ">";
     }
@@ -53,7 +48,7 @@ std::string Generator::determineFieldType(const std::string& typeDescription, st
         return typeDescription;
     }
 
-    throw ModelGeneratorError { "Unknown type: " + typeDescription };
+    throw ModelGeneratorError{"Unknown type: " + typeDescription};
 }
 
 std::string Generator::generateModel(const Model& model) {
@@ -77,10 +72,7 @@ std::string Generator::generateModel(const Model& model) {
          << spaces(8) << "return " << '\"' << model.name << "\";\n"
          << spaces(4) << "}\n";
 
-    data << '\n'
-         << generateModelFromJson(model) << '\n'
-         << generateModelToJson(model)
-         << "};\n";
+    data << '\n' << generateModelFromJson(model) << '\n' << generateModelToJson(model) << "};\n";
 
     return headers.str() + "\n" + data.str();
 }
@@ -88,32 +80,36 @@ std::string Generator::generateModel(const Model& model) {
 std::string Generator::generateModelFromJson(const Model& model) {
     std::ostringstream data;
 
-    data << spaces(4) << "static " << model.name << " fromJson(const " << getJsonObjectType() << "& json) {\n"
+    data << spaces(4) << "static " << model.name << " fromJson(const " << getJsonObjectType()
+         << "& json) {\n"
          << spaces(8) << model.name << " model;\n\n";
 
     static auto generateGetter = [](const Model::Field& field) -> std::string {
         const auto& [name, type] = field;
 
         if (Model::allowedTypes.contains(type))
-            return "kc::json::fieldFrom<ModelError>(json).withName(\"" + name + "\").ofType<" + Model::allowedTypes.at(type) + ">().get();\n";
+            return "kc::json::fieldFrom<ModelError>(json).withName(\"" + name + "\").ofType<" +
+                   Model::allowedTypes.at(type) + ">().get();\n";
 
-        return type + "::fromJson(kc::json::fieldFrom<ModelError>(json).withName(\"" + name + "\").asObject().get());\n";
+        return type + "::fromJson(kc::json::fieldFrom<ModelError>(json).withName(\"" + name +
+               "\").asObject().get());\n";
     };
 
     for (const auto& field : model.fields) {
         if (field.type[0] == '[') {
             auto fieldType = field.type.substr(1, field.type.length() - 2);
 
-            data << spaces(8) << "for (auto& node : kc::json::fieldFrom<ModelError>(json).withName(\"" << field.name << "\").asArray().get())\n"
-                 << spaces(12) << "model." << field.name << ".push_back(" << fieldType << "::fromJson(node));\n";
+            data << spaces(8)
+                 << "for (auto& node : kc::json::fieldFrom<ModelError>(json).withName(\""
+                 << field.name << "\").asArray().get())\n"
+                 << spaces(12) << "model." << field.name << ".push_back(" << fieldType
+                 << "::fromJson(node));\n";
 
         } else {
             data << spaces(8) << "model." << field.name << " = " << generateGetter(field);
         }
     }
-    data << spaces(8) << '\n'
-         << spaces(8) << "return model;\n"
-         << spaces(4) << "}\n";
+    data << spaces(8) << '\n' << spaces(8) << "return model;\n" << spaces(4) << "}\n";
 
     return data.str();
 }
@@ -122,7 +118,6 @@ std::string Generator::generateModelToJson(const Model& model) {
     std::ostringstream data;
 
     if (m_jsonLib == JsonLib::libkc) {
-
         data << spaces(4) << getJsonObjectType() << " toJson() const override {\n"
              << spaces(8) << "kc::json::JsonBuilder json;"
              << "\n\n";
@@ -141,29 +136,23 @@ std::string Generator::generateModelToJson(const Model& model) {
                 if (not Model::allowedTypes.contains(type.substr(1, type.length() - 2)))
                     data << ".toJson()";
 
-                data << ");\n"
-                     << spaces(8) << "json.endArray();\n";
+                data << ");\n" << spaces(8) << "json.endArray();\n";
 
             } else {
                 data << spaces(8) << "json.addField(\"" << name << "\", "
                      << "this->" << name;
 
-                if (not Model::allowedTypes.contains(type))
-                    data << ".toJson()";
+                if (not Model::allowedTypes.contains(type)) data << ".toJson()";
 
                 data << ");\n";
             }
         }
 
-        if (model.isMessage)
-            data << '\n'
-                 << spaces(8) << "json.endObject();\n";
+        if (model.isMessage) data << '\n' << spaces(8) << "json.endObject();\n";
 
-        data << '\n'
-             << spaces(8) << "return json.asJsonObject();\n"
-             << spaces(4) << "}\n";
+        data << '\n' << spaces(8) << "return json.asJsonObject();\n" << spaces(4) << "}\n";
     } else {
-        throw ModelGeneratorError { "Arduino JSON is not supported yet" };
+        throw ModelGeneratorError{"Arduino JSON is not supported yet"};
     }
 
     return data.str();
@@ -178,8 +167,7 @@ std::string Generator::generateEnum(const Enum& enumerate) {
     data << "enum " << enumerate.name << " : " << enumType << " {\n";
     data << spaces(4);
 
-    for (auto& value : enumerate.values)
-        data << value << ", ";
+    for (auto& value : enumerate.values) data << value << ", ";
 
     data << '\n';
     data << "};\n\n";

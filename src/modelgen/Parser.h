@@ -4,12 +4,12 @@
 #include "Tokenizer.h"
 
 class Parser {
-public:
+   public:
     explicit Parser(const Tokenizer::Tokens& tokens);
 
     Structures parseTokens() &&;
 
-private:
+   private:
     void processTokens();
     void processModel(bool isMessage);
 

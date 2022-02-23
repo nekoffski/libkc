@@ -1,22 +1,21 @@
 #include "EventEngine.h"
-#include "Error.h"
 
 #include <ranges>
+
+#include "Error.h"
 
 namespace kc::event {
 
 void EventEngine::spreadEvents() {
     for (auto& [ident, eventListener] : m_eventListeners)
-        eventListener->handleEvents(
-            EventProvider { m_eventContainer[ident] });
+        eventListener->handleEvents(EventProvider{m_eventContainer[ident]});
 
     for (auto& categoryEventQueue : m_eventContainer | std::views::values)
-        for (auto& eventQueue : categoryEventQueue | std::views::values)
-            eventQueue.clearUnsafe();
+        for (auto& eventQueue : categoryEventQueue | std::views::values) eventQueue.clearUnsafe();
 }
 
 EventProvider EventEngine::getEventProvider(const std::string& ident) {
-    return EventProvider { m_eventContainer[ident] };
+    return EventProvider{m_eventContainer[ident]};
 }
 
 std::shared_ptr<EventEmitter> EventEngine::createEmitter() {
@@ -29,15 +28,13 @@ void EventEngine::registerEventListener(EventListener* eventListener) {
     auto element = m_eventListeners.find(ident);
 
     while (element != m_eventListeners.getBuffer().end()) {
-        if (element->second == eventListener)
-            throw ListenerAlreadyRegistered {};
+        if (element->second == eventListener) throw ListenerAlreadyRegistered{};
         element = std::next(element);
     }
 
     m_eventListeners.insert(ident, eventListener);
 
-    if (not m_eventContainer.contains(ident))
-        m_eventContainer[ident] = CategoryToEventQueue {};
+    if (not m_eventContainer.contains(ident)) m_eventContainer[ident] = CategoryToEventQueue{};
 }
 
 void EventEngine::unregisterEventListener(EventListener* eventListener) {
@@ -46,7 +43,7 @@ void EventEngine::unregisterEventListener(EventListener* eventListener) {
 
 void EventEngine::unregisterEventListener(const std::string& ident) {
     if (not m_eventContainer.contains(ident) && not m_eventListeners.contains(ident))
-        throw ListenerNotFound {};
+        throw ListenerNotFound{};
 
     m_eventListeners.erase(ident);
     m_eventContainer.erase(ident);
@@ -55,4 +52,4 @@ void EventEngine::unregisterEventListener(const std::string& ident) {
 bool EventEngine::isListenerRegistered(const std::string& ident) const {
     return m_eventListeners.contains(ident) && m_eventContainer.contains(ident);
 }
-}
+}  // namespace kc::event

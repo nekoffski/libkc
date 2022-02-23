@@ -10,7 +10,7 @@
 #endif
 
 #define KC_STATIC_CLASS(T)           \
-public:                              \
+   public:                           \
     T() = delete;                    \
     T(const T&) = delete;            \
     T(const T&&) = delete;           \

@@ -11,24 +11,23 @@
 namespace kc::net {
 
 template <typename Acceptor>
-requires std::derived_from<Acceptor, async::Acceptor> class AcceptorService : public service::Service {
+requires std::derived_from<Acceptor, async::Acceptor>
+class AcceptorService : public service::Service {
     using Sessions = std::vector<Session>;
 
-public:
+   public:
     explicit AcceptorService(const std::string& name, model::MessageDeserializer* deserializer)
-        : Service(name)
-        , m_deserializer(deserializer) {
-    }
+        : Service(name), m_deserializer(deserializer) {}
 
     void startAccepting(async::Context* context, unsigned int port) {
         m_acceptor = std::make_unique<Acceptor>(context, port);
         waitForConnection();
     }
 
-protected:
+   protected:
     Sessions m_sessions;
 
-private:
+   private:
     void waitForConnection() {
         m_acceptor->asyncAccept([&](async::Error error, std::unique_ptr<async::Socket> socket) {
             ON_SCOPE_EXIT { waitForConnection(); };
@@ -47,4 +46,4 @@ private:
     model::MessageDeserializer* m_deserializer;
 };
 
-}
+}  // namespace kc::net

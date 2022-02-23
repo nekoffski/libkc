@@ -1,8 +1,7 @@
 #pragma once
 
-#include <functional>
-
 #include <boost/asio.hpp>
+#include <functional>
 
 #include "Error.hpp"
 
@@ -24,10 +23,8 @@ struct Socket {
 };
 
 class AsioSocket : public Socket {
-public:
-    explicit AsioSocket(boost::asio::ip::tcp::socket socket)
-        : m_socket(std::move(socket)) {
-    }
+   public:
+    explicit AsioSocket(boost::asio::ip::tcp::socket socket) : m_socket(std::move(socket)) {}
 
     AsioSocket(AsioSocket&&) = default;
     AsioSocket& operator=(AsioSocket&&) = default;
@@ -38,7 +35,7 @@ public:
 
         auto onRead = [readCallback, this](boost::system::error_code ec, std::size_t length) {
             m_buffer.resize(length);
-            readCallback(Error { std::move(ec) }, m_buffer, length);
+            readCallback(Error{std::move(ec)}, m_buffer, length);
         };
 
         m_socket.async_receive(boost::asio::buffer(m_buffer, bytesToRead), onRead);
@@ -46,20 +43,18 @@ public:
 
     void asyncWrite(const std::string& message, WriteCallback&& writeCallback) {
         auto onWrite = [writeCallback, this](boost::system::error_code ec, std::size_t length) {
-            writeCallback(Error { std::move(ec) }, length);
+            writeCallback(Error{std::move(ec)}, length);
         };
 
         auto messageSize = message.size();
         m_socket.async_write_some(boost::asio::buffer(message, messageSize), onWrite);
     }
 
-    void close() override {
-        m_socket.close();
-    }
+    void close() override { m_socket.close(); }
 
-private:
+   private:
     std::string m_buffer;
     boost::asio::ip::tcp::socket m_socket;
 };
 
-}
+}  // namespace kc::async

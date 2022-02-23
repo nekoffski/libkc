@@ -1,8 +1,7 @@
 #pragma once
 
-#include <thread>
-
 #include <boost/asio.hpp>
+#include <thread>
 
 namespace kc::async {
 
@@ -12,21 +11,17 @@ struct Context {
 };
 
 class AsioContext : public Context {
-public:
+   public:
     void runThreaded() override {
-        m_contextThread = std::make_unique<std::jthread>([&]() {
-            context.run();
-        });
+        m_contextThread = std::make_unique<std::jthread>([&]() { context.run(); });
     }
 
-    void stop() override {
-        context.stop();
-    }
+    void stop() override { context.stop(); }
 
     boost::asio::io_context context;
 
-private:
+   private:
     std::unique_ptr<std::jthread> m_contextThread;
 };
 
-}
+}  // namespace kc::async

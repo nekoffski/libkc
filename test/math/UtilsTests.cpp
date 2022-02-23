@@ -1,8 +1,7 @@
-#include "kc/math/Utils.hpp"
-
 #include <gtest/gtest.h>
 
 #include "kc/core/Macros.h"
+#include "kc/math/Utils.hpp"
 
 using namespace kc::math;
 
@@ -37,7 +36,7 @@ TEST(UtilsTests, whenGettingRandomInt_shouldReturnRandomNumbersInRange) {
 }
 
 TEST(UtilsTests, whenGeneratingRandomVectorInHemisphere_shouldBeInHemisphere) {
-    auto n = glm::normalize(glm::vec3 { 2.5f, 1.0f, 3.0f });
+    auto n = glm::normalize(glm::vec3{2.5f, 1.0f, 3.0f});
     static constexpr int iterations = 1000;
 
     REPEAT(iterations) {

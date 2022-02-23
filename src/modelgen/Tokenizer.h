@@ -21,12 +21,12 @@ struct Token {
 };
 
 class Tokenizer {
-public:
+   public:
     using Tokens = std::vector<Token>;
 
     Tokens tokenize(const std::vector<std::string>& file);
 
-private:
+   private:
     Token parseToken(const std::string& rawToken);
 
     bool isTokenConstraint(const std::string& rawToken);

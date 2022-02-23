@@ -2,11 +2,10 @@
 
 #include "Core.h"
 #include "Language.h"
-
 #include "kc/core/FileSystem.h"
 
 class Generator {
-public:
+   public:
     struct File {
         std::string content;
         std::string path;
@@ -18,7 +17,7 @@ public:
 
     Files generateCode(const Structures& structures);
 
-private:
+   private:
     std::string generateModel(const Model& model);
 
     inline static const std::string jsonType = "JSON";
@@ -35,14 +34,12 @@ private:
 
     std::string generateEnumToString(const Enum& enumerate);
 
-    std::string determineFieldType(const std::string& fieldDescription, std::ostringstream& headers);
+    std::string determineFieldType(const std::string& fieldDescription,
+                                   std::ostringstream& headers);
 
     JsonLib m_jsonLib;
 
-    enum Type {
-        enumerate,
-        model
-    };
+    enum Type { enumerate, model };
 
     std::unordered_map<std::string, Type> m_customTypes;
 };

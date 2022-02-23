@@ -11,4 +11,4 @@ struct Serializable {
     virtual json::Node toJson() const = 0;
 };
 
-}
+}  // namespace kc::model

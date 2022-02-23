@@ -1,9 +1,9 @@
-#include "kc/json/Utils.hpp"
-
-#include <glm/glm.hpp>
 #include <gtest/gtest.h>
 
+#include <glm/glm.hpp>
+
 #include "kc/json/Json.h"
+#include "kc/json/Utils.hpp"
 
 using namespace kc;
 using namespace testing;
@@ -24,43 +24,34 @@ struct NodeHelperTests : Test, json::NodeHelper<json::JsonError> {
 };
 
 TEST_F(NodeHelperTests, givenNodeWithoutField_whenGettingField_shouldThrow) {
-    EXPECT_THROW(
-        fieldFrom(root).withName("NotExistingNode"), json::JsonError);
+    EXPECT_THROW(fieldFrom(root).withName("NotExistingNode"), json::JsonError);
 }
 
 TEST_F(NodeHelperTests, givenNodeWithField_whenSettingUpNameTwice_shouldThrow) {
-    EXPECT_THROW(
-        fieldFrom(root).withName("int").withName("int"), json::JsonError);
+    EXPECT_THROW(fieldFrom(root).withName("int").withName("int"), json::JsonError);
 }
 
 TEST_F(NodeHelperTests, givenNode_whenSettingTypeWithoutSettingName_shouldThrow) {
-    EXPECT_THROW(
-        fieldFrom(root).ofType<int>(), json::JsonError);
+    EXPECT_THROW(fieldFrom(root).ofType<int>(), json::JsonError);
 }
 
 TEST_F(NodeHelperTests, givenNode_whenGettingValueWithWrongType_shouldThrow) {
-    EXPECT_THROW(
-        fieldFrom(root).withName("float").ofType<int>(), json::JsonError);
+    EXPECT_THROW(fieldFrom(root).withName("float").ofType<int>(), json::JsonError);
 }
 
 TEST_F(NodeHelperTests, givenNode_whenGettingValueCorrectly_shouldReturnCorrectValue) {
-    EXPECT_EQ(
-        fieldFrom(root).withName("int").ofType<int>().get(), 3);
+    EXPECT_EQ(fieldFrom(root).withName("int").ofType<int>().get(), 3);
 
-    EXPECT_EQ(
-        fieldFrom(root).withName("bool").ofType<bool>().get(), false);
+    EXPECT_EQ(fieldFrom(root).withName("bool").ofType<bool>().get(), false);
 
-    EXPECT_EQ(
-        fieldFrom(root).withName("float").ofType<float>().get(), 1.5f);
+    EXPECT_EQ(fieldFrom(root).withName("float").ofType<float>().get(), 1.5f);
 }
 
 TEST_F(NodeHelperTests, givenNodeWithValueOutOfRange_whenGettingValue_shouldThrow) {
-    EXPECT_THROW(
-        fieldFrom(root).withName("int").ofType<int>().min(5).get(), json::JsonError);
-    EXPECT_THROW(
-        fieldFrom(root).withName("int").ofType<int>().max(0).get(), json::JsonError);
-    EXPECT_THROW(
-        fieldFrom(root).withName("int").ofType<int>().inRange(0, 1).get(), json::JsonError);
+    EXPECT_THROW(fieldFrom(root).withName("int").ofType<int>().min(5).get(), json::JsonError);
+    EXPECT_THROW(fieldFrom(root).withName("int").ofType<int>().max(0).get(), json::JsonError);
+    EXPECT_THROW(fieldFrom(root).withName("int").ofType<int>().inRange(0, 1).get(),
+                 json::JsonError);
 }
 
 TEST_F(NodeHelperTests, givenStringNodeWithSizeOutOfRange_whenGettingValue_shouldThrow) {
@@ -70,24 +61,27 @@ TEST_F(NodeHelperTests, givenStringNodeWithSizeOutOfRange_whenGettingValue_shoul
     root["str"] = str;
 
     EXPECT_THROW(
-        fieldFrom(root).withName("str").ofType<std::string>().nonEmpty().minSize(n + 1).get(), json::JsonError);
+        fieldFrom(root).withName("str").ofType<std::string>().nonEmpty().minSize(n + 1).get(),
+        json::JsonError);
 
     EXPECT_THROW(
-        fieldFrom(root).withName("str").ofType<std::string>().nonEmpty().maxSize(n - 1).get(), json::JsonError);
+        fieldFrom(root).withName("str").ofType<std::string>().nonEmpty().maxSize(n - 1).get(),
+        json::JsonError);
 
     EXPECT_THROW(
-        fieldFrom(root).withName("str").ofType<std::string>().nonEmpty().sizeInRange(0, 1).get(), json::JsonError);
+        fieldFrom(root).withName("str").ofType<std::string>().nonEmpty().sizeInRange(0, 1).get(),
+        json::JsonError);
 }
 
 TEST_F(NodeHelperTests, givenArrayNodeWithSizeOutOfRange_whenGettingValue_shouldThrow) {
-    EXPECT_THROW(
-        fieldFrom(root).withName("array").asArray().nonEmpty().sizeInRange(0, 2).get(), json::JsonError);
+    EXPECT_THROW(fieldFrom(root).withName("array").asArray().nonEmpty().sizeInRange(0, 2).get(),
+                 json::JsonError);
 
-    EXPECT_THROW(
-        fieldFrom(root).withName("array").asArray().nonEmpty().minSize(55).get(), json::JsonError);
+    EXPECT_THROW(fieldFrom(root).withName("array").asArray().nonEmpty().minSize(55).get(),
+                 json::JsonError);
 
-    EXPECT_THROW(
-        fieldFrom(root).withName("array").asArray().nonEmpty().maxSize(1).get(), json::JsonError);
+    EXPECT_THROW(fieldFrom(root).withName("array").asArray().nonEmpty().maxSize(1).get(),
+                 json::JsonError);
 }
 
 TEST_F(NodeHelperTests, givenGlm2Vector_whenDeserializing_shouldDeserializeCorrectly) {
@@ -102,51 +96,24 @@ TEST_F(NodeHelperTests, givenGlm2Vector_whenDeserializing_shouldDeserializeCorre
 
 TEST_F(NodeHelperTests, givenGlmVectorWithNotEnoughFields_whenDeserializing_shouldThrow) {
     root["array"].resize(1);
-    EXPECT_THROW({
-        fieldFrom(root).withName("array").ofType<glm::vec2>().get();
-    },
-        json::JsonError);
-    EXPECT_THROW({
-        fieldFrom(root).withName("array").ofType<glm::vec3>().get();
-    },
-        json::JsonError);
-    EXPECT_THROW({
-        fieldFrom(root).withName("array").ofType<glm::vec4>().get();
-    },
-        json::JsonError);
+    EXPECT_THROW({ fieldFrom(root).withName("array").ofType<glm::vec2>().get(); }, json::JsonError);
+    EXPECT_THROW({ fieldFrom(root).withName("array").ofType<glm::vec3>().get(); }, json::JsonError);
+    EXPECT_THROW({ fieldFrom(root).withName("array").ofType<glm::vec4>().get(); }, json::JsonError);
 }
 
 TEST_F(NodeHelperTests, givenGlmVectorWithTooManyFields_whenDeserializing_shouldThrow) {
     root["array"].resize(5);
-    EXPECT_THROW({
-        fieldFrom(root).withName("array").ofType<glm::vec2>().get();
-    },
-        json::JsonError);
-    EXPECT_THROW({
-        fieldFrom(root).withName("array").ofType<glm::vec3>().get();
-    },
-        json::JsonError);
-    EXPECT_THROW({
-        fieldFrom(root).withName("array").ofType<glm::vec4>().get();
-    },
-        json::JsonError);
+    EXPECT_THROW({ fieldFrom(root).withName("array").ofType<glm::vec2>().get(); }, json::JsonError);
+    EXPECT_THROW({ fieldFrom(root).withName("array").ofType<glm::vec3>().get(); }, json::JsonError);
+    EXPECT_THROW({ fieldFrom(root).withName("array").ofType<glm::vec4>().get(); }, json::JsonError);
 }
 
 TEST_F(NodeHelperTests, givenGlmVectorWithInvalidType_whenDeserializing_shouldThrow) {
     root["array"].resize(2);
     root["array"].append("abcd");
-    EXPECT_THROW({
-        fieldFrom(root).withName("array").ofType<glm::vec2>().get();
-    },
-        json::JsonError);
-    EXPECT_THROW({
-        fieldFrom(root).withName("array").ofType<glm::vec3>().get();
-    },
-        json::JsonError);
-    EXPECT_THROW({
-        fieldFrom(root).withName("array").ofType<glm::vec4>().get();
-    },
-        json::JsonError);
+    EXPECT_THROW({ fieldFrom(root).withName("array").ofType<glm::vec2>().get(); }, json::JsonError);
+    EXPECT_THROW({ fieldFrom(root).withName("array").ofType<glm::vec3>().get(); }, json::JsonError);
+    EXPECT_THROW({ fieldFrom(root).withName("array").ofType<glm::vec4>().get(); }, json::JsonError);
 }
 
 TEST_F(NodeHelperTests, givenGlm3Vector_whenDeserializing_shouldDeserializeCorrectly) {
@@ -173,15 +140,14 @@ TEST_F(NodeHelperTests, givenGlm4Vector_whenDeserializing_shouldDeserializeCorre
 }
 
 TEST_F(NodeHelperTests, givenArrayOfDifferentTypeThanExpected_whenGettingValue_shouldThrow) {
-    EXPECT_THROW(
-        fieldFrom(root).withName("array").asArray().ofType<std::string>().get(), json::JsonError);
+    EXPECT_THROW(fieldFrom(root).withName("array").asArray().ofType<std::string>().get(),
+                 json::JsonError);
 }
 
 TEST_F(NodeHelperTests, givenObjectNode_whenGettingValue_shouldReturnObject) {
     root["obj"] = Json::objectValue;
 
-    EXPECT_TRUE(
-        fieldFrom(root).withName("obj").asObject().get().isObject());
+    EXPECT_TRUE(fieldFrom(root).withName("obj").asObject().get().isObject());
 }
 
 TEST_F(NodeHelperTests, givenArray_whenIterating_shouldNotThrow) {
@@ -198,9 +164,8 @@ TEST_F(NodeHelperTests, givenEmptyField_whenExpectingNonEmpty_shouldThrow) {
     root["str"] = "";
     root["arr"] = Json::arrayValue;
 
-    EXPECT_THROW(
-        fieldFrom(root).withName("str").ofType<std::string>().nonEmpty().get(), json::JsonError);
+    EXPECT_THROW(fieldFrom(root).withName("str").ofType<std::string>().nonEmpty().get(),
+                 json::JsonError);
 
-    EXPECT_THROW(
-        fieldFrom(root).withName("arr").asArray().nonEmpty().get(), json::JsonError);
+    EXPECT_THROW(fieldFrom(root).withName("arr").asArray().nonEmpty().get(), json::JsonError);
 }

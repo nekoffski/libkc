@@ -8,4 +8,4 @@ using Uuid = std::string;
 
 Uuid generateUuid();
 
-}
+}  // namespace kc::core

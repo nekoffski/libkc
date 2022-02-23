@@ -8,24 +8,18 @@ namespace kc::async {
 
 template <typename T>
 class Future {
-public:
-    explicit Future(std::future<T>&& future)
-        : m_future(std::move(future)) {
-    }
+   public:
+    explicit Future(std::future<T>&& future) : m_future(std::move(future)) {}
 
     bool isReady() {
         return m_future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
     }
 
-    T getValue() {
-        return m_future.get();
-    }
+    T getValue() { return m_future.get(); }
 
-    void wait() const {
-        m_future.wait();
-    }
+    void wait() const { m_future.wait(); }
 
-private:
+   private:
     std::future<T> m_future;
 };
 
@@ -41,8 +35,7 @@ void wait(Future<T>& future) {
 
 template <typename T>
 void wait(std::vector<Future<T>>& futures) {
-    for (auto& future : futures)
-        future.wait();
+    for (auto& future : futures) future.wait();
 }
 
-}
+}  // namespace kc::async

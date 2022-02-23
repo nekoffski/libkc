@@ -1,12 +1,13 @@
-#include "kc/math/Ray.h"
+#include <gtest/gtest.h>
 
 #include <glm/geometric.hpp>
-#include <gtest/gtest.h>
+
+#include "kc/math/Ray.h"
 
 using namespace kc::math;
 
-static const glm::vec3 origin = { 1.0f, 2.0f, 3.0f };
-static const glm::vec3 direction = { 11.0f, 2.3f, 3.1f };
+static const glm::vec3 origin = {1.0f, 2.0f, 3.0f};
+static const glm::vec3 direction = {11.0f, 2.3f, 3.1f};
 
 TEST(RayTests, givenRay_whenGettingOrigin_shouldReturnCorrectValue) {
     EXPECT_EQ(Ray(origin, direction).getOrigin(), origin);

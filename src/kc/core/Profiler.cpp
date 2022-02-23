@@ -5,19 +5,12 @@
 
 namespace kc::core {
 
-Profiler::Profiler(const Clock& clock)
-    : m_clock(clock) {
-}
+Profiler::Profiler(const Clock& clock) : m_clock(clock) {}
 
 Profiler::RegionTimer::RegionTimer(float& value, Clock* clock)
-    : m_value(value)
-    , m_clock(clock)
-    , m_startTime(m_clock->now()) {
-}
+    : m_value(value), m_clock(clock), m_startTime(m_clock->now()) {}
 
-Profiler::RegionTimer::~RegionTimer() {
-    updateValue();
-}
+Profiler::RegionTimer::~RegionTimer() { updateValue(); }
 
 void Profiler::RegionTimer::updateValue() {
     static constexpr float weight = 0.3f;
@@ -27,11 +20,12 @@ void Profiler::RegionTimer::updateValue() {
 }
 
 Profiler::RegionTimer Profiler::createRegionTimer(const std::string& name) {
-    return RegionTimer { m_times[name], &m_clock };
+    return RegionTimer{m_times[name], &m_clock};
 }
 
 void Profiler::saveResults(const std::string& logDestination, const FileSystem& fileSystem) {
-    fileSystem.writeFile(logDestination + "logs.perf", formatTimers(), FileSystem::WritePolicy::override);
+    fileSystem.writeFile(logDestination + "logs.perf", formatTimers(),
+                         FileSystem::WritePolicy::override);
 }
 
 std::string Profiler::formatTimers() {
@@ -50,4 +44,4 @@ std::string Profiler::formatTimers() {
 
     return stream.str();
 }
-}
+}  // namespace kc::core

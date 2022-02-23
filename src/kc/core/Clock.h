@@ -6,7 +6,7 @@
 namespace kc::core {
 
 class Clock {
-public:
+   public:
     using ClockType = std::chrono::steady_clock;
     using TimePoint = std::chrono::time_point<ClockType>;
 
@@ -18,7 +18,7 @@ public:
 
     float nowAsFloat() const;
 
-private:
+   private:
     ClockType m_clock;
 };
 
@@ -30,4 +30,4 @@ float toSeconds(const std::chrono::duration<U, T>& duration) {
 
 float toSeconds(const Clock::TimePoint& timePoint);
 
-}
+}  // namespace kc::core

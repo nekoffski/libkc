@@ -11,16 +11,16 @@ const std::string ident2 = "ident2";
 
 const std::type_index defCategoryType = typeid(kc::event::DefaultCategory);
 
-struct EventA : public kc::event::EventBase<EventA> { };
-struct EventB : public kc::event::EventBase<EventB> { };
+struct EventA : public kc::event::EventBase<EventA> {};
+struct EventB : public kc::event::EventBase<EventB> {};
 
 class EventEmitterTests : public testing::Test {
-protected:
+   protected:
     EventEmitterTests() {
         m_eventEmitter = std::make_shared<kc::event::EventEmitter>(m_eventContainer);
 
-        m_eventContainer[ident1] = kc::event::CategoryToEventQueue {};
-        m_eventContainer[ident2] = kc::event::CategoryToEventQueue {};
+        m_eventContainer[ident1] = kc::event::CategoryToEventQueue{};
+        m_eventContainer[ident2] = kc::event::CategoryToEventQueue{};
     }
 
     kc::event::EventContainer m_eventContainer;
@@ -66,8 +66,8 @@ TEST_F(EventEmitterTests, whenEmitting_everyListenerShouldReceiveEvent) {
     ASSERT_EQ(defQueue1.size(), 1);
     ASSERT_EQ(defQueue2.size(), 1);
 
-    ASSERT_EQ(defQueue1[0]->getEventTypeIndex(), std::type_index { typeid(EventA) });
-    ASSERT_EQ(defQueue2[0]->getEventTypeIndex(), std::type_index { typeid(EventA) });
+    ASSERT_EQ(defQueue1[0]->getEventTypeIndex(), std::type_index{typeid(EventA)});
+    ASSERT_EQ(defQueue2[0]->getEventTypeIndex(), std::type_index{typeid(EventA)});
 }
 
 TEST_F(EventEmitterTests, whenEmitting2Events_everyListenerShouldReceiveEvent) {
@@ -86,19 +86,19 @@ TEST_F(EventEmitterTests, whenEmitting2Events_everyListenerShouldReceiveEvent) {
     ASSERT_EQ(defQueue1.size(), 2);
     ASSERT_EQ(defQueue2.size(), 2);
 
-    ASSERT_EQ(defQueue1[0]->getEventTypeIndex(), std::type_index { typeid(EventA) });
-    ASSERT_EQ(defQueue2[0]->getEventTypeIndex(), std::type_index { typeid(EventA) });
+    ASSERT_EQ(defQueue1[0]->getEventTypeIndex(), std::type_index{typeid(EventA)});
+    ASSERT_EQ(defQueue2[0]->getEventTypeIndex(), std::type_index{typeid(EventA)});
 
-    ASSERT_EQ(defQueue1[1]->getEventTypeIndex(), std::type_index { typeid(EventB) });
-    ASSERT_EQ(defQueue2[1]->getEventTypeIndex(), std::type_index { typeid(EventB) });
+    ASSERT_EQ(defQueue1[1]->getEventTypeIndex(), std::type_index{typeid(EventB)});
+    ASSERT_EQ(defQueue2[1]->getEventTypeIndex(), std::type_index{typeid(EventB)});
 }
 
 TEST_F(EventEmitterTests, whenEmittingTo2Listeners_only2ListenersShouldReceiveEvent) {
     const std::string ident3 = "ident3";
 
-    m_eventContainer[ident3] = kc::event::CategoryToEventQueue {};
+    m_eventContainer[ident3] = kc::event::CategoryToEventQueue{};
 
-    m_eventEmitter->emit<EventA>().to({ ident1, ident2 });
+    m_eventEmitter->emit<EventA>().to({ident1, ident2});
 
     auto& m1 = m_eventContainer[ident1];
     auto& m2 = m_eventContainer[ident2];
@@ -111,12 +111,12 @@ TEST_F(EventEmitterTests, whenEmittingTo2Listeners_only2ListenersShouldReceiveEv
     auto& defQueue1 = m1[defCategoryType];
 
     ASSERT_EQ(defQueue1.size(), 1);
-    ASSERT_EQ(defQueue1[0]->getEventTypeIndex(), std::type_index { typeid(EventA) });
+    ASSERT_EQ(defQueue1[0]->getEventTypeIndex(), std::type_index{typeid(EventA)});
 
     auto& defQueue2 = m2[defCategoryType];
 
     ASSERT_EQ(defQueue2.size(), 1);
-    ASSERT_EQ(defQueue2[0]->getEventTypeIndex(), std::type_index { typeid(EventA) });
+    ASSERT_EQ(defQueue2[0]->getEventTypeIndex(), std::type_index{typeid(EventA)});
 }
 
 TEST_F(EventEmitterTests, whenEmittingToListener_onlyListenerShouldReceiveEvent) {
@@ -133,4 +133,4 @@ TEST_F(EventEmitterTests, whenEmittingToListener_onlyListenerShouldReceiveEvent)
     ASSERT_EQ(defQueue1.size(), 1);
     ASSERT_EQ(defQueue1.front()->getEventTypeIndex(), typeid(EventA));
 }
-}
+}  // namespace

@@ -5,9 +5,9 @@
 #define TYPE(t) \
     std::type_index { typeid(t) }
 
-struct CategoryA : kc::event::Category { };
-struct CategoryB : kc::event::Category { };
-struct CategoryC : kc::event::Category { };
+struct CategoryA : kc::event::Category {};
+struct CategoryB : kc::event::Category {};
+struct CategoryC : kc::event::Category {};
 
 namespace {
 
@@ -28,15 +28,13 @@ TEST(ExtractorTests, whenExtractingCategories_shouldReturnProperTypeIds) {
     EXPECT_EQ(categories[1], TYPE(CategoryB));
 }
 
-struct EventA : kc::event::EventBase<EventA> { };
-struct EventB : kc::event::EventBase<EventB, CategoryA> { };
-struct EventC : kc::event::EventBase<EventC, CategoryB> { };
+struct EventA : kc::event::EventBase<EventA> {};
+struct EventB : kc::event::EventBase<EventB, CategoryA> {};
+struct EventC : kc::event::EventBase<EventC, CategoryB> {};
 
 class EventProviderTests : public testing::Test {
-protected:
-    explicit EventProviderTests()
-        : m_eventProvider(m_events) {
-    }
+   protected:
+    explicit EventProviderTests() : m_eventProvider(m_events) {}
 
     void SetUp() override {
         m_eventA = std::make_shared<EventA>();
@@ -57,8 +55,7 @@ protected:
 
     bool checkEvent(std::shared_ptr<kc::event::Event> event, const kc::event::EventQueue& q) {
         for (auto& e : q)
-            if (event->getEventTypeIndex() == e->getEventTypeIndex())
-                return true;
+            if (event->getEventTypeIndex() == e->getEventTypeIndex()) return true;
         return false;
     }
 };
@@ -94,11 +91,12 @@ TEST_F(EventProviderTests, givenThreeEvents_whenGettingEventByCategory_shouldRet
     ASSERT_EQ(m_eventProvider.getByCategories<CategoryC>().size(), 0);
 }
 
-TEST_F(EventProviderTests, givenThreeEvents_whenGettingEventByTwoCategories_shouldReturnThisTwoEvents) {
+TEST_F(EventProviderTests,
+       givenThreeEvents_whenGettingEventByTwoCategories_shouldReturnThisTwoEvents) {
     auto events = m_eventProvider.getByCategories<CategoryA, CategoryB>();
     ASSERT_EQ(events.size(), 2);
     ASSERT_FALSE(checkEvent(m_eventA, events));
     ASSERT_TRUE(checkEvent(m_eventB, events));
     ASSERT_TRUE(checkEvent(m_eventC, events));
 }
-}
+}  // namespace

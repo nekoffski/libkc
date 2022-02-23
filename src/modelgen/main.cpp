@@ -1,15 +1,14 @@
 #include <iostream>
-
-#include <stack>
-
 #include <ranges>
+#include <stack>
 #include <unordered_map>
 
 // #include <boost/program_options.hpp>
 
-#include <kc/core/ErrorBase.hpp>
 #include <kc/core/FileSystem.h>
 #include <kc/core/Log.h>
+
+#include <kc/core/ErrorBase.hpp>
 
 #include "Core.h"
 #include "Generator.h"
@@ -41,18 +40,18 @@ int main(int argc, char** argv) {
         fileContent += (fs.readFile(file) + '\n');
 
     try {
-        auto tokens = Tokenizer {}.tokenize(core::split(fileContent, '\n'));
+        auto tokens = Tokenizer{}.tokenize(core::split(fileContent, '\n'));
 
-        auto structures = Parser { tokens }.parseTokens();
-        auto files = Generator { JsonLib::libkc }.generateCode(structures);
+        auto structures = Parser{tokens}.parseTokens();
+        auto files = Generator{JsonLib::libkc}.generateCode(structures);
 
         std::cout << "\n\n$ Generated files:\n\n";
 
         for (auto& [fileContent, fileName] : files) {
-            std::cout << "[" << fileName << "]\n\n"
-                      << fileContent;
+            std::cout << "[" << fileName << "]\n\n" << fileContent;
 
-            fs.writeFile(output + "/" + fileName, fileContent, core::FileSystem::WritePolicy::override);
+            fs.writeFile(output + "/" + fileName, fileContent,
+                         core::FileSystem::WritePolicy::override);
         }
 
     } catch (ModelGeneratorError& error) {

@@ -6,28 +6,17 @@
 
 namespace kc::async {
 
-ThreadPool::ThreadPool(const std::size_t size)
-    : m_active(true)
-    , m_size(size) {
-
+ThreadPool::ThreadPool(const std::size_t size) : m_active(true), m_size(size) {
     m_threads.reserve(size);
 
-    REPEAT(size) {
-        m_threads.emplace_back(&ThreadPool::threadWorker, this);
-    }
+    REPEAT(size) { m_threads.emplace_back(&ThreadPool::threadWorker, this); }
 }
 
-ThreadPool::~ThreadPool() {
-    stop();
-}
+ThreadPool::~ThreadPool() { stop(); }
 
-std::size_t ThreadPool::getSize() const {
-    return m_size;
-}
+std::size_t ThreadPool::getSize() const { return m_size; }
 
-void ThreadPool::stop() {
-    m_active = false;
-}
+void ThreadPool::stop() { m_active = false; }
 
 void ThreadPool::threadWorker() {
     using namespace std::chrono_literals;
@@ -48,4 +37,4 @@ void ThreadPool::threadWorker() {
     }
 }
 
-}
+}  // namespace kc::async

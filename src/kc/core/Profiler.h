@@ -12,11 +12,11 @@ namespace kc::core {
 
 class Profiler : public Singleton<Profiler> {
     class RegionTimer {
-    public:
+       public:
         explicit RegionTimer(float& value, Clock* clock);
         ~RegionTimer();
 
-    private:
+       private:
         void updateValue();
 
         float& m_value;
@@ -25,20 +25,21 @@ class Profiler : public Singleton<Profiler> {
         Clock::TimePoint m_startTime;
     };
 
-public:
-    explicit Profiler(const Clock& clock = Clock {});
+   public:
+    explicit Profiler(const Clock& clock = Clock{});
 
     RegionTimer createRegionTimer(const std::string& name);
 
-    void saveResults(const std::string& logDestination = "./", const FileSystem& fileSystem = FileSystem {});
+    void saveResults(const std::string& logDestination = "./",
+                     const FileSystem& fileSystem = FileSystem{});
     std::string formatTimers();
 
-private:
+   private:
     Clock m_clock;
     std::unordered_map<std::string, float> m_times;
 };
 
-}
+}  // namespace kc::core
 
 // clang-format off
 #ifdef KC_DISABLE_PROFILER

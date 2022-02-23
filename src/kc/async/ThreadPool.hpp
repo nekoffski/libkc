@@ -16,7 +16,7 @@ namespace kc::async {
 class ThreadPool {
     using Job = std::function<void()>;
 
-public:
+   public:
     explicit ThreadPool(const std::size_t size = defaultSize);
 
     ~ThreadPool();
@@ -52,8 +52,7 @@ public:
             int beginIndex = i * batch;
             int endIndex = beginIndex + batch;
 
-            if (i == threadCount - 1)
-                endIndex += iterations % batch;
+            if (i == threadCount - 1) endIndex += iterations % batch;
 
             futures.push_back(callAsync(function, beginIndex, endIndex));
         }
@@ -64,7 +63,7 @@ public:
 
     static constexpr std::size_t defaultSize = 4;
 
-private:
+   private:
     void threadWorker();
 
     containers::AtomicQueue<Job> m_jobs;
@@ -72,4 +71,4 @@ private:
     std::atomic_bool m_active;
     std::size_t m_size;
 };
-}
+}  // namespace kc::async

@@ -7,26 +7,24 @@
 namespace kc::event {
 
 namespace detail {
-    using TypeVector = std::vector<std::type_index>;
+using TypeVector = std::vector<std::type_index>;
 
-    template <typename Category, typename... Rest>
-    struct Extractor {
-        static void extract(TypeVector& categories) {
-            categories.emplace_back(typeid(Category));
-            Extractor<Rest...>::extract(categories);
-        }
-    };
+template <typename Category, typename... Rest>
+struct Extractor {
+    static void extract(TypeVector& categories) {
+        categories.emplace_back(typeid(Category));
+        Extractor<Rest...>::extract(categories);
+    }
+};
 
-    template <typename Category>
-    struct Extractor<Category> {
-        static void extract(TypeVector& categories) {
-            categories.emplace_back(typeid(Category));
-        }
-    };
-}
+template <typename Category>
+struct Extractor<Category> {
+    static void extract(TypeVector& categories) { categories.emplace_back(typeid(Category)); }
+};
+}  // namespace detail
 
 class EventProvider {
-public:
+   public:
     explicit EventProvider(CategoryToEventQueue& categoryToEventQueue);
 
     EventQueue getAll() const;
@@ -38,8 +36,7 @@ public:
 
         EventQueue events;
         for (const auto& categoryIndex : categories) {
-            if (not m_categoryToEventQueue.contains(categoryIndex))
-                continue;
+            if (not m_categoryToEventQueue.contains(categoryIndex)) continue;
 
             auto& queue = m_categoryToEventQueue[categoryIndex];
             auto lock = queue.lock();
@@ -50,7 +47,7 @@ public:
         return events;
     }
 
-private:
+   private:
     CategoryToEventQueue& m_categoryToEventQueue;
 };
-}
+}  // namespace kc::event

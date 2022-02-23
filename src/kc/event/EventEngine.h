@@ -14,19 +14,19 @@
 namespace kc::event {
 
 class EventEngine {
-public:
-	std::shared_ptr<EventEmitter> createEmitter();
+   public:
+    std::shared_ptr<EventEmitter> createEmitter();
 
     void spreadEvents();
     void registerEventListener(EventListener* eventListener);
     void unregisterEventListener(EventListener* eventListener);
     void unregisterEventListener(const std::string& ident);
-	EventProvider getEventProvider(const std::string& ident);
+    EventProvider getEventProvider(const std::string& ident);
 
     bool isListenerRegistered(const std::string& ident) const;
 
-private:
+   private:
     EventListeners m_eventListeners;
     EventContainer m_eventContainer;
 };
-}
+}  // namespace kc::event

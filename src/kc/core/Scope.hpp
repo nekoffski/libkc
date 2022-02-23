@@ -9,18 +9,15 @@ namespace kc::core::detail {
 
 template <typename Callback, typename Condition>
 class ScopeGuard {
-public:
+   public:
     explicit ScopeGuard(Callback&& callback, Condition&& condition)
-        : m_callback(std::move(callback))
-        , m_condition(std::move(condition)) {
-    }
+        : m_callback(std::move(callback)), m_condition(std::move(condition)) {}
 
     ~ScopeGuard() {
-        if (m_condition())
-            m_callback();
+        if (m_condition()) m_callback();
     }
 
-private:
+   private:
     Callback m_callback;
     Condition m_condition;
 };
@@ -28,50 +25,47 @@ private:
 enum class _ScopeGuardOnExit {};
 
 struct _ScopeGuardOnExitCondition {
-    bool operator()() const {
-        return true;
-    }
+    bool operator()() const { return true; }
 };
 
 template <typename Callback>
-ScopeGuard<Callback, decltype(_ScopeGuardOnExitCondition {})> operator+(_ScopeGuardOnExit, Callback&& callback) {
-    return ScopeGuard<Callback, decltype(_ScopeGuardOnExitCondition {})>(
-        std::forward<Callback>(callback), _ScopeGuardOnExitCondition {});
+ScopeGuard<Callback, decltype(_ScopeGuardOnExitCondition{})> operator+(_ScopeGuardOnExit,
+                                                                       Callback&& callback) {
+    return ScopeGuard<Callback, decltype(_ScopeGuardOnExitCondition{})>(
+        std::forward<Callback>(callback), _ScopeGuardOnExitCondition{});
 }
 
 enum class _ScopeGuardOnFailure {};
 
 struct _ScopeGuardOnFailureCondition {
-    bool operator()() const {
-        return uncaughtExceptionsAtCreation != std::uncaught_exceptions();
-    }
+    bool operator()() const { return uncaughtExceptionsAtCreation != std::uncaught_exceptions(); }
 
     int uncaughtExceptionsAtCreation = std::uncaught_exceptions();
 };
 
 template <typename Callback>
-ScopeGuard<Callback, decltype(_ScopeGuardOnFailureCondition {})> operator+(_ScopeGuardOnFailure, Callback&& callback) {
-    return ScopeGuard<Callback, decltype(_ScopeGuardOnFailureCondition {})>(
-        std::forward<Callback>(callback), _ScopeGuardOnFailureCondition {});
+ScopeGuard<Callback, decltype(_ScopeGuardOnFailureCondition{})> operator+(_ScopeGuardOnFailure,
+                                                                          Callback&& callback) {
+    return ScopeGuard<Callback, decltype(_ScopeGuardOnFailureCondition{})>(
+        std::forward<Callback>(callback), _ScopeGuardOnFailureCondition{});
 }
 
 enum class _ScopeGuardOnSuccess {};
 
 struct _ScopeGuardOnSuccessCondition {
-    bool operator()() const {
-        return uncaughtExceptionsAtCreation == std::uncaught_exceptions();
-    }
+    bool operator()() const { return uncaughtExceptionsAtCreation == std::uncaught_exceptions(); }
 
     int uncaughtExceptionsAtCreation = std::uncaught_exceptions();
 };
 
 template <typename Callback>
-ScopeGuard<Callback, decltype(_ScopeGuardOnSuccessCondition {})> operator+(_ScopeGuardOnSuccess, Callback&& callback) {
-    return ScopeGuard<Callback, decltype(_ScopeGuardOnSuccessCondition {})>(
-        std::forward<Callback>(callback), _ScopeGuardOnSuccessCondition {});
+ScopeGuard<Callback, decltype(_ScopeGuardOnSuccessCondition{})> operator+(_ScopeGuardOnSuccess,
+                                                                          Callback&& callback) {
+    return ScopeGuard<Callback, decltype(_ScopeGuardOnSuccessCondition{})>(
+        std::forward<Callback>(callback), _ScopeGuardOnSuccessCondition{});
 }
 
-}
+}  // namespace kc::core::detail
 
 // clang-format off
 #define ON_SCOPE_EXIT         auto ANONYMOUS_VAR(SCOPE_EXIT)    = kc::core::detail::_ScopeGuardOnExit      {} + [&]()

@@ -11,11 +11,8 @@
 namespace kc::core {
 
 class FileSystem {
-public:
-    enum class WritePolicy {
-        override,
-        noOverride
-    };
+   public:
+    enum class WritePolicy { override, noOverride };
 
     using Path = std::string;
 
@@ -23,7 +20,8 @@ public:
     virtual bool isDirectory(const Path& path) const;
     virtual std::vector<Path> listDirectory(const Path& path) const;
 
-    virtual void writeFile(const Path& path, const std::string& buffer, WritePolicy writePolicy = WritePolicy::noOverride) const;
+    virtual void writeFile(const Path& path, const std::string& buffer,
+                           WritePolicy writePolicy = WritePolicy::noOverride) const;
     virtual std::string readFile(const Path& path) const;
 
     virtual std::vector<std::string> readLines(const Path& path) const;
@@ -32,4 +30,4 @@ public:
 };
 
 using FS = FileSystem;
-}
+}  // namespace kc::core

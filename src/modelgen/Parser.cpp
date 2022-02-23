@@ -1,18 +1,14 @@
 #include "Parser.h"
 
+#include "Core.h"
 #include "kc/core/Log.h"
 
-#include "Core.h"
-
 Parser::Parser(const Tokenizer::Tokens& tokens)
-    : m_currentIndex(0)
-    , m_tokensSize(tokens.size())
-    , m_tokens(tokens) {
-}
+    : m_currentIndex(0), m_tokensSize(tokens.size()), m_tokens(tokens) {}
 
 Structures Parser::parseTokens() && {
     if (m_tokens[0].type != TokenType::header)
-        throw SyntaxError { "Model file must start with proper header" };
+        throw SyntaxError{"Model file must start with proper header"};
 
     ++m_currentIndex;
     processTokens();
@@ -21,13 +17,11 @@ Structures Parser::parseTokens() && {
 }
 
 void Parser::processTokens() {
-    if (m_currentIndex == m_tokensSize)
-        return;
+    if (m_currentIndex == m_tokensSize) return;
 
     auto currentToken = getNextToken();
 
-    if (currentToken->type == TokenType::header)
-        return processTokens();
+    if (currentToken->type == TokenType::header) return processTokens();
 
     if (currentToken->type == TokenType::string) {
         const auto isMessage = currentToken->value == "message";
@@ -50,7 +44,7 @@ void Parser::processModel(bool isMessage) {
 
     expectToken(TokenType::openingBrace);
 
-    Model model { .isMessage = isMessage, .name = name };
+    Model model{.isMessage = isMessage, .name = name};
 
     while (nextToken()->type != TokenType::closingBrace)
         model.fields.push_back(processModelField());
@@ -65,7 +59,7 @@ Model::Field Parser::processModelField() {
     auto typeDescription = getNextToken(TokenType::string)->value;
     expectToken(TokenType::coma);
 
-    return Model::Field { name, typeDescription };
+    return Model::Field{name, typeDescription};
 }
 
 void Parser::processEnum() {
@@ -73,7 +67,7 @@ void Parser::processEnum() {
 
     expectToken(TokenType::openingBrace);
 
-    Enum enumerate { .name = name };
+    Enum enumerate{.name = name};
 
     while (nextToken()->type != TokenType::closingBrace)
         enumerate.values.push_back(processEnumField());
@@ -90,15 +84,13 @@ std::string Parser::processEnumField() {
 }
 
 Token const* Parser::nextToken() {
-    if (m_currentIndex == m_tokensSize)
-        fail("Unexpected end of file");
+    if (m_currentIndex == m_tokensSize) fail("Unexpected end of file");
 
     return &m_tokens[m_currentIndex];
 }
 
 Token const* Parser::getNextToken() {
-    if (m_currentIndex == m_tokensSize)
-        fail("Unexpected end of file");
+    if (m_currentIndex == m_tokensSize) fail("Unexpected end of file");
 
     return &m_tokens[m_currentIndex++];
 }
@@ -106,8 +98,7 @@ Token const* Parser::getNextToken() {
 Token const* Parser::getNextToken(TokenType tokenType) {
     auto token = getNextToken();
 
-    if (token->type != tokenType)
-        fail(fmt::format("Unexpected symbol {}", token->value));
+    if (token->type != tokenType) fail(fmt::format("Unexpected symbol {}", token->value));
 
     return token;
 }
@@ -117,6 +108,4 @@ void Parser::expectToken(TokenType tokenType) {
         fail(fmt::format("Unexpected symbol {}", token->value));
 }
 
-void Parser::fail(const std::string& reason) {
-    throw SyntaxError { reason };
-}
+void Parser::fail(const std::string& reason) { throw SyntaxError{reason}; }

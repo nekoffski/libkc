@@ -6,7 +6,7 @@
 namespace kc::model {
 
 class Deserializable {
-public:
+   public:
     virtual std::string getName() const = 0;
 
     template <typename T>
@@ -19,15 +19,13 @@ public:
         return dynamic_cast<const T*>(this);
     }
 
-private:
+   private:
     virtual std::type_index getTypeIndex() const = 0;
 };
 
 template <typename T>
 struct DeserializableBase : public Deserializable {
-    std::type_index getTypeIndex() const override {
-        return typeid(T);
-    }
+    std::type_index getTypeIndex() const override { return typeid(T); }
 };
 
-}
+}  // namespace kc::model

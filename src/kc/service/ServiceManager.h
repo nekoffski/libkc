@@ -9,7 +9,7 @@
 namespace kc::service {
 
 class ServiceManager {
-public:
+   public:
     explicit ServiceManager(ServiceThread::Factory* serviceThreadFactory);
 
     // clang-format off
@@ -26,7 +26,7 @@ public:
     void setupSignals();
     void onSignal();
 
-private:
+   private:
     void initServices();
     void startThreads();
     void waitForThreads();
@@ -38,4 +38,4 @@ private:
     std::vector<std::unique_ptr<ServiceThread>> m_threads;
 };
 
-}
+}  // namespace kc::service

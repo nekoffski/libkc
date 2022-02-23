@@ -6,23 +6,17 @@ namespace kc::core {
 
 template <typename T>
 class Countable {
-public:
-    Countable()
-        : m_id(generateId()) {
-    }
+   public:
+    Countable() : m_id(generateId()) {}
 
-    ~Countable() {
-        freeIds.push_back(m_id);
-    }
+    ~Countable() { freeIds.push_back(m_id); }
 
     Countable(const Countable&) = delete;
     Countable& operator=(const Countable&) = delete;
 
-    unsigned int getId() {
-        return m_id;
-    }
+    unsigned int getId() { return m_id; }
 
-private:
+   private:
     unsigned int generateId() const {
         if (not freeIds.empty()) {
             auto freeId = freeIds.back();
@@ -40,4 +34,4 @@ private:
     inline static unsigned int currentId = 0;
 };
 
-}
+}  // namespace kc::core

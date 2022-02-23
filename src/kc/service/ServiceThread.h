@@ -18,7 +18,7 @@ struct ServiceThread {
 };
 
 class PthreadServiceThread : public ServiceThread {
-public:
+   public:
     struct Factory : ServiceThread::Factory {
         std::unique_ptr<ServiceThread> create(Service* service) override;
     };
@@ -27,8 +27,8 @@ public:
 
     void join() override;
 
-private:
+   private:
     std::thread m_thread;
 };
 
-}
+}  // namespace kc::service

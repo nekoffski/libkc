@@ -7,10 +7,7 @@ std::unique_ptr<ServiceThread> PthreadServiceThread::Factory::create(Service* se
 }
 
 PthreadServiceThread::PthreadServiceThread(Service* service)
-    : m_thread([service]() { service->run(); }) {
-}
+    : m_thread([service]() { service->run(); }) {}
 
-void PthreadServiceThread::join() {
-    m_thread.join();
-}
-}
+void PthreadServiceThread::join() { m_thread.join(); }
+}  // namespace kc::service

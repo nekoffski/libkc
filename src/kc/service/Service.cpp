@@ -4,10 +4,7 @@
 
 namespace kc::service {
 
-Service::Service(const std::string& name)
-    : m_name(name)
-    , m_isRunning(true) {
-}
+Service::Service(const std::string& name) : m_name(name), m_isRunning(true) {}
 
 void Service::run() {
     using namespace std::chrono_literals;
@@ -23,7 +20,5 @@ void Service::stop() {
     m_isRunning = false;
 }
 
-std::string Service::getName() const {
-    return m_name;
-}
-}
+std::string Service::getName() const { return m_name; }
+}  // namespace kc::service

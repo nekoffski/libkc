@@ -1,8 +1,8 @@
 #pragma once
 
-#include "kc/service/Service.h"
-
 #include <gmock/gmock.h>
+
+#include "kc/service/Service.h"
 
 struct ServiceMock : public kc::service::Service {
     using kc::service::Service::Service;

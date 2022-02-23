@@ -25,4 +25,4 @@ void setupSignalHandler(SignalHandler* sigHandler) {
     LOG_INFO("Signal handler registered successfully");
 }
 
-}
+}  // namespace kc::sig

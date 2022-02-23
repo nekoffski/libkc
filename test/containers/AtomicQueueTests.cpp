@@ -1,6 +1,6 @@
-#include "kc/containers/AtomicQueue.hpp"
-
 #include <gtest/gtest.h>
+
+#include "kc/containers/AtomicQueue.hpp"
 
 using namespace testing;
 using namespace kc::containers;
@@ -8,7 +8,7 @@ using namespace kc::containers;
 namespace {
 
 class AtomicQueueTests : public Test {
-public:
+   public:
     AtomicQueue<int> m_atomicQueue;
 };
 
@@ -47,4 +47,4 @@ TEST_F(AtomicQueueTests, givenNonEmptyQueue_whenDequingFromEmptyQueue_shouldRetu
     ASSERT_TRUE(val.has_value());
     EXPECT_EQ(val.value(), input);
 }
-}
+}  // namespace

@@ -18,10 +18,10 @@ namespace kc::net {
 class Session {
     constexpr unsigned static int messageLengthBytes = 4u;
 
-public:
-    explicit Session(std::unique_ptr<async::Socket> socket, model::MessageDeserializer* deserializer)
-        : m_socket(std::move(socket))
-        , m_deserializer(deserializer) {
+   public:
+    explicit Session(std::unique_ptr<async::Socket> socket,
+                     model::MessageDeserializer* deserializer)
+        : m_socket(std::move(socket)), m_deserializer(deserializer) {
         readMessageLength();
     }
 
@@ -61,9 +61,7 @@ public:
         }
     }
 
-    bool isEmpty() const {
-        return m_receivedMessages.empty();
-    }
+    bool isEmpty() const { return m_receivedMessages.empty(); }
 
     std::unique_ptr<model::Deserializable> getMessage() {
         ON_SCOPE_EXIT { m_receivedMessages.pop_back(); };
@@ -71,7 +69,7 @@ public:
         return std::move(m_receivedMessages.back());
     }
 
-private:
+   private:
     void sendMessageLength(const std::string& message) {
         LOG_INFO("Trying to send message length");
 
@@ -84,7 +82,7 @@ private:
         };
 
         auto messageLengthAsBytes =
-            std::string { reinterpret_cast<char*>(&messageLength), messageLengthBytes };
+            std::string{reinterpret_cast<char*>(&messageLength), messageLengthBytes};
         m_socket->asyncWrite(messageLengthAsBytes, onWrite);
     }
 
@@ -113,8 +111,7 @@ private:
     void sendMessage(const std::string& message) {
         LOG_INFO("Sending message: {}", message);
         m_socket->asyncWrite(message, [](async::Error error, unsigned int bytesSent) {
-            if (error)
-                LOG_WARN("Could not send message due to: {}", error.asString());
+            if (error) LOG_WARN("Could not send message due to: {}", error.asString());
         });
     }
 
@@ -154,7 +151,7 @@ private:
 
             if (json.isMember("conversation-id")) {
                 auto conversationId = json["conversation-id"].asString();
-                m_conversations.insert({ conversationId, std::move(message) });
+                m_conversations.insert({conversationId, std::move(message)});
             } else {
                 m_receivedMessages.emplace_back(std::move(message));
             }
@@ -170,4 +167,4 @@ private:
     std::unordered_map<std::string, std::unique_ptr<model::Deserializable>> m_conversations;
 };
 
-}
+}  // namespace kc::net

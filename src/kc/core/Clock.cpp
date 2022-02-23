@@ -7,7 +7,8 @@ namespace kc::core {
 
 float toSeconds(const Clock::TimePoint& timePoint) {
     using namespace std::chrono;
-    return duration_cast<microseconds>(timePoint.time_since_epoch()).count() / Clock::microsecondsInSecond;
+    return duration_cast<microseconds>(timePoint.time_since_epoch()).count() /
+           Clock::microsecondsInSecond;
 }
 
 std::string Clock::getTimeString(const std::string& format) const {
@@ -19,12 +20,8 @@ std::string Clock::getTimeString(const std::string& format) const {
     return oss.str();
 }
 
-Clock::TimePoint Clock::now() const {
-    return m_clock.now();
-}
+Clock::TimePoint Clock::now() const { return m_clock.now(); }
 
-float Clock::nowAsFloat() const {
-    return toSeconds(now());
-}
+float Clock::nowAsFloat() const { return toSeconds(now()); }
 
-}
+}  // namespace kc::core

@@ -1,9 +1,8 @@
-#include "kc/core/Singleton.hpp"
-
 #include <gtest/gtest.h>
 
-class Singleton : public kc::core::Singleton<Singleton> {
-};
+#include "kc/core/Singleton.hpp"
+
+class Singleton : public kc::core::Singleton<Singleton> {};
 
 TEST(SingletonTests, givenSingleton_whenGettingInstance_shouldReturnValidAddress) {
     Singleton singleton;
@@ -20,7 +19,7 @@ TEST(SingletonTests, givenSingleton_getPtrShouldReturnSameAddressAsGet) {
 TEST(SingletonTests, givenSingleton_whenCreatingSecondInstnace_shouldThrow) {
     Singleton singleton;
 
-    EXPECT_THROW(Singleton {}, std::runtime_error);
+    EXPECT_THROW(Singleton{}, std::runtime_error);
 }
 
 TEST(SingletonTests, givenSingleSingletonWithoutInstance_whenGettingInstance_shouldReturnNullptr) {

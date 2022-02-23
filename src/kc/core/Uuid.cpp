@@ -11,4 +11,4 @@ Uuid generateUuid() {
     using namespace boost;
     return lexical_cast<Uuid>(uuids::random_generator()());
 }
-}
+}  // namespace kc::core

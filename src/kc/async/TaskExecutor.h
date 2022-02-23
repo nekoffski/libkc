@@ -12,22 +12,16 @@ namespace kc::async {
 
 struct TaskExecutor {
     class Timer {
-    public:
-        void sleep(std::chrono::milliseconds delay) {
-            std::this_thread::sleep_for(delay);
-        }
+       public:
+        void sleep(std::chrono::milliseconds delay) { std::this_thread::sleep_for(delay); }
 
-        auto now() {
-            return m_clock.now();
-        }
+        auto now() { return m_clock.now(); }
 
-    private:
+       private:
         std::chrono::steady_clock m_clock;
     };
 
-    Timer getTimer() {
-        return Timer {};
-    }
+    Timer getTimer() { return Timer{}; }
 
     struct Factory {
         virtual std::unique_ptr<TaskExecutor> create() = 0;
@@ -39,7 +33,7 @@ struct TaskExecutor {
 };
 
 class AsyncFutureTaskExecutor : public TaskExecutor {
-public:
+   public:
     struct Factory : TaskExecutor::Factory {
         std::unique_ptr<TaskExecutor> create() override {
             return std::make_unique<AsyncFutureTaskExecutor>();
@@ -47,25 +41,26 @@ public:
     };
 
     void runAsync(std::function<void()>&& task) override {
-        std::scoped_lock lock { m_mutex };
+        std::scoped_lock lock{m_mutex};
         m_futures.emplace_back(std::async(std::launch::async, task));
     }
 
     void waitForAll() override {
-        std::scoped_lock lock { m_mutex };
-        for (auto& future : m_futures)
-            future.wait();
+        std::scoped_lock lock{m_mutex};
+        for (auto& future : m_futures) future.wait();
         m_futures.clear();
     }
 
     void clearFinishedTasks() override {
-        std::scoped_lock lock { m_mutex };
-        std::erase_if(m_futures, [](auto& future) -> bool { return future.wait_for(std::chrono::seconds(0)) == std::future_status::ready; });
+        std::scoped_lock lock{m_mutex};
+        std::erase_if(m_futures, [](auto& future) -> bool {
+            return future.wait_for(std::chrono::seconds(0)) == std::future_status::ready;
+        });
     }
 
-private:
+   private:
     std::mutex m_mutex;
     std::vector<std::future<void>> m_futures;
 };
 
-}
+}  // namespace kc::async

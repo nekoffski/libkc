@@ -8,23 +8,17 @@ namespace kc::core {
 
 template <typename T>
 class Singleton {
-public:
+   public:
     explicit Singleton() {
         ASSERT(s_instance == nullptr, "Only 1 instance of singleton is allowed");
         s_instance = (T*)this;
     }
 
-    virtual ~Singleton() {
-        s_instance = nullptr;
-    }
+    virtual ~Singleton() { s_instance = nullptr; }
 
-    static T& get() {
-        return *s_instance;
-    }
+    static T& get() { return *s_instance; }
 
-    static T* getPtr() {
-        return s_instance;
-    }
+    static T* getPtr() { return s_instance; }
 
     Singleton(const Singleton& oth) = delete;
     Singleton(Singleton&& oth) = delete;
@@ -32,8 +26,8 @@ public:
     Singleton& operator=(const Singleton& oth) = delete;
     Singleton& operator=(Singleton&& oth) = delete;
 
-private:
+   private:
     inline static T* s_instance = nullptr;
 };
 
-}
+}  // namespace kc::core

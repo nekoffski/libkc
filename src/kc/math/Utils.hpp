@@ -2,10 +2,9 @@
 
 #include <cmath>
 #include <concepts>
+#include <glm/glm.hpp>
 #include <numbers>
 #include <random>
-
-#include <glm/glm.hpp>
 
 #include "kc/core/Meta.hpp"
 
@@ -51,4 +50,4 @@ glm::vec3 randomNormalVec3();
 glm::vec3 randomUnitSphereVec3();
 glm::vec3 randomUnitHemisphereVec3(const glm::vec3& normal);
 
-}
+}  // namespace kc::math
