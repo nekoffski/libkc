@@ -42,8 +42,7 @@ void EventEngine::unregisterEventListener(EventListener* eventListener) {
 }
 
 void EventEngine::unregisterEventListener(const std::string& ident) {
-    if (not m_eventContainer.contains(ident) && not m_eventListeners.contains(ident))
-        throw ListenerNotFound{};
+    if (not m_eventContainer.contains(ident) && not m_eventListeners.contains(ident)) return;
 
     m_eventListeners.erase(ident);
     m_eventContainer.erase(ident);

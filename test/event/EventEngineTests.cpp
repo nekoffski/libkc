@@ -25,8 +25,8 @@ TEST_F(EventEngineTests,
     EXPECT_FALSE(eventEngine.isListenerRegistered("notExistingListener"));
 }
 
-TEST_F(EventEngineTests, givenEventEngine_whenUnregisteringNotExistingListener_shouldThrow) {
-    ASSERT_THROW(eventEngine.unregisterEventListener("notExistingListener"), ListenerNotFound);
+TEST_F(EventEngineTests, givenEventEngine_whenUnregisteringNotExistingListener_shouldNotThrow) {
+    ASSERT_NO_THROW(eventEngine.unregisterEventListener("notExistingListener"));
 }
 
 TEST_F(EventEngineTests, givenEventEngine_whenRegisteringListener_shouldRegister) {
