@@ -25,12 +25,11 @@ std::shared_ptr<EventEmitter> EventEngine::createEmitter() {
 void EventEngine::registerEventListener(EventListener* eventListener) {
     const auto& ident = eventListener->getIdent();
 
-    auto element = m_eventListeners.find(ident);
+    auto elementsChain = m_eventListeners.find(ident);
+    auto end = m_eventListeners.getBuffer().end();
 
-    while (element != m_eventListeners.getBuffer().end()) {
-        if (element->second == eventListener) throw ListenerAlreadyRegistered{};
-        element = std::next(element);
-    }
+    for (; elementsChain != end; elementsChain = std::next(elementsChain))
+        if (elementsChain->second == eventListener) throw ListenerAlreadyRegistered{};
 
     m_eventListeners.insert(ident, eventListener);
 
@@ -38,14 +37,21 @@ void EventEngine::registerEventListener(EventListener* eventListener) {
 }
 
 void EventEngine::unregisterEventListener(EventListener* eventListener) {
-    unregisterEventListener(eventListener->getIdent());
-}
-
-void EventEngine::unregisterEventListener(const std::string& ident) {
+    auto ident = eventListener->getIdent();
     if (not m_eventContainer.contains(ident) && not m_eventListeners.contains(ident)) return;
 
-    m_eventListeners.erase(ident);
-    m_eventContainer.erase(ident);
+    auto elementsChain = m_eventListeners.find(ident);
+    auto end = m_eventListeners.getBuffer().end();
+
+    for (; elementsChain != end; elementsChain = std::next(elementsChain)) {
+        if (elementsChain->second == eventListener) {
+            m_eventListeners.getBuffer().erase(elementsChain);
+
+            if (not m_eventListeners.contains(ident)) m_eventContainer.erase(ident);
+
+            return;
+        }
+    }
 }
 
 bool EventEngine::isListenerRegistered(const std::string& ident) const {

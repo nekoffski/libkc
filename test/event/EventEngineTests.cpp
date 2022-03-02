@@ -26,7 +26,8 @@ TEST_F(EventEngineTests,
 }
 
 TEST_F(EventEngineTests, givenEventEngine_whenUnregisteringNotExistingListener_shouldNotThrow) {
-    ASSERT_NO_THROW(eventEngine.unregisterEventListener("notExistingListener"));
+    ConcreteEventListener listener;
+    ASSERT_NO_THROW(eventEngine.unregisterEventListener(&listener));
 }
 
 TEST_F(EventEngineTests, givenEventEngine_whenRegisteringListener_shouldRegister) {
@@ -108,6 +109,20 @@ TEST_F(EventEngineEventsTest,
     EXPECT_EQ(m_listener1->events, 0);
     EXPECT_EQ(m_listener2->events, 0);
     EXPECT_EQ(m_listener3->events, 0);
+}
+
+TEST_F(EventEngineEventsTest, givenEngine_whenUnregisteringSingleListener_shouldNotUnregisterRest) {
+    auto eventEmitter = m_eventEngine.createEmitter();
+
+    m_eventEngine.unregisterEventListener(m_listener2.get());
+
+    eventEmitter->emit<EventA>().toAll();
+
+    m_eventEngine.spreadEvents();
+
+    EXPECT_EQ(m_listener1->events, 1);
+    EXPECT_EQ(m_listener2->events, 0);
+    EXPECT_EQ(m_listener3->events, 1);
 }
 
 TEST_F(EventEngineEventsTest, givenEngine_whenSpreadingEvents_everyListenerShouldGetOneEvent) {
