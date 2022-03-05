@@ -13,19 +13,13 @@ namespace kc::net {
 template <typename Acceptor>
 requires std::derived_from<Acceptor, async::Acceptor>
 class AcceptorService : public service::Service {
-    using Sessions = std::vector<Session>;
-
    public:
-    explicit AcceptorService(const std::string& name, model::MessageDeserializer* deserializer)
-        : Service(name), m_deserializer(deserializer) {}
+    explicit AcceptorService(const std::string& name) : Service(name) {}
 
     void startAccepting(async::Context* context, unsigned int port) {
         m_acceptor = std::make_unique<Acceptor>(context, port);
         waitForConnection();
     }
-
-   protected:
-    Sessions m_sessions;
 
    private:
     void waitForConnection() {
@@ -38,12 +32,13 @@ class AcceptorService : public service::Service {
             }
 
             LOG_INFO("Received connection, creating session");
-            m_sessions.emplace_back(std::move(socket), m_deserializer);
+            onConnection(std::move(socket));
         });
     }
 
+    virtual void onConnection(std::unique_ptr<async::Socket> socket) = 0;
+
     std::unique_ptr<Acceptor> m_acceptor;
-    model::MessageDeserializer* m_deserializer;
 };
 
 }  // namespace kc::net
