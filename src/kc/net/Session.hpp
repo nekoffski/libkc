@@ -31,7 +31,7 @@ class Session {
     requires std::derived_from<T, model::Serializable> std::string send(T&& message) {
         LOG_INFO("Starting sending message: {}", message.getName());
 
-        auto jsonMessage = message.toJson();
+        auto jsonMessage = message.toMessageJson();
 
         if (not jsonMessage.isMember("conversation-id")) {
             LOG_INFO("Message is not part of any conversation, creating UUID for new conversation");
