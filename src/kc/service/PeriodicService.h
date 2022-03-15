@@ -6,11 +6,12 @@
 
 namespace kc::service {
 
-class Service : public ServiceBase {
+class PeriodicService : public ServiceBase {
    public:
-    Service(const std::string& name);
+    PeriodicService(const std::string& name);
 
     void run() final override;
+    void stop() final override;
 
    private:
     bool m_isRunning;

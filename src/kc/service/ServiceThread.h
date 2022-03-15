@@ -3,13 +3,13 @@
 #include <memory>
 #include <thread>
 
-#include "Service.h"
+#include "ServiceBase.h"
 
 namespace kc::service {
 
 struct ServiceThread {
     struct Factory {
-        virtual std::unique_ptr<ServiceThread> create(Service* service) = 0;
+        virtual std::unique_ptr<ServiceThread> create(ServiceBase* service) = 0;
     };
 
     virtual ~ServiceThread() = default;
@@ -20,10 +20,10 @@ struct ServiceThread {
 class PthreadServiceThread : public ServiceThread {
    public:
     struct Factory : ServiceThread::Factory {
-        std::unique_ptr<ServiceThread> create(Service* service) override;
+        std::unique_ptr<ServiceThread> create(ServiceBase* service) override;
     };
 
-    explicit PthreadServiceThread(Service* service);
+    explicit PthreadServiceThread(ServiceBase* service);
 
     void join() override;
 

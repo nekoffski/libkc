@@ -6,15 +6,15 @@
 #include "kc/async/Acceptor.h"
 #include "kc/async/Context.h"
 #include "kc/model/MessageDeserializer.h"
-#include "kc/service/Service.h"
+#include "kc/service/PeriodicService.h"
 
 namespace kc::net {
 
 template <typename Acceptor>
 requires std::derived_from<Acceptor, async::Acceptor>
-class AcceptorService : public service::Service {
+class AcceptorService : public service::PeriodicService {
    public:
-    explicit AcceptorService(const std::string& name) : Service(name) {}
+    explicit AcceptorService(const std::string& name) : PeriodicService(name) {}
 
     void startAccepting(async::Context* context, unsigned int port) {
         m_acceptor = std::make_unique<Acceptor>(context, port);

@@ -18,7 +18,7 @@ ServiceManager::ServiceManager(ServiceThread::Factory* serviceThreadFactory)
     setupSignals();
 }
 
-void ServiceManager::addService(Service* service) {
+void ServiceManager::addService(ServiceBase* service) {
     m_services.push_back(service);
     LOG_INFO("Service {} added.", service->getName());
 }

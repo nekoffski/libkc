@@ -21,3 +21,7 @@
 #define LOOP for (;;)
 
 #define MOVE_THIS return std::move(*this)
+
+// clang-format off
+#define EMPTY_METHOD {}
+// clang-format on

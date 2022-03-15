@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "Service.h"
+#include "ServiceBase.h"
 #include "ServiceThread.h"
 #include "kc/core/Log.h"
 
@@ -19,7 +19,7 @@ class ServiceManager {
     }
     // clang-format on
 
-    void addService(Service* service);
+    void addService(ServiceBase* service);
     void start();
 
     int getServicesCount();
@@ -34,7 +34,7 @@ class ServiceManager {
 
     ServiceThread::Factory* m_serviceThreadFactory;
 
-    std::vector<Service*> m_services;
+    std::vector<ServiceBase*> m_services;
     std::vector<std::unique_ptr<ServiceThread>> m_threads;
 };
 

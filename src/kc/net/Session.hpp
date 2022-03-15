@@ -21,9 +21,11 @@ class Session {
    public:
     explicit Session(std::unique_ptr<async::Socket> socket,
                      model::MessageDeserializer* deserializer)
-        : m_socket(std::move(socket)), m_deserializer(deserializer) {
+        : m_isConnected(true), m_socket(std::move(socket)), m_deserializer(deserializer) {
         readMessageLength();
     }
+
+    bool isConnected() const { return m_isConnected; }
 
     template <typename T>
     requires std::derived_from<T, model::Serializable> std::string send(T&& message) {
@@ -59,6 +61,8 @@ class Session {
             std::this_thread::yield();
             std::this_thread::sleep_for(5ms);
         }
+
+        return nullptr;
     }
 
     bool isEmpty() const { return m_receivedMessages.empty(); }
@@ -94,14 +98,12 @@ class Session {
             }
 
             if (error) {
-            }
-
-            if (bytesReceived == 0) {
-                // return;
+                LOG_WARN("Could not read message length due to: {}", error.asString());
+                m_isConnected = false;
+                return;
             }
 
             unsigned int messageLength = *reinterpret_cast<unsigned int*>(message.data());
-
             waitForMessage(messageLength);
         };
 
@@ -121,6 +123,7 @@ class Session {
 
             if (error) {
                 LOG_WARN("Could not read message due to: {}", error.asString());
+                m_isConnected = false;
                 return;
             }
 
@@ -159,6 +162,8 @@ class Session {
             LOG_ERROR("Could not process message: {} due to: {}", message, error.asString());
         }
     }
+
+    bool m_isConnected;
 
     std::unique_ptr<async::Socket> m_socket;
     model::MessageDeserializer* m_deserializer;
