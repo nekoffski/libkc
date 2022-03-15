@@ -10,4 +10,6 @@ struct ServiceMock : public kc::service::Service {
     MOCK_METHOD(void, call, (), (override));
     MOCK_METHOD(void, onInit, (), (override));
     MOCK_METHOD(void, onShutdown, (), (override));
+    MOCK_METHOD(void, run, (), (override));
+    MOCK_METHOD(void, stop, (), (override));
 };
