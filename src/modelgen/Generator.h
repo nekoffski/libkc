@@ -26,6 +26,8 @@ class Generator {
         return m_jsonLib == JsonLib::libkc ? "kc::json::Node" : "JSON";
     }
 
+    std::string generateConstructor(const Model& model);
+
     std::string generateModelFromJson(const Model& model);
 
     std::string generateModelToJson(const Model& model);
@@ -35,7 +37,7 @@ class Generator {
     std::string generateEnumToString(const Enum& enumerate);
 
     std::string determineFieldType(const std::string& fieldDescription,
-                                   std::ostringstream& headers);
+                                   std::ostringstream* headers = nullptr);
 
     JsonLib m_jsonLib;
 

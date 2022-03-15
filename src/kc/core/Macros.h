@@ -24,4 +24,5 @@
 
 // clang-format off
 #define EMPTY_METHOD {}
+#define UNREACHABLE_CODE __builtin_unreachable()
 // clang-format on

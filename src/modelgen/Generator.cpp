@@ -5,6 +5,7 @@
 #include <sstream>
 
 #include "Core.h"
+#include "kc/core/Enumerate.hpp"
 
 Generator::Generator(JsonLib jsonLib) : m_jsonLib(jsonLib) {}
 
@@ -28,22 +29,22 @@ Generator::Files Generator::generateCode(const Structures& structures) {
 }
 
 std::string Generator::determineFieldType(const std::string& typeDescription,
-                                          std::ostringstream& headers) {
+                                          std::ostringstream* headers) {
     if (Model::allowedTypes.contains(typeDescription))
         return Model::allowedTypes.at(typeDescription);
 
     if (typeDescription[0] == '[') {
         auto type = typeDescription.substr(1, typeDescription.length() - 2);
 
-        if (m_customTypes.contains(type))
-            if (m_customTypes[type] == Type::model) headers << "#include \"" << type << ".hpp\"\n";
+        if (headers != nullptr && m_customTypes.contains(type))
+            if (m_customTypes[type] == Type::model) *headers << "#include \"" << type << ".hpp\"\n";
 
         return "std::vector<" + type + ">";
     }
 
-    if (m_customTypes.contains(typeDescription)) {
+    if (headers != nullptr && m_customTypes.contains(typeDescription)) {
         if (m_customTypes[typeDescription] == Type::model)
-            headers << "#include \"" << typeDescription << ".hpp\"\n";
+            *headers << "#include \"" << typeDescription << ".hpp\"\n";
 
         return typeDescription;
     }
@@ -57,14 +58,24 @@ std::string Generator::generateModel(const Model& model) {
 
     headers << "#pragma once\n\n"
             << "#include \"kc/model/Model.h\"\n"
-            << "#include \"kc/json/Utils.hpp\"\n\n";
+            << "#include \"kc/json/Utils.hpp\"\n"
+            // TODO: this should happen on a condition
+            << "#include \"kc/event/Event.h\"\n\n";
 
-    data << "struct " << model.name << " : public kc::model::Model<" << model.name << '>';
+    data << "struct " << model.name << " : public kc::model::Model<" << model.name << ">";
+
+    if (model.isMessage)
+        data << ",\n" << spaces(8) << "public kc::event::EventBase<" << model.name << "> ";
+    else
+        data << ' ';
+
     data << "{\n";
+
+    data << generateConstructor(model);
 
     for (auto& [fieldName, fieldType] : model.fields) {
         std::cout << fieldName << '/' << fieldType << '\n';
-        data << spaces(4) << determineFieldType(fieldType, headers) << ' ' << fieldName << ";\n";
+        data << spaces(4) << determineFieldType(fieldType, &headers) << ' ' << fieldName << ";\n";
     }
 
     data << '\n'
@@ -75,6 +86,38 @@ std::string Generator::generateModel(const Model& model) {
     data << '\n' << generateModelFromJson(model) << '\n' << generateModelToJson(model) << "};\n";
 
     return headers.str() + "\n" + data.str();
+}
+
+std::string Generator::generateConstructor(const Model& model) {
+    std::ostringstream data;
+
+    data << spaces(4) << "explicit " << model.name << "() = default;\n";
+
+    if (const auto modelFields = model.fields.size(); modelFields > 0) {
+        data << spaces(4) << "explicit " << model.name << "(\n";
+
+        for (int i = 0; i < modelFields; ++i) {
+            const auto& [fieldName, fieldType] = model.fields[i];
+
+            data << spaces(8) << determineFieldType(fieldType) << ' ' << fieldName;
+
+            if (i < modelFields - 1) data << ", \n";
+        }
+
+        data << '\n' << spaces(4) << ") : \n";
+
+        for (int i = 0; i < modelFields; ++i) {
+            const auto& name = model.fields[i].name;
+
+            data << spaces(8) << name << '(' << name << ")";
+
+            if (i < modelFields - 1) data << ", \n";
+        }
+
+        data << '\n' << spaces(4) << "{}\n\n";
+    }
+
+    return data.str();
 }
 
 std::string Generator::generateModelFromJson(const Model& model) {
@@ -122,9 +165,6 @@ std::string Generator::generateModelToJson(const Model& model) {
              << spaces(8) << "kc::json::JsonBuilder json;"
              << "\n\n";
 
-        if (model.isMessage)
-            data << spaces(8) << "json.addField(\"name\", getName()).beginObject(\"body\");\n\n";
-
         for (const auto& [name, type] : model.fields) {
             std::cout << "Processing field: " << type << "/" << name << '\n';
 
@@ -148,9 +188,17 @@ std::string Generator::generateModelToJson(const Model& model) {
             }
         }
 
-        if (model.isMessage) data << '\n' << spaces(8) << "json.endObject();\n";
-
         data << '\n' << spaces(8) << "return json.asJsonObject();\n" << spaces(4) << "}\n";
+
+        if (model.isMessage) {
+            data << '\n'
+                 << spaces(4) << getJsonObjectType() << " toMessageJson() const override {\n"
+                 << spaces(8) << "kc::json::JsonBuilder json;"
+                 << "\n\n";
+            data << spaces(8)
+                 << "json.addField(\"name\", getName()).addField(\"body\", toJson());\n";
+            data << '\n' << spaces(8) << "return json.asJsonObject();\n" << spaces(4) << "}\n";
+        }
     } else {
         throw ModelGeneratorError{"Arduino JSON is not supported yet"};
     }
