@@ -14,11 +14,7 @@ template <typename T>
 class Buffer {
    public:
     explicit Buffer(const int size, BufferType type, Context& context)
-        : m_size(size), m_type(type), m_context(context) {
-        m_buffer.resize(size, 0);
-
-        auto& clContext = context.get();
-    }
+        : m_size(size), m_type(type), m_context(context), m_buffer(size, 0) {}
 
     cl::Buffer& get() { return m_clBuffer; }
 
