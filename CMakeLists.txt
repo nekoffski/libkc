@@ -17,6 +17,7 @@ endif()
 
 add_definitions(-DSPDLOG_COMPILED_LIB=1)
 
+add_subdirectory(3rdparty/stb)
 add_subdirectory(src)
 
 if (ENABLE_UNIT_TESTS)
@@ -25,6 +26,6 @@ if (ENABLE_UNIT_TESTS)
 endif()
 
 if (ENABLE_BENCHMARKS)
-    add_subdirectory(3rdparty)
+    add_subdirectory(3rdparty/benchmark)
     add_subdirectory(bench)
 endif()

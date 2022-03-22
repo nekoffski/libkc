@@ -1,13 +1,13 @@
 #pragma once
 
 #include <kc/core/Log.h>
+#include <stb.h>
+#include <stb_write.h>
 
 #include <glm/glm.hpp>
 #include <iostream>
 
 #include "kc/core/FileSystem.h"
-#include "stb.h"
-#include "stb_write.h"
 
 namespace kc::cv {
 
