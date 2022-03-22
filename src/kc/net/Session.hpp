@@ -28,7 +28,7 @@ class Session {
     bool isConnected() const { return m_isConnected; }
 
     template <typename T>
-    requires std::derived_from<T, model::Serializable> std::string send(T&& message) {
+    requires std::derived_from<T, model::Serializable> std::string send(const T& message) {
         LOG_INFO("Starting sending message: {}", message.getName());
 
         auto jsonMessage = message.toMessageJson();
