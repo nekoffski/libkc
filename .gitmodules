@@ -6,3 +6,4 @@
 [submodule "3rdparty/stb"]
 	path = 3rdparty/stb
 	url = https://github.com/nekoffski/stb.git
+	branch = main
