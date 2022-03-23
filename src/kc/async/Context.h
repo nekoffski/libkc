@@ -8,6 +8,8 @@ namespace kc::async {
 struct Context {
     virtual void runThreaded() = 0;
     virtual void stop() = 0;
+
+    virtual ~Context() = default;
 };
 
 class AsioContext : public Context {

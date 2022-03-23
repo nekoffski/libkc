@@ -16,8 +16,10 @@ class AcceptorService : public service::PeriodicService {
    public:
     explicit AcceptorService(const std::string& name) : PeriodicService(name) {}
 
-    void startAccepting(async::Context* context, unsigned int port) {
-        m_acceptor = std::make_unique<Acceptor>(context, port);
+    void startAccepting(unsigned int port) {
+        m_acceptor = std::make_unique<Acceptor>(port);
+        m_acceptor->getContext()->runThreaded();
+
         waitForConnection();
     }
 
