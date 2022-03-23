@@ -5,6 +5,7 @@
 #include <thread>
 
 #include "kc/async/Socket.h"
+#include "kc/core/Enumerate.hpp"
 #include "kc/core/Log.h"
 #include "kc/core/Scope.hpp"
 #include "kc/core/Uuid.h"
@@ -13,12 +14,20 @@
 #include "kc/model/MessageDeserializer.h"
 #include "kc/model/Serializable.h"
 
+DEFINE_ERROR(SessionError);
+DEFINE_SUB_ERROR(ResponseTimeout, SessionError);
+
 namespace kc::net {
 
 class Session {
     constexpr unsigned static int messageLengthBytes = 4u;
 
    public:
+    void stop() {
+        m_isConnected = false;
+        m_socket->close();
+    }
+
     explicit Session(std::unique_ptr<async::Socket> socket,
                      model::MessageDeserializer* deserializer)
         : m_isConnected(true), m_socket(std::move(socket)), m_deserializer(deserializer) {
@@ -52,6 +61,8 @@ class Session {
 
         // TODO: protect with mutex
         while (start + timeout >= clock::now()) {
+            if (not m_isConnected) throw SessionError{"Connection dropped"};
+
             if (m_conversations.contains(conversationId)) {
                 ON_SCOPE_EXIT { m_conversations.erase(conversationId); };
 
@@ -62,7 +73,7 @@ class Session {
             std::this_thread::sleep_for(5ms);
         }
 
-        return nullptr;
+        throw ResponseTimeout{"Response timed out"};
     }
 
     bool isEmpty() const { return m_receivedMessages.empty(); }
@@ -79,8 +90,10 @@ class Session {
 
         auto messageLength = message.size();
 
-        auto onWrite = [&, message](async::Error error, unsigned int bytesSent) {
+        auto onWrite = [&, message](async::Error error, [[maybe_unused]] unsigned int bytesSent) {
             if (error) {
+                m_isConnected = false;
+                return;
             }
             sendMessage(message);
         };
@@ -95,6 +108,8 @@ class Session {
             LOG_INFO("Reading message length");
 
             if (bytesReceived != messageLengthBytes) {
+                LOG_WARN("Received invalid number of bytes");
+                return;
             }
 
             if (error) {
@@ -104,20 +119,26 @@ class Session {
             }
 
             unsigned int messageLength = *reinterpret_cast<unsigned int*>(message.data());
-            waitForMessage(messageLength);
+            readMessage(messageLength);
         };
 
         m_socket->asyncRead(onRead, messageLengthBytes);
     }
 
     void sendMessage(const std::string& message) {
+        if (not m_isConnected) throw SessionError{"Connection dropped"};
+
         LOG_INFO("Sending message: {}", message);
-        m_socket->asyncWrite(message, [](async::Error error, unsigned int bytesSent) {
-            if (error) LOG_WARN("Could not send message due to: {}", error.asString());
+        m_socket->asyncWrite(message, [&](async::Error error, unsigned int bytesSent) {
+            if (error) {
+                LOG_WARN("Could not send message due to: {}", error.asString());
+                m_isConnected = false;
+                return;
+            }
         });
     }
 
-    void waitForMessage(unsigned int messageLength) {
+    void readMessage(unsigned int messageLength) {
         auto onMessage = [&](async::Error error, std::string message, unsigned int bytesRead) {
             ON_SCOPE_EXIT { readMessageLength(); };
 
