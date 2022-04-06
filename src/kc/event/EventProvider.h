@@ -3,6 +3,7 @@
 #include "Category.h"
 #include "Event.h"
 #include "fwd.h"
+#include "kc/core/Log.h"
 
 namespace kc::event {
 
@@ -25,7 +26,7 @@ struct Extractor<Category> {
 
 class EventProvider {
    public:
-    explicit EventProvider(CategoryToEventQueue& categoryToEventQueue);
+    explicit EventProvider(const CategoryToEventQueue& categoryToEventQueue);
 
     EventQueue getAll() const;
 
@@ -35,19 +36,19 @@ class EventProvider {
         detail::Extractor<Categories...>::extract(categories);
 
         EventQueue events;
-        for (const auto& categoryIndex : categories) {
+        for (auto categoryIndex : categories) {
             if (not m_categoryToEventQueue.contains(categoryIndex)) continue;
 
             auto& queue = m_categoryToEventQueue[categoryIndex];
-            auto lock = queue.lock();
             events.insert(events.begin(), queue.begin(), queue.end());
-            queue.clearUnsafe();
         }
+
+        if (auto n = events.size(); n > 0) LOG_TRACE("Events: {}", n);
 
         return events;
     }
 
    private:
-    CategoryToEventQueue& m_categoryToEventQueue;
+    mutable CategoryToEventQueue m_categoryToEventQueue;
 };
 }  // namespace kc::event

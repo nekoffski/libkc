@@ -3,15 +3,18 @@
 #include <ranges>
 
 #include "Error.h"
+#include "kc/core/Log.h"
 
 namespace kc::event {
 
 void EventEngine::spreadEvents() {
-    for (auto& [ident, eventListener] : m_eventListeners)
-        eventListener->handleEvents(EventProvider{m_eventContainer[ident]});
+    auto eventContainer = m_eventContainer;
 
     for (auto& categoryEventQueue : m_eventContainer | std::views::values)
         for (auto& eventQueue : categoryEventQueue | std::views::values) eventQueue.clearUnsafe();
+
+    for (auto& [ident, eventListener] : m_eventListeners)
+        eventListener->handleEvents(EventProvider{eventContainer[ident]});
 }
 
 EventProvider EventEngine::getEventProvider(const std::string& ident) {
@@ -25,10 +28,10 @@ std::shared_ptr<EventEmitter> EventEngine::createEmitter() {
 void EventEngine::registerEventListener(EventListener* eventListener) {
     const auto& ident = eventListener->getIdent();
 
-    auto elementsChain = m_eventListeners.find(ident);
     auto end = m_eventListeners.getBuffer().end();
 
-    for (; elementsChain != end; elementsChain = std::next(elementsChain))
+    for (auto elementsChain = m_eventListeners.find(ident); elementsChain != end;
+         elementsChain = std::next(elementsChain))
         if (elementsChain->second == eventListener) throw ListenerAlreadyRegistered{};
 
     m_eventListeners.insert(ident, eventListener);

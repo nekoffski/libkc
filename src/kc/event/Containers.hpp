@@ -25,9 +25,9 @@ class AtomicVector {
 
     auto lock() { return std::lock_guard{*m_mutex}; }
 
-    const auto begin() const { return m_data.cbegin(); }
+    const auto cbegin() const { return m_data.cbegin(); }
 
-    const auto end() const { return m_data.cend(); }
+    const auto cend() const { return m_data.cend(); }
 
     auto begin() { return m_data.begin(); }
 
@@ -98,6 +98,10 @@ class AtomicUnorderedMap {
     auto begin() { return m_data.begin(); }
 
     auto end() { return m_data.end(); }
+
+    const auto cbegin() const { return m_data.cbegin(); }
+
+    const auto cend() const { return m_data.cend(); }
 
     bool contains(const K& key) const {
         std::lock_guard guard{*m_mutex};

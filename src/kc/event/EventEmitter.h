@@ -8,6 +8,7 @@
 #include "Error.h"
 #include "Event.h"
 #include "fwd.h"
+#include "kc/core/Log.h"
 
 namespace kc::event {
 
@@ -23,8 +24,15 @@ class EventEmitter {
         }
 
         Result toAll() && {
-            for (auto& [_, categoryMap] : m_eventEmitter->m_eventContainer)
+            std::string destinations;
+            for (auto& [id, categoryMap] : m_eventEmitter->m_eventContainer) {
                 m_eventEmitter->pushEvent(m_event, categoryMap);
+                destinations += fmt::format("{}, ", id);
+            }
+
+            destinations = destinations.substr(0, destinations.size() - 2);
+            LOG_TRACE("Event {} emitted to [{}]", m_event->asString(), destinations);
+
             m_emitted = true;
             return Result{m_event->m_result.get_future()};
         }
@@ -34,12 +42,18 @@ class EventEmitter {
         }
 
         Result to(const std::vector<std::string>& destinations) && {
+            std::string idents;
             for (auto& destination : destinations) {
                 if (not m_eventEmitter->m_eventContainer.contains(destination))
                     throw ListenerNotFound{};
 
+                idents += fmt::format("{}, ", destination);
                 m_eventEmitter->pushEvent(m_event, m_eventEmitter->m_eventContainer[destination]);
             }
+
+            idents = idents.substr(0, idents.size() - 2);
+            LOG_TRACE("Event {} emitted to [{}]", m_event->asString(), idents);
+
             m_emitted = true;
             return Result{m_event->m_result.get_future()};
         }
