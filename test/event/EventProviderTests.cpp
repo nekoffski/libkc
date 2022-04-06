@@ -34,7 +34,7 @@ struct EventC : kc::event::EventBase<EventC, CategoryB> {};
 
 class EventProviderTests : public testing::Test {
    protected:
-    explicit EventProviderTests() : m_eventProvider(m_events) {}
+    explicit EventProviderTests() : eventProvider(m_events) {}
 
     void SetUp() override {
         m_eventA = std::make_shared<EventA>();
@@ -44,16 +44,18 @@ class EventProviderTests : public testing::Test {
         m_events[m_eventA->getCategoryTypeIndex()].push_back(m_eventA);
         m_events[m_eventB->getCategoryTypeIndex()].push_back(m_eventB);
         m_events[m_eventC->getCategoryTypeIndex()].push_back(m_eventC);
+
+        eventProvider = kc::event::EventProvider{m_events};
     }
 
     kc::event::CategoryToEventQueue m_events;
-    kc::event::EventProvider m_eventProvider;
+    kc::event::EventProvider eventProvider;
 
     std::shared_ptr<EventA> m_eventA;
     std::shared_ptr<EventB> m_eventB;
     std::shared_ptr<EventC> m_eventC;
 
-    bool checkEvent(std::shared_ptr<kc::event::Event> event, const kc::event::EventQueue& q) {
+    bool checkEvent(std::shared_ptr<kc::event::Event> event, kc::event::EventQueue& q) {
         for (auto& e : q)
             if (event->getEventTypeIndex() == e->getEventTypeIndex()) return true;
         return false;
@@ -61,7 +63,7 @@ class EventProviderTests : public testing::Test {
 };
 
 TEST_F(EventProviderTests, givenThreeEvents_whenGettingAll_shouldReturnAllEvents) {
-    auto events = m_eventProvider.getAll();
+    auto events = eventProvider.getAll();
 
     ASSERT_EQ(events.size(), 3);
     ASSERT_TRUE(checkEvent(m_eventA, events));
@@ -70,30 +72,30 @@ TEST_F(EventProviderTests, givenThreeEvents_whenGettingAll_shouldReturnAllEvents
 }
 
 TEST_F(EventProviderTests, givenThreeEvents_whenGettingEventByCategory_shouldReturnOnlyThisEvent) {
-    auto events1 = m_eventProvider.getByCategories<kc::event::DefaultCategory>();
+    auto events1 = eventProvider.getByCategories<kc::event::DefaultCategory>();
     ASSERT_EQ(events1.size(), 1);
     ASSERT_TRUE(checkEvent(m_eventA, events1));
     ASSERT_FALSE(checkEvent(m_eventB, events1));
     ASSERT_FALSE(checkEvent(m_eventC, events1));
 
-    auto events2 = m_eventProvider.getByCategories<CategoryA>();
+    auto events2 = eventProvider.getByCategories<CategoryA>();
     ASSERT_EQ(events2.size(), 1);
     ASSERT_FALSE(checkEvent(m_eventA, events2));
     ASSERT_TRUE(checkEvent(m_eventB, events2));
     ASSERT_FALSE(checkEvent(m_eventC, events2));
 
-    auto events3 = m_eventProvider.getByCategories<CategoryB>();
+    auto events3 = eventProvider.getByCategories<CategoryB>();
     ASSERT_EQ(events3.size(), 1);
     ASSERT_FALSE(checkEvent(m_eventA, events3));
     ASSERT_FALSE(checkEvent(m_eventB, events3));
     ASSERT_TRUE(checkEvent(m_eventC, events3));
 
-    ASSERT_EQ(m_eventProvider.getByCategories<CategoryC>().size(), 0);
+    ASSERT_EQ(eventProvider.getByCategories<CategoryC>().size(), 0);
 }
 
 TEST_F(EventProviderTests,
        givenThreeEvents_whenGettingEventByTwoCategories_shouldReturnThisTwoEvents) {
-    auto events = m_eventProvider.getByCategories<CategoryA, CategoryB>();
+    auto events = eventProvider.getByCategories<CategoryA, CategoryB>();
     ASSERT_EQ(events.size(), 2);
     ASSERT_FALSE(checkEvent(m_eventA, events));
     ASSERT_TRUE(checkEvent(m_eventB, events));
