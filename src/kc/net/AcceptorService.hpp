@@ -18,13 +18,13 @@ class AcceptorService : public service::PeriodicService {
         : PeriodicService(name), m_acceptor(port) {}
 
     void startAccepting() {
-        m_acceptor.getContext()->runThreaded();
         waitForConnection();
+        m_acceptor.getContext()->runThreaded();
     }
 
    private:
     void waitForConnection() {
-        LOG_TRACE("Waiting for connection async");
+        LOG_INFO("Waiting for connection async");
         m_acceptor.asyncAccept([&](async::Error error, std::unique_ptr<async::Socket> socket) {
             ON_SCOPE_EXIT { waitForConnection(); };
 
