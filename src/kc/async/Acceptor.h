@@ -25,7 +25,6 @@ class Acceptor {
     virtual Context* getContext() = 0;
 
    protected:
-    // Context* m_context;
     unsigned int m_port;
 };
 

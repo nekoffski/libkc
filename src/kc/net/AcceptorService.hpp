@@ -24,6 +24,7 @@ class AcceptorService : public service::PeriodicService {
 
    private:
     void waitForConnection() {
+        LOG_TRACE("Waiting for connection async");
         m_acceptor.asyncAccept([&](async::Error error, std::unique_ptr<async::Socket> socket) {
             ON_SCOPE_EXIT { waitForConnection(); };
 

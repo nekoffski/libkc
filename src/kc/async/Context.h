@@ -1,5 +1,7 @@
 #pragma once
 
+#include <kc/core/Log.h>
+
 #include <boost/asio.hpp>
 #include <thread>
 
@@ -15,10 +17,17 @@ struct Context {
 class AsioContext : public Context {
    public:
     void runThreaded() override {
-        m_contextThread = std::make_unique<std::jthread>([&]() { context.run(); });
+        LOG_INFO("Creating thread for Asio Context");
+        m_contextThread = std::make_unique<std::jthread>([&]() {
+            LOG_INFO("Running Asio Context from a separated thread");
+            context.run();
+        });
     }
 
-    void stop() override { context.stop(); }
+    void stop() override {
+        LOG_INFO("Stopping Asio Context");
+        context.stop();
+    }
 
     boost::asio::io_context context;
 
