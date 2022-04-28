@@ -26,3 +26,9 @@
 #define EMPTY_METHOD {}
 #define UNREACHABLE_CODE __builtin_unreachable()
 // clang-format on
+
+#define TO_STRING_STREAM(Type)                                                 \
+    inline std::ostream& operator<<(std::ostream& stream, const Type& value) { \
+        stream << toString(value);                                             \
+        return stream;                                                         \
+    }
