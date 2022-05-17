@@ -25,4 +25,6 @@ void setupSignalHandler(SignalHandler* sigHandler) {
     LOG_INFO("Signal handler registered successfully");
 }
 
+void resetSignalHandler() { signalHandler = nullptr; }
+
 }  // namespace kc::sig

@@ -7,5 +7,6 @@
 namespace kc::sig {
 
 void setupSignalHandler(SignalHandler*);
+void resetSignalHandler();
 
-}
+}  // namespace kc::sig
