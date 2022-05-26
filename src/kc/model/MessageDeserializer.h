@@ -9,8 +9,9 @@
 namespace kc::model {
 
 struct MessageDeserializer {
-    virtual std::unique_ptr<Deserializable> deserializeMessage(const std::string& header,
-                                                               const json::Node& body) const = 0;
+    virtual std::unique_ptr<Deserializable> deserializeMessage(
+        const std::string& header, const json::Node& body
+    ) const = 0;
 };
 
 }  // namespace kc::model

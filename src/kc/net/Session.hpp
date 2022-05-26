@@ -28,8 +28,9 @@ class Session {
         m_socket->close();
     }
 
-    explicit Session(std::unique_ptr<async::Socket> socket,
-                     model::MessageDeserializer* deserializer)
+    explicit Session(
+        std::unique_ptr<async::Socket> socket, model::MessageDeserializer* deserializer
+    )
         : m_isConnected(true), m_socket(std::move(socket)), m_deserializer(deserializer) {
         readMessageLength();
     }
@@ -57,7 +58,7 @@ class Session {
         using namespace std::chrono_literals;
 
         auto timeout = 5s;
-        auto start = clock::now();
+        auto start   = clock::now();
 
         // TODO: protect with mutex
         while (start + timeout >= clock::now()) {
@@ -159,7 +160,7 @@ class Session {
 
     void processMessage(std::string message) {
         try {
-            const auto json = json::loadJson(message);
+            const auto json        = json::loadJson(message);
             const auto messageName = json["name"].asString();
 
             LOG_INFO("Received message with header: {}", messageName);

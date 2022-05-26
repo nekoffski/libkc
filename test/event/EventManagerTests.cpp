@@ -13,8 +13,10 @@ struct EventManagerTests : Test {
     EventObserverMock observer2;
 };
 
-TEST_F(EventManagerTests,
-       givenEventManagerWithoutObserversRegistered_whenCheckingObserversCount_shouldReturnZero) {
+TEST_F(
+    EventManagerTests,
+    givenEventManagerWithoutObserversRegistered_whenCheckingObserversCount_shouldReturnZero
+) {
     EXPECT_EQ(eventManager.getObserversCount(), 0);
 }
 
@@ -24,7 +26,8 @@ TEST_F(EventManagerTests, givenEventManager_whenUnregisteringNotRegisteredObserv
 
 TEST_F(
     EventManagerTests,
-    givenEventManagerWithRegisteredObserver_whenUnregisteringObserver_shouldDecrementObserversCount) {
+    givenEventManagerWithRegisteredObserver_whenUnregisteringObserver_shouldDecrementObserversCount
+) {
     ASSERT_EQ(eventManager.getObserversCount(), 0);
 
     eventManager.registerObserver(&observer);
@@ -62,8 +65,9 @@ TEST_F(EventManagerTests, givenTwoObservers_whenEmittingEvent_shouldCallOnEvent)
     eventManager.emitEvent<Event>(1);
 }
 
-TEST_F(EventManagerTests,
-       givenTwoObservers_whenEmittingEventAfterUnregistering_shouldCallNotOnEvent) {
+TEST_F(
+    EventManagerTests, givenTwoObservers_whenEmittingEventAfterUnregistering_shouldCallNotOnEvent
+) {
     eventManager.registerObserver(&observer);
     eventManager.registerObserver(&observer2);
 
@@ -76,8 +80,9 @@ TEST_F(EventManagerTests,
     eventManager.emitEvent(event);
 }
 
-TEST_F(EventManagerTests,
-       givenTwoObserver_whenFirstHandleEvent_shouldNotCallOnEventForSecondObserver) {
+TEST_F(
+    EventManagerTests, givenTwoObserver_whenFirstHandleEvent_shouldNotCallOnEventForSecondObserver
+) {
     eventManager.registerObserver(&observer);
     eventManager.registerObserver(&observer2);
 

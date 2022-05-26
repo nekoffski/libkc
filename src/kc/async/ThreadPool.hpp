@@ -28,7 +28,8 @@ class ThreadPool {
         using ReturnType = typename std::result_of<F(Args...)>::type;
 
         auto task = std::make_shared<std::packaged_task<ReturnType()>>(
-            std::bind(std::forward<F>(func), std::forward<Args>(args)...));
+            std::bind(std::forward<F>(func), std::forward<Args>(args)...)
+        );
         auto res = task->get_future();
 
         m_jobs.enqueue([task]() { (*task)(); });
@@ -50,7 +51,7 @@ class ThreadPool {
 
         for (int i = 0; i < threadCount; ++i) {
             int beginIndex = i * batch;
-            int endIndex = beginIndex + batch;
+            int endIndex   = beginIndex + batch;
 
             if (i == threadCount - 1) endIndex += iterations % batch;
 

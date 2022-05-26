@@ -13,15 +13,9 @@ class EventWrapper {
     template <typename Event>
     explicit EventWrapper(const Event& event) : m_event(event), m_isHandled(false) {}
 
-    template <typename Event>
-    bool is() const {
-        return m_event.type() == typeid(Event);
-    }
+    template <typename Event> bool is() const { return m_event.type() == typeid(Event); }
 
-    template <typename Event>
-    Event get() {
-        return std::any_cast<Event>(m_event);
-    }
+    template <typename Event> Event get() { return std::any_cast<Event>(m_event); }
 
     void handled();
     bool isHandled() const;

@@ -14,8 +14,10 @@ struct RingBufferTests : testing::Test {
     RingBuffer<Type> ringBuffer;
 };
 
-TEST_F(RingBufferTests,
-       givenRingBuffer_whenPushingMoreItemsThanCapacity_shouldAllowInsertingAnotherValues) {
+TEST_F(
+    RingBufferTests,
+    givenRingBuffer_whenPushingMoreItemsThanCapacity_shouldAllowInsertingAnotherValues
+) {
     constexpr int capacity = 10;
     RingBuffer<int> buffer(capacity);
 
@@ -36,8 +38,9 @@ TEST_F(RingBufferTests, givenDefaultRingBuffer_whenCheckignCapacity_shouldReturn
     EXPECT_EQ(RingBuffer<int>{}.getCapacity(), RingBuffer<int>::defaultCapacity);
 }
 
-TEST_F(RingBufferTests,
-       givenRingBufferWithCustomCapacity_whenCheckingCapacity_shouldReturnCorrectValue) {
+TEST_F(
+    RingBufferTests, givenRingBufferWithCustomCapacity_whenCheckingCapacity_shouldReturnCorrectValue
+) {
     const auto capacity = 1ll;
     EXPECT_EQ(RingBuffer<int>{capacity}.getCapacity(), capacity);
 }

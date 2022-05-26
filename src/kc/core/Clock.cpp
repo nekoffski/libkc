@@ -12,7 +12,7 @@ float toSeconds(const Clock::TimePoint& timePoint) {
 }
 
 std::string Clock::getTimeString(const std::string& format) const {
-    auto t = std::time(nullptr);
+    auto t  = std::time(nullptr);
     auto tm = *std::localtime(&t);
 
     std::ostringstream oss;

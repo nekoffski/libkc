@@ -6,8 +6,7 @@
 
 namespace kc::containers {
 
-template <typename T>
-class AtomicQueue {
+template <typename T> class AtomicQueue {
    public:
     std::size_t size() const {
         std::scoped_lock guard{m_queueMutex};

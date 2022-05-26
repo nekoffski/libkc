@@ -16,7 +16,7 @@ void Profiler::RegionTimer::updateValue() {
     static constexpr float weight = 0.3f;
 
     auto deltaTime = m_clock->now() - m_startTime;
-    m_value = std::lerp(m_value, toSeconds(deltaTime), weight);
+    m_value        = std::lerp(m_value, toSeconds(deltaTime), weight);
 }
 
 Profiler::RegionTimer Profiler::createRegionTimer(const std::string& name) {
@@ -24,8 +24,9 @@ Profiler::RegionTimer Profiler::createRegionTimer(const std::string& name) {
 }
 
 void Profiler::saveResults(const std::string& logDestination, const FileSystem& fileSystem) {
-    fileSystem.writeFile(logDestination + "logs.perf", formatTimers(),
-                         FileSystem::WritePolicy::override);
+    fileSystem.writeFile(
+        logDestination + "logs.perf", formatTimers(), FileSystem::WritePolicy::override
+    );
 }
 
 std::string Profiler::formatTimers() {
@@ -34,7 +35,7 @@ std::string Profiler::formatTimers() {
     };
 
     const auto longestName = std::ranges::max_element(m_times, compareBySize)->first;
-    const auto alignment = longestName.size();
+    const auto alignment   = longestName.size();
 
     std::ostringstream stream;
     stream << std::fixed;

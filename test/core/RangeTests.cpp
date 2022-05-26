@@ -12,7 +12,7 @@ TEST(RangeTests, giveRangeFromAToB_whenIterating_shouldIterateOverValues) {
     EXPECT_EQ(i, 5);
 
     int begin = 15;
-    int end = 27;
+    int end   = 27;
 
     for (auto index : core::range(begin, end)) EXPECT_EQ(index, begin++);
 
@@ -21,7 +21,7 @@ TEST(RangeTests, giveRangeFromAToB_whenIterating_shouldIterateOverValues) {
 
 TEST(RangeTests, givenIndices_shouldReturnCorrectRange) {
     std::array<int, 5> arr = {0};
-    int i = 0;
+    int i                  = 0;
 
     for (auto index : core::indicesOf(arr)) EXPECT_EQ(index, i++);
 
@@ -30,7 +30,7 @@ TEST(RangeTests, givenIndices_shouldReturnCorrectRange) {
 
 TEST(RangeTests, givenIntRangeWithStep_WhenIterating_shouldIterateOverCorrectValues) {
     int value = 0;
-    int step = 3;
+    int step  = 3;
 
     for (auto i : core::range(0, 9).withStep(step)) {
         EXPECT_EQ(i, value);
@@ -43,7 +43,7 @@ TEST(RangeTests, givenIntRangeWithStep_WhenIterating_shouldIterateOverCorrectVal
 
 TEST(RangeTests, givenFloatRangeWithStep_WhenIterating_shouldIterateOverCorrectValues) {
     float value = 0.0f;
-    float step = 0.1f;
+    float step  = 0.1f;
 
     for (auto i : core::range(0.0f, 10.0f).withStep(step)) {
         EXPECT_EQ(i, value);

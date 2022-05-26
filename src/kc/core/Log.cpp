@@ -3,7 +3,7 @@
 namespace kc::core {
 
 void initLogging(const std::string& applicationName) {
-    // clang-format off
+// clang-format off
     #ifndef SPDLOG_COMPILED_LIB
     #error "spdlog is attached as header-only, please provide compiled version");
     #endif

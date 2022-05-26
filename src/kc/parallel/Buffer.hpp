@@ -10,8 +10,7 @@ namespace kc::parallel {
 
 enum class BufferType : unsigned char { readOnly, writeOnly, readWrite };
 
-template <typename T>
-class Buffer {
+template <typename T> class Buffer {
    public:
     explicit Buffer(const int size, BufferType type, Context& context)
         : m_size(size), m_type(type), m_context(context), m_buffer(size, 0) {}

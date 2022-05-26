@@ -16,7 +16,7 @@ Json::Value loadJson(const std::string& jsonString) {
     JSONCPP_STRING errors;
 
     const char* p = jsonString.c_str();
-    auto reader = std::unique_ptr<Json::CharReader>(builder.newCharReader());
+    auto reader   = std::unique_ptr<Json::CharReader>(builder.newCharReader());
     if (!reader->parse(p, p + jsonString.size(), &root, &errors))
         throw CouldNotLoadJson{std::string{errors}};
     return root;

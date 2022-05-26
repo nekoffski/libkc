@@ -23,7 +23,7 @@ TEST_F(JsonTests, givenInvalidJsonString_whenParsing_shouldThrow) {
 
 TEST_F(JsonTests, givenValidJsonString_whenParsing_shouldReturnJsonObject) {
     std::string corruptedJson = "{\"Hello\": \"World\"}";
-    auto json = loadJson(corruptedJson);
+    auto json                 = loadJson(corruptedJson);
 
     ASSERT_TRUE(json.isMember("Hello"));
     EXPECT_EQ(json["Hello"], "World");
@@ -43,7 +43,7 @@ TEST_F(JsonTests, givenJsonBuilder_whenCreatingInvalidJson_shouldThrow) {
 
 TEST_F(JsonTests, givenJsonBuilder_whenCreatingEmptyArray_shouldGiveCorrectResult) {
     auto jsonString = jsonBuilder.beginArray("my_array").endArray().asString();
-    auto json = loadJson(jsonString);
+    auto json       = loadJson(jsonString);
 
     ASSERT_TRUE(json.isMember("my_array"));
     EXPECT_TRUE(json["my_array"].isArray());
@@ -51,7 +51,7 @@ TEST_F(JsonTests, givenJsonBuilder_whenCreatingEmptyArray_shouldGiveCorrectResul
 
 TEST_F(JsonTests, givenJsonBuilder_whenCreatingNestedJson_shouldGiveCorrectResult) {
     auto jsonString = jsonBuilder.beginObject("nested").endObject().asString();
-    auto json = loadJson(jsonString);
+    auto json       = loadJson(jsonString);
 
     ASSERT_TRUE(json.isMember("nested"));
     EXPECT_TRUE(json["nested"].isObject());
@@ -59,7 +59,7 @@ TEST_F(JsonTests, givenJsonBuilder_whenCreatingNestedJson_shouldGiveCorrectResul
 
 TEST_F(JsonTests, givenJsonBuilder_whenAddingIntegerValue_shouldGiveCorrectResult) {
     auto jsonString = jsonBuilder.addField("myInteger", 5).asString();
-    auto json = loadJson(jsonString);
+    auto json       = loadJson(jsonString);
 
     ASSERT_TRUE(json.isMember("myInteger"));
 
@@ -70,7 +70,7 @@ TEST_F(JsonTests, givenJsonBuilder_whenAddingIntegerValue_shouldGiveCorrectResul
 
 TEST_F(JsonTests, givenJsonBuilder_whenAddingStringValue_shouldGiveCorrectResult) {
     auto jsonString = jsonBuilder.addField("myFloat", 5.0f).asString();
-    auto json = loadJson(jsonString);
+    auto json       = loadJson(jsonString);
 
     ASSERT_TRUE(json.isMember("myFloat"));
 
@@ -117,7 +117,7 @@ TEST_F(JsonTests, givenJsonBuilder_whenCreatingArrayOfArrays_shouldGiveCorrectRe
 
 TEST_F(JsonTests, givenJsonBuilder_whenAddingFloatValue_shouldGiveCorrectResult) {
     auto jsonString = jsonBuilder.addField("myStr", "str"s).asString();
-    auto json = loadJson(jsonString);
+    auto json       = loadJson(jsonString);
 
     std::cout << jsonString << '\n';
 
@@ -171,7 +171,7 @@ TEST_F(JsonTests, givenJsonBuilder_whenCreatingArrayWithStrElements_shouldGiveCo
 
 TEST_F(JsonTests, givenJsonBuilder_whenCreatingArrayWithIntElements_shouldGiveCorrectResults) {
     auto jsonString = jsonBuilder.beginArray("arr").addField(1).addField(2).endArray().asString();
-    auto json = loadJson(jsonString);
+    auto json       = loadJson(jsonString);
 
     ASSERT_TRUE(json.isMember("arr"));
     auto& arr = json["arr"];
@@ -183,8 +183,8 @@ TEST_F(JsonTests, givenJsonBuilder_whenCreatingArrayWithIntElements_shouldGiveCo
 
 TEST_F(JsonTests, givenJsonBuilder_whenCreatingArrayFromStringVector_shouldGiveCorrectResults) {
     auto stringVector = std::vector<std::string>{"abcd"s, "efgh"s};
-    auto jsonString = jsonBuilder.addField("array", stringVector).asString();
-    auto json = loadJson(jsonString);
+    auto jsonString   = jsonBuilder.addField("array", stringVector).asString();
+    auto json         = loadJson(jsonString);
 
     ASSERT_TRUE(json.isMember("array"));
     auto& arr = json["array"];
@@ -194,9 +194,9 @@ TEST_F(JsonTests, givenJsonBuilder_whenCreatingArrayFromStringVector_shouldGiveC
 }
 
 TEST_F(JsonTests, givenJsonBuilder_whenCreatingArrayFromIntVector_shouldGiveCorrectResults) {
-    auto intVector = std::vector<int>{1, 2, 3, 4};
+    auto intVector  = std::vector<int>{1, 2, 3, 4};
     auto jsonString = jsonBuilder.addField("array", intVector).asString();
-    auto json = loadJson(jsonString);
+    auto json       = loadJson(jsonString);
 
     ASSERT_TRUE(json.isMember("array"));
     auto& arr = json["array"];

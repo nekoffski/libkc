@@ -7,15 +7,13 @@
 
 #include "kc/core/Log.h"
 
-template <typename T>
-class Mallocator {
+template <typename T> class Mallocator {
    public:
     using ValueType = T;
 
     explicit Mallocator() = default;
 
-    template <typename U>
-    constexpr Mallocator(const Mallocator<U>&) noexcept {}
+    template <typename U> constexpr Mallocator(const Mallocator<U>&) noexcept {}
 
     // clang-format off
     [[nodiscard]] T* allocate(std::size_t n) {
@@ -38,17 +36,17 @@ class Mallocator {
 
    private:
     void report(T* p, std::size_t n, bool alloc = true) const {
-        LOG_INFO("{} {} bytes at {}", alloc ? "Alloc: " : "Dealloc: ", sizeof(T) * n,
-                 reinterpret_cast<void*>(p));
+        LOG_INFO(
+            "{} {} bytes at {}", alloc ? "Alloc: " : "Dealloc: ", sizeof(T) * n,
+            reinterpret_cast<void*>(p)
+        );
     }
 };
 
-template <class T, class U>
-bool operator==(const Mallocator<T>&, const Mallocator<U>&) {
+template <class T, class U> bool operator==(const Mallocator<T>&, const Mallocator<U>&) {
     return true;
 }
 
-template <class T, class U>
-bool operator!=(const Mallocator<T>&, const Mallocator<U>&) {
+template <class T, class U> bool operator!=(const Mallocator<T>&, const Mallocator<U>&) {
     return false;
 }

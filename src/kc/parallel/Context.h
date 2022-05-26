@@ -49,8 +49,10 @@ class Context {
     }
 
     void showDeviceInfo(const cl::Device& device) {
-        LOG_INFO("Vendor: {}, Vendor ID: {}, Version: {}", device.getInfo<CL_DEVICE_VENDOR>(),
-                 device.getInfo<CL_DEVICE_VENDOR_ID>(), device.getInfo<CL_DEVICE_VERSION>());
+        LOG_INFO(
+            "Vendor: {}, Vendor ID: {}, Version: {}", device.getInfo<CL_DEVICE_VENDOR>(),
+            device.getInfo<CL_DEVICE_VENDOR_ID>(), device.getInfo<CL_DEVICE_VERSION>()
+        );
     }
 
     std::vector<cl::Platform> m_platforms;

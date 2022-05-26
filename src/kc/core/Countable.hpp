@@ -4,14 +4,13 @@
 
 namespace kc::core {
 
-template <typename T>
-class Countable {
+template <typename T> class Countable {
    public:
     Countable() : m_id(generateId()) {}
 
     ~Countable() { freeIds.push_back(m_id); }
 
-    Countable(const Countable&) = delete;
+    Countable(const Countable&)            = delete;
     Countable& operator=(const Countable&) = delete;
 
     unsigned int getId() { return m_id; }

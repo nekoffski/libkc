@@ -55,7 +55,7 @@ TEST_F(ThreadPoolTests, giveThreadPool_whenExecutingTask_shouldReturnCorrectValu
 TEST_F(ThreadPoolTests, giveThreadPool_whenExecutingMultipleTasks_shouldReturnCorrectValue) {
     int value = 5;
 
-    auto task = threadPool.callAsync([&] { return value; });
+    auto task  = threadPool.callAsync([&] { return value; });
     auto task1 = threadPool.callAsync([&] { return value + 1; });
 
     wait(task, task1);

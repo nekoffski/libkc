@@ -36,10 +36,10 @@ std::vector<std::string> split(const std::string& str, const char delimiter) {
 
 std::string extractNameFromPath(const std::string& path, ExtractingMode mode) {
     static constexpr char separator = '/';
-    const auto& npos = std::string::npos;
+    const auto& npos                = std::string::npos;
 
     const auto position = path.find_last_of(separator);
-    const bool isPath = position != npos;
+    const bool isPath   = position != npos;
 
     if (not isPath) return path;
 
@@ -47,9 +47,9 @@ std::string extractNameFromPath(const std::string& path, ExtractingMode mode) {
 
     static constexpr char dot = '.';
 
-    auto beginOfExtension = path.find_last_of(dot);
+    auto beginOfExtension   = path.find_last_of(dot);
     const bool hasExtension = beginOfExtension != npos;
-    const auto n = path.size();
+    const auto n            = path.size();
 
     return hasExtension ? path.substr(position + 1, beginOfExtension - position - 1)
                         : path.substr(position + 1);

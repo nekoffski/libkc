@@ -22,8 +22,7 @@ class Clock {
     ClockType m_clock;
 };
 
-template <typename U, typename T>
-float toSeconds(const std::chrono::duration<U, T>& duration) {
+template <typename U, typename T> float toSeconds(const std::chrono::duration<U, T>& duration) {
     using namespace std::chrono;
     return duration_cast<microseconds>(duration).count() / Clock::microsecondsInSecond;
 }

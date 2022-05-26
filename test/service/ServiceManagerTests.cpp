@@ -13,9 +13,9 @@ namespace {
 
 struct ServiceManagerTests : public testing::Test {
     void SetUp() override {
-        serviceMock = std::make_unique<ServiceMock>("ServiceMock");
+        serviceMock              = std::make_unique<ServiceMock>("ServiceMock");
         serviceThreadFactoryMock = std::make_unique<ServiceThreadFactoryMock>();
-        serviceThreadMock = std::make_unique<ServiceThreadMock>();
+        serviceThreadMock        = std::make_unique<ServiceThreadMock>();
 
         serviceManager = std::make_unique<ServiceManager>(serviceThreadFactoryMock.get());
     }
@@ -26,21 +26,26 @@ struct ServiceManagerTests : public testing::Test {
     std::unique_ptr<ServiceManager> serviceManager;
 };
 
-TEST_F(ServiceManagerTests,
-       givenServiceManagerWithoutServices_whenAskingForCountOfServices_shouldReturnZero) {
+TEST_F(
+    ServiceManagerTests,
+    givenServiceManagerWithoutServices_whenAskingForCountOfServices_shouldReturnZero
+) {
     EXPECT_EQ(serviceManager->getServicesCount(), 0);
 }
 
-TEST_F(ServiceManagerTests,
-       givenServiceManagerWithServices_whenAskingForCountOfServices_shouldReturnOne) {
+TEST_F(
+    ServiceManagerTests,
+    givenServiceManagerWithServices_whenAskingForCountOfServices_shouldReturnOne
+) {
     ASSERT_EQ(serviceManager->getServicesCount(), 0);
 
     serviceManager->addService(serviceMock.get());
     EXPECT_EQ(serviceManager->getServicesCount(), 1);
 }
 
-TEST_F(ServiceManagerTests,
-       givenRegisteredService_whenStartingServiceManager_shouldProcessService) {
+TEST_F(
+    ServiceManagerTests, givenRegisteredService_whenStartingServiceManager_shouldProcessService
+) {
     EXPECT_CALL(*serviceMock, onInit()).Times(1);
     EXPECT_CALL(*serviceMock, onShutdown()).Times(1);
 

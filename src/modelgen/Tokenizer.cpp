@@ -45,7 +45,7 @@ Tokenizer::Tokens Tokenizer::tokenize(const std::vector<std::string>& file) {
             tokens.push_back(parseToken(rawToken));
 
             auto& lastToken = tokens.back();
-            const auto n = lastToken.value.size();
+            const auto n    = lastToken.value.size();
 
             if (n != 1 && (lastToken.value[n - 1] == ':' || lastToken.value[n - 1] == ',')) {
                 std::cout << "Coma or colon, processing\n";
@@ -85,8 +85,9 @@ void Tokenizer::validateString(const std::string& string) {
         static const std::string allowedCharacters =
             "abcdefghijklmnopqrstuwzxvABCDEFGHIJKLMNOPQRSTUWZXV,:[]";
 
-        return std::ranges::any_of(
-            allowedCharacters, [&](const char allowedChar) { return character == allowedChar; });
+        return std::ranges::any_of(allowedCharacters, [&](const char allowedChar) {
+            return character == allowedChar;
+        });
     };
 
     if (not std::ranges::all_of(string, isCharacterAllowed))

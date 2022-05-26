@@ -2,9 +2,7 @@
 
 #include "kc/core/Enumerate.hpp"
 
-static auto setupContainer(int size) {
-    return std::vector<int>(size, 1);
-}
+static auto setupContainer(int size) { return std::vector<int>(size, 1); }
 
 static void core_Enumerate_native(benchmark::State& state) {
     auto c = setupContainer(state.range(0));

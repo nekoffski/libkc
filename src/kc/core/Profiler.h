@@ -30,8 +30,9 @@ class Profiler : public Singleton<Profiler> {
 
     RegionTimer createRegionTimer(const std::string& name);
 
-    void saveResults(const std::string& logDestination = "./",
-                     const FileSystem& fileSystem = FileSystem{});
+    void saveResults(
+        const std::string& logDestination = "./", const FileSystem& fileSystem = FileSystem{}
+    );
     std::string formatTimers();
 
    private:

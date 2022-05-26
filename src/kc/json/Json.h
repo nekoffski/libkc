@@ -40,13 +40,9 @@ class JsonBuilder {
         return addFieldImpl(key, '"' + value + '"');
     }
 
-    template <typename T>
-    JsonBuilder& addField(const T& item) {
-        return addFieldImpl(item);
-    }
+    template <typename T> JsonBuilder& addField(const T& item) { return addFieldImpl(item); }
 
-    template <typename T>
-    JsonBuilder& addField(const std::string& key, const T& value) {
+    template <typename T> JsonBuilder& addField(const std::string& key, const T& value) {
         return addFieldImpl(key, value);
     }
 
@@ -58,8 +54,7 @@ class JsonBuilder {
     }
 
    private:
-    template <typename T>
-    JsonBuilder& addFieldImpl(const T& value) {
+    template <typename T> JsonBuilder& addFieldImpl(const T& value) {
         if (m_shouldInsertComma) m_jsonStream << ',';
 
         m_jsonStream << value;
@@ -67,8 +62,7 @@ class JsonBuilder {
         return *this;
     }
 
-    template <typename T>
-    JsonBuilder& addFieldImpl(const std::string& key, const T& value) {
+    template <typename T> JsonBuilder& addFieldImpl(const std::string& key, const T& value) {
         if (m_shouldInsertComma) m_jsonStream << ',';
         m_jsonStream << '"' << key << "\": " << value;
         m_shouldInsertComma = true;

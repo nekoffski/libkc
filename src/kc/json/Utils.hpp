@@ -100,8 +100,7 @@ class ValueWrapperBase {
     const std::string& m_fieldName;
 };
 
-template <typename Error, typename T, typename Enabled = void>
-class ValueWrapper {};
+template <typename Error, typename T, typename Enabled = void> class ValueWrapper {};
 
 template <typename Error, typename T>
 struct ValueWrapper<Error, T, typename std::enable_if_t<std::is_arithmetic_v<T>>>
@@ -122,8 +121,8 @@ struct ValueWrapper<Error, T, typename std::enable_if_t<std::is_arithmetic_v<T>>
 };
 
 template <typename Error, typename T>
-struct ValueWrapper<Error, T,
-                    typename std::enable_if_t<is_one_of3_v<T, glm::vec2, glm::vec3, glm::vec4>>>
+struct ValueWrapper<
+    Error, T, typename std::enable_if_t<is_one_of3_v<T, glm::vec2, glm::vec3, glm::vec4>>>
     : public ValueWrapperBase<Error, T> {
    public:
     using ValueWrapperBase<Error, T>::ValueWrapperBase;
@@ -155,20 +154,17 @@ class ValueWrapper<Error, T, typename std::enable_if_t<is_one_of2_v<T, std::stri
     }
 };
 
-template <typename Error>
-struct ArrayWrapper : public ValueWrapper<Error, Node> {
+template <typename Error> struct ArrayWrapper : public ValueWrapper<Error, Node> {
     using ValueWrapper<Error, Node>::ValueWrapper;
 
-    template <typename U>
-    ArrayWrapper&& ofType() && {
+    template <typename U> ArrayWrapper&& ofType() && {
         for (auto& value : this->m_value)
             tryToExtractValue<Error, U>(value, "Field of array " + this->m_fieldName);
         MOVE_THIS;
     }
 };
 
-template <typename Error>
-class NodeWrapper {
+template <typename Error> class NodeWrapper {
    public:
     explicit NodeWrapper(const Node& node) : m_node(node) {}
 
@@ -180,8 +176,7 @@ class NodeWrapper {
         MOVE_THIS;
     }
 
-    template <typename T>
-    ValueWrapper<Error, T> ofType() && {
+    template <typename T> ValueWrapper<Error, T> ofType() && {
         kc_assert<JsonLogicError>(m_name.has_value(), "Field has not specified its name");
         auto kc_assertMessagePrefix = "Field with name: " + m_name.value();
 
@@ -194,8 +189,9 @@ class NodeWrapper {
         kc_assert<JsonLogicError>(m_name.has_value(), "Field has not specified its name");
 
         auto child = m_node.get(m_name.value(), {});
-        kc_assert<Error>(child.isArray(),
-                         "Field with name " + m_name.value() + " has invalid type");
+        kc_assert<Error>(
+            child.isArray(), "Field with name " + m_name.value() + " has invalid type"
+        );
 
         return ArrayWrapper<Error>{child, m_name.value()};
     }
@@ -204,8 +200,9 @@ class NodeWrapper {
         kc_assert<JsonLogicError>(m_name.has_value(), "Field has not specified its name");
 
         auto child = m_node.get(m_name.value(), {});
-        kc_assert<Error>(child.isObject(),
-                         "Field with name " + m_name.value() + " has invalid type");
+        kc_assert<Error>(
+            child.isObject(), "Field with name " + m_name.value() + " has invalid type"
+        );
 
         return ValueWrapper<Error, Node>{child, m_name.value()};
     }
@@ -228,7 +225,8 @@ class NodeHelper {
 
 template <typename Error>
 requires std::derived_from<Error, core::ErrorBase> detail::NodeWrapper<Error> fieldFrom(
-    const Node& node) {
+    const Node& node
+) {
     return detail::NodeWrapper<Error>{node};
 };
 

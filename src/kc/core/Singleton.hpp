@@ -6,8 +6,7 @@
 
 namespace kc::core {
 
-template <typename T>
-class Singleton {
+template <typename T> class Singleton {
    public:
     explicit Singleton() {
         ASSERT(s_instance == nullptr, "Only 1 instance of singleton is allowed");
@@ -21,10 +20,10 @@ class Singleton {
     static T* getPtr() { return s_instance; }
 
     Singleton(const Singleton& oth) = delete;
-    Singleton(Singleton&& oth) = delete;
+    Singleton(Singleton&& oth)      = delete;
 
     Singleton& operator=(const Singleton& oth) = delete;
-    Singleton& operator=(Singleton&& oth) = delete;
+    Singleton& operator=(Singleton&& oth)      = delete;
 
    private:
     inline static T* s_instance = nullptr;

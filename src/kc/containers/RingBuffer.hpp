@@ -6,8 +6,7 @@
 
 namespace kc::containers {
 
-template <typename T>
-class RingBuffer {
+template <typename T> class RingBuffer {
     using Size = std::size_t;
 
    public:
@@ -21,14 +20,14 @@ class RingBuffer {
     void push(const T& value) {
         std::scoped_lock guard{m_pushMutex};
 
-        auto index = std::exchange(m_pushIndex, (m_pushIndex + 1) % m_capacity);
+        auto index      = std::exchange(m_pushIndex, (m_pushIndex + 1) % m_capacity);
         m_buffer[index] = value;
     }
 
     void push(T&& value) {
         std::scoped_lock guard{m_pushMutex};
 
-        auto index = std::exchange(m_pushIndex, (m_pushIndex + 1) % m_capacity);
+        auto index      = std::exchange(m_pushIndex, (m_pushIndex + 1) % m_capacity);
         m_buffer[index] = std::move(value);
     }
 

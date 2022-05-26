@@ -10,8 +10,7 @@
 namespace kc::core {
 
 namespace detail {
-template <typename T>
-class IteratorBase : public std::iterator<std::forward_iterator_tag, T> {
+template <typename T> class IteratorBase : public std::iterator<std::forward_iterator_tag, T> {
    public:
     IteratorBase(T value, T step) : m_value(value), m_step(step) {}
 
@@ -33,8 +32,7 @@ class IteratorBase : public std::iterator<std::forward_iterator_tag, T> {
     T m_step;
 };
 
-template <typename T, typename Iterator>
-class RangeBase {
+template <typename T, typename Iterator> class RangeBase {
    public:
     RangeBase(const Iterator& begin, const Iterator& end) : m_begin(begin), m_end(end) {}
 
@@ -51,8 +49,7 @@ class RangeBase {
     Iterator m_end;
 };
 
-template <typename T>
-struct Iterator : IteratorBase<T> {
+template <typename T> struct Iterator : IteratorBase<T> {
     using IteratorBase<T>::IteratorBase;
 
     friend bool operator==(const Iterator& lhs, const Iterator& rhs) {
@@ -62,8 +59,7 @@ struct Iterator : IteratorBase<T> {
     friend bool operator!=(const Iterator& lhs, const Iterator& rhs) { return not(lhs == rhs); };
 };
 
-template <typename T>
-struct StepIterator : IteratorBase<T> {
+template <typename T> struct StepIterator : IteratorBase<T> {
     using IteratorBase<T>::IteratorBase;
 
     friend bool operator==(const StepIterator& lhs, const StepIterator& rhs) {
@@ -75,20 +71,20 @@ struct StepIterator : IteratorBase<T> {
     };
 };
 
-template <typename T>
-class StepRange : public RangeBase<T, StepIterator<T>> {
+template <typename T> class StepRange : public RangeBase<T, StepIterator<T>> {
    public:
     StepRange(T begin, T end, T step)
-        : RangeBase<T, StepIterator<T>>::RangeBase(StepIterator<T>{begin, step},
-                                                   StepIterator<T>{end, step}) {}
+        : RangeBase<T, StepIterator<T>>::RangeBase(
+              StepIterator<T>{begin, step}, StepIterator<T>{end, step}
+          ) {}
 };
 
-template <typename T>
-class Range : public RangeBase<T, Iterator<T>> {
+template <typename T> class Range : public RangeBase<T, Iterator<T>> {
    public:
     Range(T begin, T end)
-        : RangeBase<T, Iterator<T>>::RangeBase(Iterator<T>{begin, static_cast<T>(1)},
-                                               Iterator<T>{end, static_cast<T>(1)}) {}
+        : RangeBase<T, Iterator<T>>::RangeBase(
+              Iterator<T>{begin, static_cast<T>(1)}, Iterator<T>{end, static_cast<T>(1)}
+          ) {}
 
     StepRange<T> withStep(T step) const { return StepRange<T>{*this->m_begin, *this->m_end, step}; }
 };
@@ -105,8 +101,7 @@ requires std::is_arithmetic_v<T> detail::Range<T> range(T end) {
     return range(static_cast<T>(0), end);
 }
 
-template <typename T>
-detail::Range<std::size_t> indicesOf(const T& container) {
+template <typename T> detail::Range<std::size_t> indicesOf(const T& container) {
     return detail::Range<std::size_t>{0ul, container.size() - 1ul};
 }
 

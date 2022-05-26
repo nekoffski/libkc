@@ -11,7 +11,11 @@ struct Model {
     };
 
     inline static const std::unordered_map<std::string, std::string> allowedTypes = {
-        {"int", "int"}, {"bool", "bool"}, {"str", "std::string"}, {"numeric", "float"}};
+        {"int",     "int"        },
+        {"bool",    "bool"       },
+        {"str",     "std::string"},
+        {"numeric", "float"      }
+    };
 
     bool isMessage;
     std::string name;

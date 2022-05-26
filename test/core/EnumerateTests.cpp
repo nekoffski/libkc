@@ -6,8 +6,8 @@ using namespace kc;
 
 TEST(EnumerateTests, givenEnumerate_whenIterating_shouldReturnCorrectIndicesAndValues) {
     std::array<int, 5> arr = {1, 5, 7, 3, 2};
-    auto arr2 = arr;
-    int idx = 0;
+    auto arr2              = arr;
+    int idx                = 0;
 
     for (auto&& [index, value] : core::enumerate(arr)) {
         EXPECT_EQ(arr[index], value);

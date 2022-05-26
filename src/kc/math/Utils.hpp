@@ -11,8 +11,7 @@
 
 namespace kc::math {
 
-template <typename T>
-using infinity = std::numeric_limits<T>::infinity();
+template <typename T> using infinity = std::numeric_limits<T>::infinity();
 
 template <typename T>
 requires std::is_arithmetic_v<T> T toRadians(T degrees) {
@@ -28,7 +27,8 @@ requires std::is_arithmetic_v<T> T toDegrees(T radians) {
 
 template <typename T>
 requires std::is_floating_point_v<T> core::enable_if<std::is_floating_point_v<T>, T> random(
-    T min = static_cast<T>(0), T max = static_cast<T>(1)) {
+    T min = static_cast<T>(0), T max = static_cast<T>(1)
+) {
     static std::default_random_engine generator;
 
     std::uniform_real_distribution<T> distribution(min, max);
@@ -37,7 +37,8 @@ requires std::is_floating_point_v<T> core::enable_if<std::is_floating_point_v<T>
 
 template <typename T>
 requires std::is_integral_v<T> core::enable_if<std::is_integral_v<T>, T> random(
-    T min = static_cast<T>(0), T max = static_cast<T>(1)) {
+    T min = static_cast<T>(0), T max = static_cast<T>(1)
+) {
     static std::default_random_engine generator;
 
     std::uniform_int_distribution<T> distribution(min, max);
@@ -45,8 +46,9 @@ requires std::is_integral_v<T> core::enable_if<std::is_integral_v<T>, T> random(
 }
 
 template <typename T>
-requires std::is_floating_point_v<T> std::optional<std::pair<T, T>> solveQuadraticEquation(T a, T b,
-                                                                                           T c) {
+requires std::is_floating_point_v<T> std::optional<std::pair<T, T>> solveQuadraticEquation(
+    T a, T b, T c
+) {
     T delta = b * b - 4 * a * c;
     if (delta < 0) {
         return {};
@@ -56,7 +58,7 @@ requires std::is_floating_point_v<T> std::optional<std::pair<T, T>> solveQuadrat
     }
 
     T deltaSqrt = std::sqrt(delta);
-    T q = (b > 0) ? -0.5 * (b + deltaSqrt) : -0.5 * (b - deltaSqrt);
+    T q         = (b > 0) ? -0.5 * (b + deltaSqrt) : -0.5 * (b - deltaSqrt);
 
     T x0 = q / a;
     T x1 = c / q;

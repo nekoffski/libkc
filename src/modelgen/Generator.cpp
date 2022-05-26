@@ -28,8 +28,9 @@ Generator::Files Generator::generateCode(const Structures& structures) {
     return files;
 }
 
-std::string Generator::determineFieldType(const std::string& typeDescription,
-                                          std::ostringstream* headers) {
+std::string Generator::determineFieldType(
+    const std::string& typeDescription, std::ostringstream* headers
+) {
     if (Model::allowedTypes.contains(typeDescription))
         return Model::allowedTypes.at(typeDescription);
 

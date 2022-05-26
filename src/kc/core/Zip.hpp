@@ -11,17 +11,14 @@ namespace kc::core {
 
 namespace detail {
 template <typename T>
-using select_iterator_for = std::conditional_t<std::is_const_v<std::remove_reference_t<T>>,
-                                               typename std::decay_t<T>::const_iterator,
-                                               typename std::decay_t<T>::iterator>;
+using select_iterator_for = std::conditional_t<
+    std::is_const_v<std::remove_reference_t<T>>, typename std::decay_t<T>::const_iterator,
+    typename std::decay_t<T>::iterator>;
 
-template <typename... Containers>
-class ZipRange {
+template <typename... Containers> class ZipRange {
    public:
-    template <typename... Iterators>
-    class Iterator {
-        template <typename T>
-        using value_type = typename std::iterator_traits<T>::reference;
+    template <typename... Iterators> class Iterator {
+        template <typename T> using value_type = typename std::iterator_traits<T>::reference;
 
         using Value = std::tuple<value_type<Iterators>...>;
 
@@ -80,8 +77,7 @@ class ZipRange {
 
 }  // namespace detail
 
-template <typename... Containers>
-detail::ZipRange<Containers...> zip(Containers&&... containers) {
+template <typename... Containers> detail::ZipRange<Containers...> zip(Containers&&... containers) {
     return detail::ZipRange<Containers...>{std::forward<Containers>(containers)...};
 }
 }  // namespace kc::core

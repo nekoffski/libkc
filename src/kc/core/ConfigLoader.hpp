@@ -16,8 +16,9 @@ template <typename T>
 requires std::is_default_constructible_v<T>
 class ConfigLoader {
    public:
-    ConfigLoader&& fromFile(const std::string& filePath,
-                            const FileSystem& fileSystem = FileSystem{}) && {
+    ConfigLoader&& fromFile(
+        const std::string& filePath, const FileSystem& fileSystem = FileSystem{}
+    ) && {
         checkIfSourceIsNotSpecified();
 
         if (not fileSystem.isFile(filePath))

@@ -10,7 +10,7 @@ using namespace kc::core;
 struct StringTests : ::testing::Test {};
 
 TEST_F(StringTests, givenStringToStripWithoutCharactersToStrip_whenStriping_shouldNotChangeString) {
-    std::string str = "abcdefg";
+    std::string str  = "abcdefg";
     std::string copy = str;
 
     strip(str, '_');
@@ -33,16 +33,16 @@ TEST_F(StringTests, givenPathWithoutSlash_whenExtractingName_shouldReturnOrigina
 }
 
 TEST_F(StringTests, givenPath_whenExtractingName_shouldReturnName) {
-    const std::string fileName = "fileName";
+    const std::string fileName  = "fileName";
     const std::string extension = ".txt";
-    std::string path = "/usr/local/" + fileName + extension;
+    std::string path            = "/usr/local/" + fileName + extension;
 
     EXPECT_EQ(extractNameFromPath(path, ExtractingMode::withExtension), fileName + extension);
     EXPECT_EQ(extractNameFromPath(path, ExtractingMode::withoutExtension), fileName);
 }
 
 TEST_F(StringTests, givenStringToStrip_whenStriping_shouldStrip) {
-    std::string str = "abcde___";
+    std::string str      = "abcde___";
     std::string expected = "abcde";
 
     strip(str, '_');
@@ -50,9 +50,10 @@ TEST_F(StringTests, givenStringToStrip_whenStriping_shouldStrip) {
     EXPECT_EQ(str, expected);
 }
 
-TEST_F(StringTests,
-       givenStringToStripWithCharacterInside_whenStriping_shouldNotStripInsideCharacter) {
-    std::string str = "a_bcde___";
+TEST_F(
+    StringTests, givenStringToStripWithCharacterInside_whenStriping_shouldNotStripInsideCharacter
+) {
+    std::string str      = "a_bcde___";
     std::string expected = "a_bcde";
 
     strip(str, '_');
@@ -81,8 +82,9 @@ TEST_F(StringTests, givenStringWithDelimiter_whenSplitting_shouldSplitCorrectly)
     const char delimiter = '-';
 
     std::string stringToSplit =
-        std::accumulate(parts.begin(), parts.end(), std::string{},
-                        [&](auto pre, auto word) { return pre + word + delimiter; });
+        std::accumulate(parts.begin(), parts.end(), std::string{}, [&](auto pre, auto word) {
+            return pre + word + delimiter;
+        });
 
     stringToSplit.pop_back();
 
@@ -119,8 +121,8 @@ TEST_F(StringTests, givenStringWithDelimiterAtTheEnd_shouldReturnSingleElement) 
 
 TEST_F(StringTests, givenStringWithMultipleDelimiter_shouldReturnCorrectElements) {
     const char delimiter = '_';
-    std::string a = "aa";
-    std::string b = "bb";
+    std::string a        = "aa";
+    std::string b        = "bb";
 
     std::string stringToSplit = a + delimiter + delimiter + b;
 

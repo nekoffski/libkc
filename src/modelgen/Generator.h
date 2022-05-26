@@ -36,8 +36,9 @@ class Generator {
 
     std::string generateEnumToString(const Enum& enumerate);
 
-    std::string determineFieldType(const std::string& fieldDescription,
-                                   std::ostringstream* headers = nullptr);
+    std::string determineFieldType(
+        const std::string& fieldDescription, std::ostringstream* headers = nullptr
+    );
 
     JsonLib m_jsonLib;
 

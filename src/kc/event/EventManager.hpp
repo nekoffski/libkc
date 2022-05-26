@@ -19,13 +19,11 @@ class EventManager : public core::Singleton<EventManager> {
 
     int getObserversCount() const;
 
-    template <typename Event, typename... Args>
-    void emitEvent(Args&&... args) {
+    template <typename Event, typename... Args> void emitEvent(Args&&... args) {
         emitEvent(Event{std::forward<Args>(args)...});
     }
 
-    template <typename Event>
-    void emitEvent(const Event& event) {
+    template <typename Event> void emitEvent(const Event& event) {
         EventWrapper eventWrapper{event};
 
         for (auto& observer : m_observers) {

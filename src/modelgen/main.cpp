@@ -43,15 +43,16 @@ int main(int argc, char** argv) {
         auto tokens = Tokenizer{}.tokenize(core::split(fileContent, '\n'));
 
         auto structures = Parser{tokens}.parseTokens();
-        auto files = Generator{JsonLib::libkc}.generateCode(structures);
+        auto files      = Generator{JsonLib::libkc}.generateCode(structures);
 
         std::cout << "\n\n$ Generated files:\n\n";
 
         for (auto& [fileContent, fileName] : files) {
             std::cout << "[" << fileName << "]\n\n" << fileContent;
 
-            fs.writeFile(output + "/" + fileName, fileContent,
-                         core::FileSystem::WritePolicy::override);
+            fs.writeFile(
+                output + "/" + fileName, fileContent, core::FileSystem::WritePolicy::override
+            );
         }
 
     } catch (ModelGeneratorError& error) {

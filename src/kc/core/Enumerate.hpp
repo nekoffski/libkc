@@ -8,8 +8,7 @@ namespace kc::core {
 
 namespace detail {
 
-template <typename T>
-class EnumerateRange {
+template <typename T> class EnumerateRange {
    public:
     using ValueIterator = get_iterator_type<T>;
     using Value = std::tuple<std::size_t, typename std::iterator_traits<ValueIterator>::reference>;
@@ -58,8 +57,7 @@ class EnumerateRange {
 };
 }  // namespace detail
 
-template <typename T>
-detail::EnumerateRange<T> enumerate(T& container) {
+template <typename T> detail::EnumerateRange<T> enumerate(T& container) {
     return detail::EnumerateRange<T>{container};
 }
 

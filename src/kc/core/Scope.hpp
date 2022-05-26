@@ -7,8 +7,7 @@
 
 namespace kc::core::detail {
 
-template <typename Callback, typename Condition>
-class ScopeGuard {
+template <typename Callback, typename Condition> class ScopeGuard {
    public:
     explicit ScopeGuard(Callback&& callback, Condition&& condition)
         : m_callback(std::move(callback)), m_condition(std::move(condition)) {}
@@ -29,10 +28,12 @@ struct _ScopeGuardOnExitCondition {
 };
 
 template <typename Callback>
-ScopeGuard<Callback, decltype(_ScopeGuardOnExitCondition{})> operator+(_ScopeGuardOnExit,
-                                                                       Callback&& callback) {
+ScopeGuard<Callback, decltype(_ScopeGuardOnExitCondition{})> operator+(
+    _ScopeGuardOnExit, Callback&& callback
+) {
     return ScopeGuard<Callback, decltype(_ScopeGuardOnExitCondition{})>(
-        std::forward<Callback>(callback), _ScopeGuardOnExitCondition{});
+        std::forward<Callback>(callback), _ScopeGuardOnExitCondition{}
+    );
 }
 
 enum class _ScopeGuardOnFailure {};
@@ -44,10 +45,12 @@ struct _ScopeGuardOnFailureCondition {
 };
 
 template <typename Callback>
-ScopeGuard<Callback, decltype(_ScopeGuardOnFailureCondition{})> operator+(_ScopeGuardOnFailure,
-                                                                          Callback&& callback) {
+ScopeGuard<Callback, decltype(_ScopeGuardOnFailureCondition{})> operator+(
+    _ScopeGuardOnFailure, Callback&& callback
+) {
     return ScopeGuard<Callback, decltype(_ScopeGuardOnFailureCondition{})>(
-        std::forward<Callback>(callback), _ScopeGuardOnFailureCondition{});
+        std::forward<Callback>(callback), _ScopeGuardOnFailureCondition{}
+    );
 }
 
 enum class _ScopeGuardOnSuccess {};
@@ -59,10 +62,12 @@ struct _ScopeGuardOnSuccessCondition {
 };
 
 template <typename Callback>
-ScopeGuard<Callback, decltype(_ScopeGuardOnSuccessCondition{})> operator+(_ScopeGuardOnSuccess,
-                                                                          Callback&& callback) {
+ScopeGuard<Callback, decltype(_ScopeGuardOnSuccessCondition{})> operator+(
+    _ScopeGuardOnSuccess, Callback&& callback
+) {
     return ScopeGuard<Callback, decltype(_ScopeGuardOnSuccessCondition{})>(
-        std::forward<Callback>(callback), _ScopeGuardOnSuccessCondition{});
+        std::forward<Callback>(callback), _ScopeGuardOnSuccessCondition{}
+    );
 }
 
 }  // namespace kc::core::detail

@@ -28,8 +28,8 @@ struct TaskExecutor {
     };
 
     virtual void runAsync(std::function<void()>&& task) = 0;
-    virtual void waitForAll() = 0;
-    virtual void clearFinishedTasks() = 0;
+    virtual void waitForAll()                           = 0;
+    virtual void clearFinishedTasks()                   = 0;
 };
 
 class AsyncFutureTaskExecutor : public TaskExecutor {

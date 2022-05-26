@@ -10,14 +10,14 @@ namespace kc::async {
 struct Socket {
     Socket() = default;
 
-    Socket(const Socket&) = delete;
+    Socket(const Socket&)            = delete;
     Socket& operator=(const Socket&) = delete;
 
-    using ReadCallback = std::function<void(Error, std::string message, unsigned int)>;
+    using ReadCallback  = std::function<void(Error, std::string message, unsigned int)>;
     using WriteCallback = std::function<void(Error, unsigned int)>;
 
     virtual void asyncRead(ReadCallback&&, unsigned int bytesToRead) = 0;
-    virtual void asyncWrite(const std::string&, WriteCallback&&) = 0;
+    virtual void asyncWrite(const std::string&, WriteCallback&&)     = 0;
 
     virtual void close() = 0;
 };
@@ -26,7 +26,7 @@ class AsioSocket : public Socket {
    public:
     explicit AsioSocket(boost::asio::ip::tcp::socket socket) : m_socket(std::move(socket)) {}
 
-    AsioSocket(AsioSocket&&) = default;
+    AsioSocket(AsioSocket&&)            = default;
     AsioSocket& operator=(AsioSocket&&) = default;
 
     void asyncRead(Socket::ReadCallback&& readCallback, unsigned int bytesToRead) override {

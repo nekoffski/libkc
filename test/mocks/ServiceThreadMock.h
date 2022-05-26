@@ -9,6 +9,7 @@ struct ServiceThreadMock : public kc::service::ServiceThread {
 };
 
 struct ServiceThreadFactoryMock : public kc::service::ServiceThread::Factory {
-    MOCK_METHOD(std::unique_ptr<kc::service::ServiceThread>, create, (kc::service::ServiceBase*),
-                (override));
+    MOCK_METHOD(
+        std::unique_ptr<kc::service::ServiceThread>, create, (kc::service::ServiceBase*), (override)
+    );
 };

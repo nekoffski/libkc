@@ -6,8 +6,7 @@
 
 namespace kc::async {
 
-template <typename T>
-class Future {
+template <typename T> class Future {
    public:
     explicit Future(std::future<T>&& future) : m_future(std::move(future)) {}
 
@@ -23,18 +22,11 @@ class Future {
     std::future<T> m_future;
 };
 
-template <typename... Args>
-void wait(Args&&... args) {
-    (wait(args), ...);
-}
+template <typename... Args> void wait(Args&&... args) { (wait(args), ...); }
 
-template <typename T>
-void wait(Future<T>& future) {
-    future.wait();
-}
+template <typename T> void wait(Future<T>& future) { future.wait(); }
 
-template <typename T>
-void wait(std::vector<Future<T>>& futures) {
+template <typename T> void wait(std::vector<Future<T>>& futures) {
     for (auto& future : futures) future.wait();
 }
 

@@ -36,7 +36,7 @@ TEST(UtilsTests, whenGettingRandomInt_shouldReturnRandomNumbersInRange) {
 }
 
 TEST(UtilsTests, whenGeneratingRandomVectorInHemisphere_shouldBeInHemisphere) {
-    auto n = glm::normalize(glm::vec3{2.5f, 1.0f, 3.0f});
+    auto n                          = glm::normalize(glm::vec3{2.5f, 1.0f, 3.0f});
     static constexpr int iterations = 1000;
 
     REPEAT(iterations) {

@@ -25,13 +25,16 @@ TEST_F(EventWrapperTests, givenHandledEventWrapper_whenCheckingIfIsHandled_shoul
     EXPECT_TRUE(eventWrapper.isHandled());
 }
 
-TEST_F(EventWrapperTests,
-       givenEventWrapper_whenCheckingIfTypeIsCorrectWithCorrectType_shouldReturnTrue) {
+TEST_F(
+    EventWrapperTests, givenEventWrapper_whenCheckingIfTypeIsCorrectWithCorrectType_shouldReturnTrue
+) {
     EXPECT_TRUE(eventWrapper.is<Event>());
 }
 
-TEST_F(EventWrapperTests,
-       givenEventWrapper_whenCheckingIfTypeIsCorrectWithInorrectType_shouldReturnFalse) {
+TEST_F(
+    EventWrapperTests,
+    givenEventWrapper_whenCheckingIfTypeIsCorrectWithInorrectType_shouldReturnFalse
+) {
     EXPECT_FALSE(eventWrapper.is<int>());
 }
 

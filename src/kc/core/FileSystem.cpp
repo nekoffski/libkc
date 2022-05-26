@@ -17,8 +17,8 @@ std::vector<std::string> FileSystem::listDirectory(const Path& path) const {
     return entries;
 }
 
-void FileSystem::writeFile(const Path& path, const std::string& buffer,
-                           WritePolicy writePolicy) const {
+void FileSystem::writeFile(const Path& path, const std::string& buffer, WritePolicy writePolicy)
+    const {
     auto mode = writePolicy == WritePolicy::override ? std::ios::trunc : std::ios::app;
 
     std::ofstream fileStream;

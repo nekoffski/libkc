@@ -6,7 +6,7 @@
 
 using namespace kc::math;
 
-static const glm::vec3 origin = {1.0f, 2.0f, 3.0f};
+static const glm::vec3 origin    = {1.0f, 2.0f, 3.0f};
 static const glm::vec3 direction = {11.0f, 2.3f, 3.1f};
 
 TEST(RayTests, givenRay_whenGettingOrigin_shouldReturnCorrectValue) {
