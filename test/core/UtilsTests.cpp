@@ -64,3 +64,10 @@ TEST_F(UtilsTests, givenVectorOfConstCharPtr_whenJoining_shouldReturnCorrectStri
 
     EXPECT_EQ(kc::core::join(values, ","), expectedValue);
 }
+
+TEST_F(UtilsTests, givenVectorOfStrings_whenJoining_shouldReturnCorrectString) {
+    std::vector<std::string> values = {"aa", "bb", "cc"};
+    std::string expectedValue       = "aa,bb,cc";
+
+    EXPECT_EQ(kc::core::join(values, ","), expectedValue);
+}
