@@ -20,6 +20,8 @@ template <typename T> class LocalPtr {
         m_pointer = new ((T*)m_buffer.data()) T(std::forward<Args>(args)...);
     }
 
+    T* get() { return m_pointer; }
+
     LocalPtr(const LocalPtr&)            = delete;
     LocalPtr& operator=(const LocalPtr&) = delete;
 
