@@ -40,6 +40,8 @@ std::string Generator::determineFieldType(
         if (headers != nullptr && m_customTypes.contains(type))
             if (m_customTypes[type] == Type::model) *headers << "#include \"" << type << ".hpp\"\n";
 
+        if (Model::allowedTypes.contains(type)) type = Model::allowedTypes.at(type);
+
         return "std::vector<" + type + ">";
     }
 
@@ -59,18 +61,11 @@ std::string Generator::generateModel(const Model& model) {
 
     headers << "#pragma once\n\n"
             << "#include \"kc/model/Model.h\"\n"
-            << "#include \"kc/json/Utils.hpp\"\n"
-            // TODO: this should happen on a condition
-            << "#include \"kc/event/Event.h\"\n\n";
+            << "#include \"kc/json/Utils.hpp\"\n";
 
     data << "struct " << model.name << " : public kc::model::Model<" << model.name << ">";
 
-    if (model.isMessage)
-        data << ",\n" << spaces(8) << "public kc::event::EventBase<" << model.name << "> ";
-    else
-        data << ' ';
-
-    data << "{\n";
+    data << " {\n";
 
     data << generateConstructor(model);
 
@@ -143,11 +138,23 @@ std::string Generator::generateModelFromJson(const Model& model) {
         if (field.type[0] == '[') {
             auto fieldType = field.type.substr(1, field.type.length() - 2);
 
+            const auto generateGetter = [&]() -> std::string {
+                if (Model::allowedTypes.contains(fieldType)) {
+                    if (fieldType == "str")
+                        return "node.asString()";
+                    else if (fieldType == "int")
+                        return "node.asInt()";
+                } else {
+                    return fieldType + "::fromJson(node)";
+                }
+                return "Unknown";
+            };
+
             data << spaces(8)
                  << "for (auto& node : kc::json::fieldFrom<ModelError>(json).withName(\""
                  << field.name << "\").asArray().get())\n"
-                 << spaces(12) << "model." << field.name << ".push_back(" << fieldType
-                 << "::fromJson(node));\n";
+                 << spaces(12) << "model." << field.name << ".push_back(" << generateGetter()
+                 << ");\n";
 
         } else {
             data << spaces(8) << "model." << field.name << " = " << generateGetter(field);

@@ -17,7 +17,7 @@ using namespace core;
 template <typename Error>
 requires std::derived_from<Error, core::ErrorBase>
 void kc_assert(bool condition, const std::string& errorMessage) {
-    if (not condition) throw Error{errorMessage};
+    if (not condition) throw Error(errorMessage);
 }
 
 template <typename Error, typename T>

@@ -21,8 +21,8 @@ std::string toString(TokenType tokenType) {
             return "[OpeningBrace]";
         case TokenType::closingBrace:
             return "[ClosingBrace]";
-        case TokenType::coma:
-            return "[Coma]";
+        case TokenType::semicolon:
+            return "[Semicolon]";
         case TokenType::constraint:
             return "[Constraint]";
     }
@@ -47,11 +47,12 @@ Tokenizer::Tokens Tokenizer::tokenize(const std::vector<std::string>& file) {
             auto& lastToken = tokens.back();
             const auto n    = lastToken.value.size();
 
-            if (n != 1 && (lastToken.value[n - 1] == ':' || lastToken.value[n - 1] == ',')) {
-                std::cout << "Coma or colon, processing\n";
+            if (n != 1 && (lastToken.value[n - 1] == ':' || lastToken.value[n - 1] == ';')) {
+                std::cout << "Semicolon or colon, processing\n";
                 tokens.push_back(parseToken(std::string{lastToken.value[n - 1]}));
-                lastToken.value.pop_back();
-                std::cout << lastToken.value << '\n';
+
+                tokens[tokens.size() - 2].value.pop_back();
+                std::cout << tokens[tokens.size() - 2].value << '\n';
             }
         }
     }
@@ -68,8 +69,8 @@ Token Tokenizer::parseToken(const std::string& rawToken) {
         return Token{TokenType::closingBrace, "}"};
     } else if (rawToken == header) {
         return Token{TokenType::header, header};
-    } else if (rawToken == ",") {
-        return Token{TokenType::coma, ","};
+    } else if (rawToken == ";") {
+        return Token{TokenType::semicolon, ""};
     } else if (rawToken == ":") {
         return Token{TokenType::colon, ":"};
     }
@@ -83,7 +84,7 @@ bool Tokenizer::isTokenConstraint(const std::string& rawToken) { return false; }
 void Tokenizer::validateString(const std::string& string) {
     static auto isCharacterAllowed = [](const char character) {
         static const std::string allowedCharacters =
-            "abcdefghijklmnopqrstuwzxvABCDEFGHIJKLMNOPQRSTUWZXV,:[]";
+            "abcdefghijklmnopqrstuwzxyvABCDEFGHIJKLMNOPQRSTUWZXV:[]_;";
 
         return std::ranges::any_of(allowedCharacters, [&](const char allowedChar) {
             return character == allowedChar;

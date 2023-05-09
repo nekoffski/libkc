@@ -6,6 +6,7 @@ namespace kc::json {
 
 std::string toString(const Node& node) {
     Json::StreamWriterBuilder streamWriter;
+    streamWriter["indentation"] = "";
 
     return Json::writeString(streamWriter, node);
 }

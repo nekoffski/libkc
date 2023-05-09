@@ -3,6 +3,8 @@
 #include "Core.h"
 #include "kc/core/Log.h"
 
+#include <iostream>
+
 Parser::Parser(const Tokenizer::Tokens& tokens)
     : m_currentIndex(0), m_tokensSize(tokens.size()), m_tokens(tokens) {}
 
@@ -57,7 +59,9 @@ Model::Field Parser::processModelField() {
     auto name = getNextToken(TokenType::string)->value;
     expectToken(TokenType::colon);
     auto typeDescription = getNextToken(TokenType::string)->value;
-    expectToken(TokenType::coma);
+    expectToken(TokenType::semicolon);
+
+    std::cout << "kcz" << typeDescription << '\n';
 
     return Model::Field{name, typeDescription};
 }
@@ -78,7 +82,7 @@ void Parser::processEnum() {
 
 std::string Parser::processEnumField() {
     auto value = getNextToken(TokenType::string)->value;
-    expectToken(TokenType::coma);
+    expectToken(TokenType::semicolon);
 
     return value;
 }

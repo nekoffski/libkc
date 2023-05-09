@@ -9,7 +9,7 @@ enum class TokenType : unsigned char {
     colon,
     openingBrace,
     closingBrace,
-    coma,
+    semicolon,
     constraint
 };
 
