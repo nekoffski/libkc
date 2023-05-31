@@ -171,7 +171,7 @@ std::string Generator::generateModelFromJson(const Model& model) {
                 data << spaces(8) << "for (const auto& member : json.getMemberNames()) {\n";
                 data << spaces(12) << "const auto& node = json[member];\n";
                 data << spaces(12) << "model." << field.name
-                     << "[member] = " << generateGetter(types[1]) << ";\n ";
+                     << "[member] = " << generateGetter(types[1]) << ";\n";
                 data << spaces(8) << "}\n";
 
             } else {
