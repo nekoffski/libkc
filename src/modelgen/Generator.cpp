@@ -4,7 +4,11 @@
 #include <ranges>
 #include <sstream>
 
+#include <boost/algorithm/string.hpp>
+
 #include "Core.h"
+
+#include "kc/core/Utils.hpp"
 #include "kc/core/Enumerate.hpp"
 
 Generator::Generator(JsonLib jsonLib) : m_jsonLib(jsonLib) {}
@@ -34,25 +38,36 @@ std::string Generator::determineFieldType(
     if (Model::allowedTypes.contains(typeDescription))
         return Model::allowedTypes.at(typeDescription);
 
-    if (typeDescription[0] == '[') {
-        auto type = typeDescription.substr(1, typeDescription.length() - 2);
-
-        if (headers != nullptr && m_customTypes.contains(type))
-            if (m_customTypes[type] == Type::model) *headers << "#include \"" << type << ".hpp\"\n";
-
-        if (Model::allowedTypes.contains(type)) type = Model::allowedTypes.at(type);
-
-        return "std::vector<" + type + ">";
-    }
-
-    if (headers != nullptr && m_customTypes.contains(typeDescription)) {
-        if (m_customTypes[typeDescription] == Type::model)
+    if (m_customTypes.contains(typeDescription)) {
+        if (headers != nullptr && m_customTypes[typeDescription] == Type::model)
             *headers << "#include \"" << typeDescription << ".hpp\"\n";
-
-        return typeDescription;
+    } else if (typeDescription[0] != '[') {
+        throw ModelGeneratorError{"Unknown type: " + typeDescription};
     }
 
-    throw ModelGeneratorError{"Unknown type: " + typeDescription};
+    auto type = typeDescription.substr(1, typeDescription.length() - 2);
+
+    const auto deduceType = [&](const std::string& type) -> std::string {
+        if (Model::allowedTypes.contains(type)) return Model::allowedTypes.at(type);
+        if (m_customTypes.contains(type)) return type;
+
+        return "Unknown";
+    };
+
+    if (typeDescription[0] == '[') {
+        if (boost::algorithm::contains(typeDescription, ",")) {
+            const auto types = kc::core::split(type, ',');
+
+            if (headers) *headers << "#include <unordered_map>\n";
+
+            return "std::unordered_map<" + deduceType(types[0]) + ", " + deduceType(types[1]) + ">";
+        } else {
+            if (headers) *headers << "#include <vector>\n";
+            return "std::vector<" + deduceType(type) + ">";
+        }
+    }
+
+    return typeDescription;
 }
 
 std::string Generator::generateModel(const Model& model) {
@@ -138,7 +153,7 @@ std::string Generator::generateModelFromJson(const Model& model) {
         if (field.type[0] == '[') {
             auto fieldType = field.type.substr(1, field.type.length() - 2);
 
-            const auto generateGetter = [&]() -> std::string {
+            const auto generateGetter = [](const std::string& fieldType) -> std::string {
                 if (Model::allowedTypes.contains(fieldType)) {
                     if (fieldType == "str")
                         return "node.asString()";
@@ -150,11 +165,22 @@ std::string Generator::generateModelFromJson(const Model& model) {
                 return "Unknown";
             };
 
-            data << spaces(8)
-                 << "for (auto& node : kc::json::fieldFrom<ModelError>(json).withName(\""
-                 << field.name << "\").asArray().get())\n"
-                 << spaces(12) << "model." << field.name << ".push_back(" << generateGetter()
-                 << ");\n";
+            if (boost::algorithm::contains(field.type, ",")) {
+                const auto types = kc::core::split(fieldType, ',');
+
+                data << spaces(8) << "for (const auto& member : json.getMemberNames()) {\n";
+                data << spaces(12) << "const auto& node = json[member];\n";
+                data << spaces(12) << "model." << field.name
+                     << "[member] = " << generateGetter(types[1]) << ";\n ";
+                data << spaces(8) << "}\n";
+
+            } else {
+                data << spaces(8)
+                     << "for (auto& node : kc::json::fieldFrom<ModelError>(json).withName(\""
+                     << field.name << "\").asArray().get())\n"
+                     << spaces(12) << "model." << field.name << ".push_back("
+                     << generateGetter(fieldType) << ");\n";
+            }
 
         } else {
             data << spaces(8) << "model." << field.name << " = " << generateGetter(field);
@@ -177,14 +203,28 @@ std::string Generator::generateModelToJson(const Model& model) {
             std::cout << "Processing field: " << type << "/" << name << '\n';
 
             if (type[0] == '[') {
-                data << spaces(8) << "json.beginArray(\"" << name << "\");\n"
-                     << spaces(8) << "for (const auto& item : this->" << name << ")\n"
-                     << spaces(12) << "json.addField(item";
+                auto strippedType = type.substr(1, type.length() - 2);
 
-                if (not Model::allowedTypes.contains(type.substr(1, type.length() - 2)))
-                    data << ".toJson()";
+                if (boost::algorithm::contains(type, ",")) {
+                    const auto types = kc::core::split(strippedType, ',');
 
-                data << ");\n" << spaces(8) << "json.endArray();\n";
+                    data << spaces(8) << "json.beginObject(\"" << name << "\");\n"
+                         << spaces(8) << "for (const auto& [key, value] : this->" << name << ")\n"
+                         << spaces(12) << "json.addField(key, value";
+
+                    if (not Model::allowedTypes.contains(types[1])) data << ".toJson()";
+
+                    data << ");\n" << spaces(8) << "json.endObject();\n";
+
+                } else {
+                    data << spaces(8) << "json.beginArray(\"" << name << "\");\n"
+                         << spaces(8) << "for (const auto& item : this->" << name << ")\n"
+                         << spaces(12) << "json.addField(item";
+
+                    if (not Model::allowedTypes.contains(strippedType)) data << ".toJson()";
+
+                    data << ");\n" << spaces(8) << "json.endArray();\n";
+                }
 
             } else {
                 data << spaces(8) << "json.addField(\"" << name << "\", "

@@ -84,7 +84,7 @@ bool Tokenizer::isTokenConstraint(const std::string& rawToken) { return false; }
 void Tokenizer::validateString(const std::string& string) {
     static auto isCharacterAllowed = [](const char character) {
         static const std::string allowedCharacters =
-            "abcdefghijklmnopqrstuwzxyvABCDEFGHIJKLMNOPQRSTUWZXV:[]_;";
+            "abcdefghijklmnopqrstuwzxyvABCDEFGHIJKLMNOPQRSTUWZXV:[]_,;";
 
         return std::ranges::any_of(allowedCharacters, [&](const char allowedChar) {
             return character == allowedChar;

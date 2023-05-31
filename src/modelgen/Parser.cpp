@@ -61,8 +61,6 @@ Model::Field Parser::processModelField() {
     auto typeDescription = getNextToken(TokenType::string)->value;
     expectToken(TokenType::semicolon);
 
-    std::cout << "kcz" << typeDescription << '\n';
-
     return Model::Field{name, typeDescription};
 }
 
