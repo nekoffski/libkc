@@ -32,6 +32,25 @@ TEST_F(TaskSchedulerTests, givenTaskScheduler_whenSchedulingTask_shouldExecute) 
     EXPECT_TRUE(executed);
 };
 
+TEST_F(TaskSchedulerTests, givenTaskScheduler_whenSchedulingTaskWithCallback_shouldExecute) {
+    bool executed         = false;
+    bool callbackExecuted = false;
+    int value             = 5;
+
+    auto task = ts.callAsync([&executed, value]() {
+                      executed = true;
+                      return value;
+                  }).then([&callbackExecuted, value](int argument) {
+        EXPECT_EQ(value, argument);
+        callbackExecuted = true;
+    });
+
+    task.wait();
+
+    EXPECT_TRUE(executed);
+    EXPECT_TRUE(callbackExecuted);
+};
+
 TEST_F(TaskSchedulerTests, givenTaskScheduler_whenSchedulingTwoTasks_shouldExecute) {
     bool executed  = false;
     bool executed2 = false;
