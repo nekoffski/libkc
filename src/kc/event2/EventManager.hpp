@@ -19,25 +19,17 @@ class EventManager : public core::Singleton<EventManager> {
     using GenericHandler = std::function<void(EventStorageBase*)>;
 
    public:
-    explicit EventManager(const int eventPoolSize = defaultEventPoolSize) {
-        m_events.reserve(eventPoolSize);
-    }
+    explicit EventManager(const int eventPoolSize = defaultEventPoolSize);
 
-    template <typename T, typename Callback> void on(Callback&& callback) {
+    template <typename T, typename Callback> EventManager& on(Callback&& callback) {
         const auto typeIndex = std::type_index(typeid(T));
         ASSERT(not m_handlers.contains(typeIndex), "Handler already registered");
         m_handlers[typeIndex] = [callback](EventStorageBase* event) { callback(event->as<T>()); };
+
+        return *this;
     }
 
-    void dispatch() {
-        for (auto& event : m_events) {
-            if (const auto handler = m_handlers.find(event->getTypeIndex());
-                handler != m_handlers.end()) {
-                std::invoke(handler->second, event.get());
-            }
-        }
-        m_events.clear();
-    }
+    void dispatch();
 
     template <typename T, typename... Args> void emit(Args&&... args) {
         m_events.push_back(std::make_unique<EventStorage<T>>(std::forward<Args>(args)...));
