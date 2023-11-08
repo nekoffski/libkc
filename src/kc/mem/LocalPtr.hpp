@@ -22,6 +22,8 @@ template <typename T> class LocalPtr {
 
     T* get() { return m_pointer; }
 
+    operator bool() const { return m_pointer != nullptr; }
+
     LocalPtr(const LocalPtr&)            = delete;
     LocalPtr& operator=(const LocalPtr&) = delete;
 
