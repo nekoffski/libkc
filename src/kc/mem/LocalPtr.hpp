@@ -21,6 +21,7 @@ template <typename T> class LocalPtr {
     }
 
     T* get() { return m_pointer; }
+    const T* get() const { return m_pointer; }
 
     operator bool() const { return m_pointer != nullptr; }
 
