@@ -16,16 +16,19 @@ class TaskScheduler {
     using Task = std::function<void()>;
 
     class TaskQueue : public containers::ThreadSafeQueue<Task> {
-       public:
-        template <typename T, typename F> std::optional<Future<T>> tryPush(F&& task) {
+    public:
+        template <typename T, typename F>
+        std::optional<Future<T>> tryPush(F&& task) {
             auto context = std::make_shared<Context<T>>();
             {
                 std::unique_lock lock(m_mutex, std::try_to_lock);
                 if (not lock) return {};
 
-                m_buffer.push_back([promise = Promise<T>(context), f = std::move(task)]() mutable {
-                    handleTask(std::move(f), promise);
-                });
+                m_buffer.push_back(
+                  [promise = Promise<T>(context), f = std::move(task)]() mutable {
+                      handleTask(std::move(f), promise);
+                  }
+                );
             }
             m_ready.notify_one();
             return Future<T>(context);
@@ -35,16 +38,19 @@ class TaskScheduler {
             auto context = std::make_shared<Context<T>>();
             {
                 std::unique_lock lock(m_mutex);
-                m_buffer.push_back([promise = Promise<T>(context), f = std::move(task)]() mutable {
-                    handleTask(std::move(f), promise);
-                });
+                m_buffer.push_back(
+                  [promise = Promise<T>(context), f = std::move(task)]() mutable {
+                      handleTask(std::move(f), promise);
+                  }
+                );
             }
             m_ready.notify_one();
             return Future<T>(context);
         }
 
-       private:
-        template <typename F, typename T> static void handleTask(F&& task, Promise<T>& promise) {
+    private:
+        template <typename F, typename T>
+        static void handleTask(F&& task, Promise<T>& promise) {
             if constexpr (std::is_void_v<std::result_of_t<F()>>) {
                 task();
                 promise.setValue();
@@ -54,13 +60,13 @@ class TaskScheduler {
         }
     };
 
-   public:
+public:
     explicit TaskScheduler(int workerCount = std::thread::hardware_concurrency());
     ~TaskScheduler();
 
     int getWorkerCount() const;
 
-    template <typename F> auto callAsync(F&& f) -> Future<std::result_of_t<F()>> {
+    template <typename F> auto call(F&& f) -> Future<std::result_of_t<F()>> {
         using R                    = std::result_of_t<F()>;
         static constexpr int scale = 2;
 
@@ -75,7 +81,7 @@ class TaskScheduler {
         return m_queues[startQueueIndex % m_workerCount].push<R>(std::forward<F>(f));
     }
 
-   private:
+private:
     std::optional<Task> findTask(int workerIndex);
     void run(int index);
 

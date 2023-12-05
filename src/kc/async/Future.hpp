@@ -1,5 +1,8 @@
 #pragma once
 
+#include "kc/core/Log.h"
+
+#include <vector>
 #include <optional>
 #include <memory>
 #include <functional>
@@ -9,55 +12,78 @@
 
 namespace kc::async {
 
-class ContextBase {
+template <typename Callback> class ContextBase {
    public:
     explicit ContextBase() : m_valueSet(false) {}
 
-    bool hasValue() const { return m_valueSet; }
+    bool hasValue() const {
+        std::unique_lock lock(m_mutex);
+        return m_valueSet;
+    }
+
+    bool hasCallback() const {
+        std::unique_lock lock(m_mutex);
+        return m_callback.has_value();
+    }
 
    protected:
     std::atomic_bool m_valueSet;
-    std::mutex m_mutex;
+
+    mutable std::mutex m_mutex;
+
+    std::optional<Callback> m_callback;
 };
 
-template <typename T> class Context : public ContextBase {
+template <typename T> class Context : public ContextBase<std::function<void(T)>> {
     using Callback = std::function<void(T)>;
 
    public:
     void setValue(T&& t) {
-        std::unique_lock lock(m_mutex);
-        m_valueSet = true;
-        m_value    = std::forward<T>(t);
-        if (this->m_callback) std::invoke(this->m_callback.value(), std::move(m_value.value()));
+        std::unique_lock lock(this->m_mutex);
+        this->m_valueSet = true;
+        m_value          = std::forward<T>(t);
+        if (this->m_callback) executeCallback();
     }
 
     void setCallback(Callback&& callback) {
-        std::unique_lock lock(m_mutex);
-        m_callback = std::forward<Callback>(callback);
-        if (m_valueSet) std::invoke(m_callback.value(), std::move(m_value.value()));
+        std::unique_lock lock(this->m_mutex);
+        this->m_callback = std::forward<Callback>(callback);
+        if (this->m_valueSet) executeCallback();
     }
 
+    T getValue() {
+        std::unique_lock lock(this->m_mutex);
+
+        ASSERT(not m_valueConsumed, "Value has been already consumed");
+        m_valueConsumed = true;
+        return std::move(m_value.value());
+    }
+
+    std::atomic_bool m_valueConsumed = false;
     std::optional<T> m_value;
-    std::optional<Callback> m_callback;
+
+   private:
+    void executeCallback() {
+        m_valueConsumed = true;
+        std::invoke(this->m_callback.value(), std::move(m_value.value()));
+    }
 };
 
-template <> class Context<void> : public ContextBase {
+template <> class Context<void> : public ContextBase<std::function<void()>> {
     using Callback = std::function<void()>;
 
    public:
     void setValue() {
-        std::unique_lock lock(m_mutex);
-        m_valueSet = true;
+        std::unique_lock lock(this->m_mutex);
+        this->m_valueSet = true;
         if (this->m_callback) std::invoke(this->m_callback.value());
     }
 
     void setCallback(Callback&& callback) {
         std::unique_lock lock(m_mutex);
-        m_callback = std::forward<Callback>(callback);
-        if (m_valueSet) std::invoke(m_callback.value());
+        this->m_callback = std::forward<Callback>(callback);
+        if (this->m_valueSet) std::invoke(this->m_callback.value());
     }
-
-    std::optional<Callback> m_callback;
 };
 
 template <typename T> class Future {
@@ -72,8 +98,14 @@ template <typename T> class Future {
     }
 
     template <typename F> Future& then(F&& f) {
+        ASSERT(not m_context->hasCallback(), "Callback already set, cannot set it twice");
         m_context->setCallback(std::forward<F>(f));
         return *this;
+    }
+
+    T get() {
+        wait();
+        return m_context->getValue();
     }
 
    private:
@@ -83,8 +115,6 @@ template <typename T> class Future {
 template <typename T> class PromiseBase {
    public:
     explicit PromiseBase(std::shared_ptr<Context<T>> context) : m_context(std::move(context)) {}
-
-    template <typename F> void setCallback(F&& f) { m_context->setCallback(std::forward<F>(f)); }
 
    protected:
     std::shared_ptr<Context<T>> m_context;
@@ -105,5 +135,22 @@ template <> class Promise<void> : public PromiseBase<void> {
 };
 
 template <typename... F> void wait(Future<F>&... futures) { (futures.wait(), ...); }
+
+template <typename T> void wait(std::vector<Future<T>>& futures) {
+    for (auto& future : futures) future.wait();
+}
+
+template <typename T> class FutureCollection {
+   public:
+    explicit FutureCollection(std::vector<Future<T>>&& futures) : m_futures(std::move(futures)) {}
+
+    void wait() { async::wait(m_futures); }
+
+    FutureCollection(const FutureCollection& oth)            = delete;
+    FutureCollection& operator=(const FutureCollection& oth) = delete;
+
+   private:
+    std::vector<Future<T>> m_futures;
+};
 
 }  // namespace kc::async
