@@ -7,7 +7,9 @@
 #error "Please, provide compiled version of libsdplog"
 #endif
 
+#ifndef SPDLOG_ACTIVE_LEVEL
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
+#endif
 
 #include <spdlog/fmt/ostr.h>
 #include <spdlog/sinks/ostream_sink.h>
