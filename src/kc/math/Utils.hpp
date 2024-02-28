@@ -26,10 +26,10 @@ requires std::is_arithmetic_v<T> T toDegrees(T radians) {
 }
 
 template <typename T>
-requires std::is_floating_point_v<T> core::enable_if<std::is_floating_point_v<T>, T> random(
-    T min = static_cast<T>(0), T max = static_cast<T>(1)
-) {
-    static std::default_random_engine generator;
+requires std::is_floating_point_v<T> core::enable_if<std::is_floating_point_v<T>, T>
+  random(T min = static_cast<T>(0), T max = static_cast<T>(1)) {
+    static std::random_device r;
+    static std::default_random_engine generator{ r() };
 
     std::uniform_real_distribution<T> distribution(min, max);
     return distribution(generator);
@@ -37,18 +37,18 @@ requires std::is_floating_point_v<T> core::enable_if<std::is_floating_point_v<T>
 
 template <typename T>
 requires std::is_integral_v<T> core::enable_if<std::is_integral_v<T>, T> random(
-    T min = static_cast<T>(0), T max = static_cast<T>(1)
+  T min = static_cast<T>(0), T max = static_cast<T>(1)
 ) {
-    static std::default_random_engine generator;
+    static std::random_device r;
+    static std::default_random_engine generator{ r() };
 
     std::uniform_int_distribution<T> distribution(min, max);
     return distribution(generator);
 }
 
 template <typename T>
-requires std::is_floating_point_v<T> std::optional<std::pair<T, T>> solveQuadraticEquation(
-    T a, T b, T c
-) {
+requires std::is_floating_point_v<T> std::optional<std::pair<T, T>>
+  solveQuadraticEquation(T a, T b, T c) {
     T delta = b * b - 4 * a * c;
     if (delta < 0) {
         return {};
