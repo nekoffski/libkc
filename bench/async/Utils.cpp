@@ -6,7 +6,7 @@
 
 long doSomeWork(int j) {
     long result = 0;
-    for (int i = 0; i < 1024 * 8; ++i)
+    for (int i = 0; i < 1024 * 2; ++i)
         result += (i * i + std::pow(i, 3) / (std::sqrt(i))) + j;
     return result;
 }
