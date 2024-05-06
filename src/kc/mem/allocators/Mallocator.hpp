@@ -9,13 +9,13 @@
 
 namespace kc::mem {
 
-template <typename T> class Mallocator : public Allocator<T> {
+template <typename T> class Mallocator : public Allocator {
 public:
     using ValueType = T;
 
     explicit Mallocator() = default;
 
-    [[nodiscard]] T* allocate(std::size_t n) override {
+    [[nodiscard]] void* allocate(std::size_t n) override {
         if (n > std::numeric_limits<std::size_t>::max() / sizeof(T))
             throw std::bad_alloc();
 
@@ -27,16 +27,16 @@ public:
         throw std::bad_alloc();
     }
 
-    void deallocate(T* p, std::size_t n) noexcept override {
+    void deallocate(void* p, std::size_t n) noexcept override {
         report(p, n, false);
-        std::free(p);
+        std::free(static_cast<T*>(p));
     }
 
 private:
-    void report(T* p, std::size_t n, bool alloc = true) const {
+    void report(void* p, std::size_t n, bool alloc = true) const {
         LOG_INFO(
-          "{} '{}' bytes at '{}'", alloc ? "Allocating:" : "Deallocating:",
-          sizeof(T) * n, reinterpret_cast<void*>(p)
+          "{} '{}' bytes at '{}'",
+          alloc ? "Allocating:" : "Deallocating:", sizeof(T) * n, p
         );
     }
 };

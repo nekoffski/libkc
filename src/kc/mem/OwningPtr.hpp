@@ -9,13 +9,18 @@
 namespace kc::mem {
 
 template <typename T> class OwningPtr {
+    template <typename C> friend class OwningPtr;
+
 public:
     explicit OwningPtr() : m_allocator(nullptr), m_buffer(nullptr) {}
 
-    ~OwningPtr() noexcept {
+    ~OwningPtr() noexcept { clear(); }
+
+    void clear() {
         if (m_buffer) {
             m_buffer->~T();
             m_allocator->deallocate(m_buffer, 1);
+            m_buffer = nullptr;
         }
     }
 
@@ -28,7 +33,16 @@ public:
         return *this;
     }
 
-    OwningPtr(OwningPtr&& oth) { *this = std::move(oth); }
+    template <typename F>
+    requires std::derived_from<F, T> OwningPtr(OwningPtr<F>&& oth) {
+        m_buffer    = std::exchange(oth.m_buffer, nullptr);
+        m_allocator = std::exchange(oth.m_allocator, nullptr);
+    }
+
+    OwningPtr(OwningPtr&& oth) {
+        m_buffer    = std::exchange(oth.m_buffer, nullptr);
+        m_allocator = std::exchange(oth.m_allocator, nullptr);
+    }
 
     OwningPtr(const OwningPtr&)            = delete;
     OwningPtr& operator=(const OwningPtr&) = delete;
@@ -42,11 +56,11 @@ public:
     T* get() { return m_buffer; }
     const T* get() const { return m_buffer; }
 
-    Allocator<T>* getAllocator() { return m_allocator; }
+    Allocator* getAllocator() { return m_allocator; }
 
     template <typename C, typename... Args>
     requires std::constructible_from<C, Args...>
-    friend OwningPtr<C> makeOwningPtr(Allocator<C>* allocator, Args&&... args);
+    friend OwningPtr<C> makeOwningPtr(Allocator* allocator, Args&&... args);
 
     template <typename C, typename... Args>
     requires std::constructible_from<C, Args...>
@@ -55,21 +69,21 @@ public:
 private:
     template <typename... Args>
     requires std::constructible_from<T, Args...>
-    explicit OwningPtr(Allocator<T>* allocator, Args&&... args) :
+    explicit OwningPtr(Allocator* allocator, Args&&... args) :
         m_allocator(allocator) {
-        m_buffer = m_allocator->allocate(1);
+        m_buffer = static_cast<T*>(m_allocator->allocate(1));
         new (m_buffer) T(std::forward<Args>(args)...);
     }
 
     inline static Mallocator<T> s_defaultAllocator;
 
-    Allocator<T>* m_allocator;
+    Allocator* m_allocator;
     T* m_buffer;
 };
 
 template <typename C, typename... Args>
 requires std::constructible_from<C, Args...> OwningPtr<C> makeOwningPtr(
-  Allocator<C>* allocator, Args&&... args
+  Allocator* allocator, Args&&... args
 ) {
     return OwningPtr<C>{ allocator, std::forward<Args>(args)... };
 }
