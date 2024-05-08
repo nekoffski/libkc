@@ -8,6 +8,8 @@ using namespace testing;
 
 using namespace kc::mem;
 
+// todo: those tests are mess, refactor it nicely to use gmock correctly
+
 template <typename T> struct MockAllocator : public Allocator {
     MOCK_METHOD(void*, allocate, (std::size_t n), (override));
     MOCK_METHOD(void, deallocate, (void* ptr, std::size_t n), (noexcept, override));
@@ -17,6 +19,8 @@ struct Tester {
     Tester() { ++constructorCalls; }
     virtual ~Tester() { ++destructorCalls; }
 
+    virtual int foo() { return 1; }
+
     inline static uint16_t constructorCalls = 0;
     inline static uint16_t destructorCalls  = 0;
 };
@@ -24,6 +28,8 @@ struct Tester {
 struct Tester2 : public Tester {
     Tester2() { ++constructorCalls; }
     virtual ~Tester2() { ++destructorCalls; }
+
+    int foo() override { return 2; }
 
     inline static uint16_t constructorCalls = 0;
     inline static uint16_t destructorCalls  = 0;
@@ -47,6 +53,11 @@ struct OwningPtrTests : testing::Test {
     MockAllocator<Tester> allocator;
 };
 
+TEST_F(OwningPtrTests, whenCreatingFromNulltr_shouldNotHoldValue) {
+    OwningPtr<int> x = nullptr;
+    EXPECT_FALSE(x);
+}
+
 TEST_F(
   OwningPtrTests,
   givenDerivedClassPtr_whenCreatingAndDestroying_shouldCallCorrectDctorAndCtor
@@ -61,6 +72,8 @@ TEST_F(
         EXPECT_EQ(Tester2::destructorCalls, 0);
         EXPECT_EQ(Tester::constructorCalls, 1);
         EXPECT_EQ(Tester::destructorCalls, 0);
+
+        EXPECT_EQ(ptr->foo(), 2);
     }
     EXPECT_EQ(Tester2::constructorCalls, 1);
     EXPECT_EQ(Tester2::destructorCalls, 1);

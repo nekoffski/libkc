@@ -13,6 +13,7 @@ template <typename T> class OwningPtr {
 
 public:
     explicit OwningPtr() : m_allocator(nullptr), m_buffer(nullptr) {}
+    OwningPtr(std::nullptr_t) : OwningPtr() {}
 
     ~OwningPtr() noexcept { clear(); }
 
@@ -57,6 +58,8 @@ public:
     const T* get() const { return m_buffer; }
 
     Allocator* getAllocator() { return m_allocator; }
+
+    operator bool() const { return m_buffer != nullptr; }
 
     template <typename C, typename... Args>
     requires std::constructible_from<C, Args...>
