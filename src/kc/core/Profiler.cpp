@@ -2,13 +2,14 @@
 
 #include <algorithm>
 #include <fstream>
+#include <ranges>
 
 namespace kc::core {
 
 Profiler::Profiler(const Clock& clock) : m_clock(clock) {}
 
-Profiler::RegionTimer::RegionTimer(float& value, Clock* clock)
-    : m_value(value), m_clock(clock), m_startTime(m_clock->now()) {}
+Profiler::RegionTimer::RegionTimer(float& value, Clock* clock) :
+    m_value(value), m_clock(clock), m_startTime(m_clock->now()) {}
 
 Profiler::RegionTimer::~RegionTimer() { updateValue(); }
 
@@ -20,12 +21,14 @@ void Profiler::RegionTimer::updateValue() {
 }
 
 Profiler::RegionTimer Profiler::createRegionTimer(const std::string& name) {
-    return RegionTimer{m_times[name], &m_clock};
+    return RegionTimer{ m_times[name], &m_clock };
 }
 
-void Profiler::saveResults(const std::string& logDestination, const FileSystem& fileSystem) {
+void Profiler::saveResults(
+  const std::string& logDestination, const FileSystem& fileSystem
+) {
     fileSystem.writeFile(
-        logDestination + "logs.perf", formatTimers(), FileSystem::WritePolicy::override
+      logDestination + "logs.perf", formatTimers(), FileSystem::WritePolicy::override
     );
 }
 
@@ -41,7 +44,8 @@ std::string Profiler::formatTimers() {
     stream << std::fixed;
 
     for (const auto& [label, value] : m_times)
-        stream << std::setw(alignment) << std::left << label << " -> " << value << "s\n";
+        stream << std::setw(alignment) << std::left << label << " -> " << value
+               << "s\n";
 
     return stream.str();
 }

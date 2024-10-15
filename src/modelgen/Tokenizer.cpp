@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <ranges>
+#include <algorithm>
 
 #include "Core.h"
 #include "kc/core/Log.h"
@@ -32,7 +33,9 @@ std::string toString(TokenType tokenType) {
 Tokenizer::Tokens Tokenizer::tokenize(const std::vector<std::string>& file) {
     Tokens tokens;
 
-    static auto isLineNotEmpty = [](const std::string& line) -> bool { return not line.empty(); };
+    static auto isLineNotEmpty = [](const std::string& line) -> bool {
+        return not line.empty();
+    };
 
     for (auto& line : file | std::views::filter(isLineNotEmpty)) {
         std::cout << "Processing line: " << line << '\n';
@@ -47,9 +50,10 @@ Tokenizer::Tokens Tokenizer::tokenize(const std::vector<std::string>& file) {
             auto& lastToken = tokens.back();
             const auto n    = lastToken.value.size();
 
-            if (n != 1 && (lastToken.value[n - 1] == ':' || lastToken.value[n - 1] == ';')) {
+            if (n != 1
+                && (lastToken.value[n - 1] == ':' || lastToken.value[n - 1] == ';')) {
                 std::cout << "Semicolon or colon, processing\n";
-                tokens.push_back(parseToken(std::string{lastToken.value[n - 1]}));
+                tokens.push_back(parseToken(std::string{ lastToken.value[n - 1] }));
 
                 tokens[tokens.size() - 2].value.pop_back();
                 std::cout << tokens[tokens.size() - 2].value << '\n';
@@ -64,19 +68,19 @@ Token Tokenizer::parseToken(const std::string& rawToken) {
     static const std::string header = "#model";
 
     if (rawToken == "{") {
-        return Token{TokenType::openingBrace, "{"};
+        return Token{ TokenType::openingBrace, "{" };
     } else if (rawToken == "}") {
-        return Token{TokenType::closingBrace, "}"};
+        return Token{ TokenType::closingBrace, "}" };
     } else if (rawToken == header) {
-        return Token{TokenType::header, header};
+        return Token{ TokenType::header, header };
     } else if (rawToken == ";") {
-        return Token{TokenType::semicolon, ""};
+        return Token{ TokenType::semicolon, "" };
     } else if (rawToken == ":") {
-        return Token{TokenType::colon, ":"};
+        return Token{ TokenType::colon, ":" };
     }
 
     validateString(rawToken);
-    return Token{TokenType::string, rawToken};
+    return Token{ TokenType::string, rawToken };
 }
 
 bool Tokenizer::isTokenConstraint(const std::string& rawToken) { return false; }
@@ -84,7 +88,7 @@ bool Tokenizer::isTokenConstraint(const std::string& rawToken) { return false; }
 void Tokenizer::validateString(const std::string& string) {
     static auto isCharacterAllowed = [](const char character) {
         static const std::string allowedCharacters =
-            "abcdefghijklmnopqrstuwzxyvABCDEFGHIJKLMNOPQRSTUWZXV:[]_,;";
+          "abcdefghijklmnopqrstuwzxyvABCDEFGHIJKLMNOPQRSTUWZXV:[]_,;";
 
         return std::ranges::any_of(allowedCharacters, [&](const char allowedChar) {
             return character == allowedChar;
@@ -92,5 +96,5 @@ void Tokenizer::validateString(const std::string& string) {
     };
 
     if (not std::ranges::all_of(string, isCharacterAllowed))
-        throw SyntaxError{fmt::format("String {} is not valid", string)};
+        throw SyntaxError{ fmt::format("String {} is not valid", string) };
 }

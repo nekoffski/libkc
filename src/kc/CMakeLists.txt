@@ -1,4 +1,4 @@
-set (LIBS jsoncpp pthread spdlog stb)
+set (LIBS jsoncpp pthread spdlog stb fmt)
 
 file (GLOB_RECURSE SRC ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
