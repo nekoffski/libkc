@@ -7,15 +7,16 @@
 
 #include "kc/core/Log.h"
 #include "kc/core/Macros.h"
+#include "kc/core/String.h"
 
-namespace glm {
+DEFINE_TO_STRING(glm::vec2, vector) {
+    return fmt::format("[{}, {}]", vector.x, vector.y);
+}
 
-std::string toString(const glm::vec2& vector);
-std::string toString(const glm::vec3& vector);
-std::string toString(const glm::vec4& vector);
+DEFINE_TO_STRING(glm::vec3, vector) {
+    return fmt::format("[{}, {}, {}]", vector.x, vector.y, vector.z);
+}
 
-TO_STRING_STREAM(glm::vec2);
-TO_STRING_STREAM(glm::vec3);
-TO_STRING_STREAM(glm::vec4);
-
-}  // namespace glm
+DEFINE_TO_STRING(glm::vec4, vector) {
+    return fmt::format("[{}, {}, {}, {}]", vector.x, vector.y, vector.z, vector.w);
+}
